@@ -1,0 +1,179 @@
+/* general styling */
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+
+/* static fonts */
+@font-face {
+    font-family: 'Inter';
+    src: url('../assets/fonts/inter/static/Inter_18pt-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../assets/fonts/inter/static/Inter_18pt-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../assets/fonts/inter/static/Inter_18pt-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../assets/fonts/inter/static/Inter_18pt-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* variable fonts */
+@font-face {
+    font-family: 'Inter';
+    src: url('../assets/fonts/inter/Inter-Italic-VariableFont_opsz\,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../assets/fonts/inter/Inter-VariableFont_opsz\,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+}
+
+
+/* style guide */
+:root{
+    /* typography */
+    --sans-serif-preset-1-size: 1.5rem;
+    --sans-serif-preset-1-line-height: 1.2;
+    --sans-serif-preset-1-letter-spacing: -0.03125rem;
+    --sans-serif-preset-1-letter-weight: 700;
+    
+    --sans-serif-preset-2-size: 1.25rem;
+    --sans-serif-preset-2-line-height: 1.2;
+    --sans-serif-preset-2-letter-spacing: -0.03125rem;
+    --sans-serif-preset-2-letter-weight: 700;
+
+    --sans-serif-preset-3-size: 1rem;
+    --sans-serif-preset-3-line-height: 1.2;
+    --sans-serif-preset-3-letter-spacing: -0.01875rem;
+    --sans-serif-preset-3-letter-weight: 700;
+
+    --sans-serif-preset-4-size: 0.875rem;
+    --sans-serif-preset-4-line-height: 1.2;
+    --sans-serif-preset-4-letter-spacing: -0.0125rem;
+    --sans-serif-preset-4-letter-weight: 500;
+
+    --sans-serif-preset-5-size: 0.875rem;
+    --sans-serif-preset-5-line-height: 1.2;
+    --sans-serif-preset-5-letter-spacing: -0.0125rem;
+    --sans-serif-preset-5-letter-weight: 400;
+
+    --sans-serif-preset-6-size: 0.75rem;
+    --sans-serif-preset-6-line-height: 1.2;
+    --sans-serif-preset-6-letter-spacing: -0.0125rem;
+    --sans-serif-preset-6-letter-weight: 400;
+
+
+    /* spacing */
+    --spacing-0 : 0;
+    --spacing-025: 0.125rem;
+    --spacing-050: 0.25rem;
+    --spacing-075: 0.375;
+    --spacing-100: 0.5rem;
+    --spacing-150: 0.75rem;
+    --spacing-200: 1rem;
+    --spacing-250: 1.25rem;
+    --spacing-300: 1.5rem;
+    --spacing-400: 2rem;
+    --spacing-500: 2.5rem;
+    --spacing-600: 3rem;
+    --spacing-800: 4rem;
+    --spacing-1000: 5rem;
+
+    /* radius */
+    --radius-0:0;
+    --radius-4: 0.25rem;
+    --radius-6: 0.375rem;
+    --radius-8: 0.5rem;
+    --radius-10: 0.625rem;
+    --radius-12: 0.75rem;
+    --radius-16: 1rem;
+    --radius-20: 1.25rem;
+    --radius-24: 1.5rem;
+    --radius-full: 62.4375rem;
+
+    /* shadows */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 20px rgba(0,0,0,0.2);
+
+
+    /* colors */
+    --neutral-0: #ffffff;
+    --neutral-50: #f5f7fa;
+    --neutral-100: #f3f5f8;
+    --neutral-200: #e0e4ea;
+    --neutral-300: #cacfd8;
+    --neutral-400: #99a0ae;
+    --neutral-500: #717784;
+    --neutral-600: #525866;
+    --neutral-700: #2b303b;
+    --neutral-800: #232530;
+    --neutral-900: #191b25;
+    --neutral-950: #0e1218;
+
+    --blue-50: #ebf1ff;
+    --blue-500: #335cff;
+    --blue-700: #2547d0;
+
+    --green-100: #d1fbe9;
+    --green-500: #21c16b;
+
+    --red-100: #ffd5d8;
+    --red-500: #fb3748;
+
+
+    --background-color: var(--neutral-0);
+    --text-primary: var(--neutral-950);
+
+}
+
+
+html{
+    font-family: 'Inter';
+}
+
+@supports (font-variation-settings: normal){
+    html{
+        font-family: 'Inter';
+    }
+}
+
+body{
+    background-color: var(--background-color);
+    color: var(--text-primary);
+}
+
+
+.dark{
+    --background-color: var(--neutral-950);
+    --text-primary: var(--neutral-0);
+}
+
+/* prefers dark theme */
+@media (prefers-color-scheme: dark){
+    :root{
+        --background-color: var(--neutral-950);
+        --text-primary: var(--neutral-0);
+    }
+}

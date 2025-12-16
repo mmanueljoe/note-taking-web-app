@@ -5,27 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/favicon-32x32.png">
+  <link rel="stylesheet" href="../css/styles.css">
   
-  <title>Frontend Mentor | Note-taking web app</title>
+  <title>Note-taking web app | Auth</title>
 </head>
 <body>
+  <main class="auth-main" aria-label="Sign up">
+    <!--sign up-->
+    <div class="auth-container">
 
-  Create Your Account
-  Sign up to start organizing your notes and boost your productivity.
+      <section class="auth-section">
+        <img src="./assets/images/logo.svg" alt="logo" class="auth-logo">
+        <h1>Create Your Account</h1>
+        <p>Sign up to start organizing your notes and boost your productivity.</p>
 
-  Email Address
-  email@example.com
+        <form class="auth-form" aria-label="Sign up form">
 
-  Password
-  At least 8 characters
+          <div class="auth-form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="email@example.com" required>
+            <span class="auth-form-group-error">Please enter a valid email address</span>
+          </div>
 
-  Sign Up
+          <div class="auth-form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
 
-  Or log in with:
+            <!-- password visibility toggle -->
+             <button type="button" class="auth-form-group-toggle">
+              <span class="auth-form-group-toggle-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/>
+                </svg>
+              </span>
+             </button>
 
-  Google
+            <span class="auth-form-group-error">
+              <img src="./assets/images/error.svg" alt="error" class="auth-form-group-error-icon">         
+               At least 8 characters long.
+            </span>
+          </div>
 
-  Already have an account? Login
+          <button type="submit" class="auth-form-submit">Sign Up</button>
+        </form>
+        
+        <hr>
+        <div class="auth-form-footer">
+          <p>Or log in with:</p>
+          <button type="button" class="auth-form-google">
+            <img src="./assets/images/google.svg" alt="Google" class="auth-form-google-icon">
+            Google
+          </button>
+        </div>
+        <hr>
 
+        <p class="auth-form-footer-link">Already have an account? <a href="login.html">Log in</a></p>
+
+      </section>
+    </div>
+  </main>
+
+  <button id="toggle-theme">Toogle theme</button>
+  
+  <script src="../js/scripts.js">
+
+  </script>
+    
 </body>
 </html>
