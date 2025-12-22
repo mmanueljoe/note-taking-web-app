@@ -1,0 +1,17 @@
+{
+  "name": "note-taking-web-app",
+  "version": "1.0.0",
+  "description": "Note Taking Web App",
+  "main": "index.js",
+  "repository": "https://github.com/mmanueljoe/note-taking-web-app.git",
+  "author": "mmanueljoe <emmanuelletsu18@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/css": "^0.14.1",
+    "@eslint/js": "^9.39.2",
+    "@eslint/json": "^0.14.0",
+    "@eslint/markdown": "^7.5.1",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0"
+  }
+}

@@ -1,0 +1,391 @@
+/* login and sign styling */
+
+.auth-main {
+    grid-column: 1 / span 12;
+    width: 100%;
+    max-width: 375px;
+    margin: auto;
+}
+
+
+.auth-container{
+    display: flex;
+    flex-direction: column;
+    padding: 3rem 1rem;
+    gap: 1rem;
+    width: 100%;
+    background-color: var(--secondary-bg);
+    border-radius: var(--radius-12);
+    border: 1px solid var(--border-secondary);
+    box-shadow: var(--shadow-lg);
+}
+
+.auth-logo{
+    width: 95px;
+    height: auto;
+    margin: 0 auto;
+    background-color: var(--background-color);
+}
+
+
+.auth-container-header{
+    text-align: center;
+}
+
+.auth-container h1{
+    font-size: var(--sans-serif-preset-1-size);
+    line-height: var(--sans-serif-preset-1-line-height);
+    font-weight: var(--sans-serif-preset-1-letter-weight);
+    letter-spacing: var(--sans-serif-preset-1-letter-spacing);
+}
+
+.auth-container p{
+    font-size: var(--sans-serif-preset-5-size);
+    line-height: var(--sans-serif-preset-5-line-height);
+    font-weight: var(--sans-serif-preset-5-letter-weight);
+    letter-spacing: var(--sans-serif-preset-5-letter-spacing);
+    color: var(--text-secondary);
+    margin: 0.5rem 0;
+}
+
+
+/* form styling */
+.auth-form{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1.5rem;
+}
+
+.auth-form-group label{
+    font-size: var(--sans-serif-preset-4-size);
+    line-height: var(--sans-serif-preset-4-line-height);
+    font-weight: var(--sans-serif-preset-4-letter-weight);
+    letter-spacing: var(--sans-serif-preset-4-letter-spacing);
+    display: block;
+}
+
+.auth-form-group input{
+    width: 100%;
+    padding: 0.75rem 1rem;
+    margin-top: 5px;
+    border-radius: var(--radius-8);
+    border: 1px solid var(--border-primary);
+    box-shadow: var(--shadow-sm);
+    background-color: var(--secondary-bg);
+    color: var(--text-primary);
+}
+
+.auth-form-submit{
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-8);
+    border: none;
+    color: var(--neutral-0);
+    background-color: var(--blue-500);
+    font-size: var(--sans-serif-preset-3-size);
+    font-weight: var(--sans-serif-preset-3-letter-weight);
+}
+
+.auth-form-footer{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    border-top: 1px solid var(--border-primary);
+    border-bottom: 1px solid var(--border-primary);
+    padding: 1.5rem 0;
+}
+
+.auth-form-footer button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    font-size: var(--sans-serif-preset-3-size);
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-8);
+    border: 1px solid var(--border-primary);
+    background-color: var(--secondary-bg);
+    color: var(--text-primary);   
+}
+
+.auth-form-footer-link{
+    font-size: var(--sans-serif-preset-4-size);
+    font-weight: var(--sans-serif-preset-5-letter-weight);
+    line-height: var(--sans-serif-preset-5-line-height);
+    letter-spacing: var(--sans-serif-preset-5-letter-spacing);
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.auth-form-footer-link a{
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.auth-form-footer-link a:hover{
+    text-decoration: underline;
+}
+
+
+
+
+/* ------------------------------------- */
+
+/* forgot password styles*/
+.forgot-password-main{
+    grid-column: 1 / span 12;
+    max-width: 375px;
+    width: 100%;
+    margin: auto;
+}
+
+.forgot-password-container{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: var(--secondary-bg);
+    padding: 2.5rem 1rem;
+    border-radius: var(--radius-8);
+    box-shadow: var(--shadow-lg);
+    gap: 1rem;
+    border: 1px solid var(--border-secondary);
+}
+
+.forgot-password-logo{
+    max-width: 5.9375rem;
+    height: auto;
+    margin: 0 auto;
+}
+
+.forgot-password-container-header{
+    text-align: center;
+}
+
+.forgot-password-container-header h1{
+    font-size: var(--sans-serif-preset-1-size);
+    font-weight: var(--sans-serif-preset-1-letter-weight);
+    letter-spacing: var(--sans-serif-preset-1-letter-spacing);
+    line-height: var(--sans-serif-preset-1-line-height);
+    margin: 0.5rem 0;
+}
+
+.forgot-password-container-header p{
+    font-size: var(--sans-serif-preset-5-size);
+    line-height: var(--sans-serif-preset-5-line-height);
+    font-weight: var(--sans-serif-preset-5-letter-weight);
+    letter-spacing: var(--sans-serif-preset-5-letter-spacing);
+    color: var(--text-secondary);
+}
+
+.forgot-password-form{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.forgot-password-form-group{
+    padding-top: 1.5rem;
+}
+
+.forgot-password-form-group label{
+    font-size: var(--sans-serif-preset-4-size);
+    line-height: var(--sans-serif-preset-4-line-height);
+    font-weight: var(--sans-serif-preset-4-letter-weight);
+    letter-spacing: var(--sans-serif-preset-4-letter-spacing);
+    display: block;
+}
+
+.forgot-password-form-group input{
+    width: 100%;
+    padding: 0.75rem 1rem;
+    margin-top: 5px;
+    border-radius: var(--radius-8);
+    border: 1px solid var(--border-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.forgot-password-form-submit{
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-8);
+    border: none;
+    color: var(--neutral-0);
+    background-color: var(--blue-500);
+}
+
+/* reset password styling */
+.reset-password-main{
+    grid-column: 1 / span 12;
+    max-width: 375px;
+    width: 100%;
+    margin: auto;
+}
+
+.reset-password-logo{
+    width: 95px;
+    height: auto;
+    margin: 0 auto;
+}
+
+.reset-password-container{
+    width: 100%;
+    padding: 2.5rem 1rem;
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    background-color: var(--secondary-bg);
+    border-radius: var(--radius-12);
+    box-shadow: var(--shadow-lg);
+}
+
+.reset-password-container-header{
+    text-align: center;
+}
+
+.reset-password-container-header h1{
+    font-size: var(--sans-serif-preset-1-size);
+    font-weight: var(--sans-serif-preset-1-letter-weight);
+    letter-spacing: var(--sans-serif-preset-1-letter-spacing);
+    line-height: var(--sans-serif-preset-1-line-height);
+    margin: 0.5rem 0;
+}
+
+.reset-password-container-header p{
+    font-size: var(--sans-serif-preset-5-size);
+    color: var(--text-secondary);
+    letter-spacing: var(--sans-serif-preset-5-letter-spacing);
+    line-height: var(--sans-serif-preset-5-line-height);
+}
+
+.reset-password-form-group label{
+    font-size: var(--sans-serif-preset-4-size);
+    font-weight: var(--sans-serif-preset-4-letter-weight);
+    line-height: var(--sans-serif-preset-4-line-height);
+    letter-spacing: var(--sans-serif-preset-4-letter-spacing);
+}
+
+.reset-password-form-group-input{
+    position: relative;
+}
+
+.reset-password-form-group-input input{
+    width: 100%;
+    padding: 0.75rem 1rem;
+    margin-top: 5px;
+    border-radius: var(--radius-8);
+    border: 1px solid var(--border-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.reset-password-form-group-toggle{
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    z-index: 1;
+}
+
+.reset-password-form-group-toggle-icon{
+    width: 20px;
+    height: auto;
+    background-color: var(--secondary-bg);
+}
+
+.reset-password-form{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1.5rem;
+}
+
+.reset-password-form-submit{
+    border: none;
+    padding: 0.75rem 1rem;
+    background-color: var(--blue-500);
+    color: var(--btn-textColor);
+    border-radius: var(--radius-8);
+}
+
+/* ---------------------------------- */
+
+/* media queries */
+
+@media only screen and (min-width: 567px){
+    /* signup and login */
+   .auth-main{
+     max-width: 520px;
+   }
+
+   .auth-container{
+        padding: 3rem 2rem;
+   }
+
+   /* forgot password */
+   .forgot-password-main{
+        max-width: 520px;
+   }
+
+   .forgot-password-container{
+        padding: 3rem 2rem;
+   }
+
+   /* reset password */
+   .reset-password-main{
+        max-width: 520px;
+    }
+    
+    .reset-password-container{
+        padding: 3rem 2rem;
+    }
+} 
+
+@media only screen and (min-wdith: 768px){
+    .auth-main{
+        max-width: 525px;
+    }
+
+    .forgot-password-main{
+        max-width: 525px;
+   }
+
+   /* reset password */
+   .reset-password-main{
+        max-width: 525px;
+    }
+
+}
+
+@media only screen and (min-width: 1024px){
+    .auth-main{
+        max-width: 540px;
+    }
+
+    .auth-container{
+        padding: 3rem 3rem;
+   }
+
+   .forgot-password-main{
+        max-width: 540px;
+    }
+
+    .forgot-password-container{
+        padding: 3rem 3rem;
+    }
+
+
+    .reset-password-main{
+        max-width: 540px;
+    }
+
+    .reset-password-container{
+        padding: 3rem 3rem;
+    }
+    
+}
