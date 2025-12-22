@@ -91,19 +91,19 @@
 
     /* spacing */
     --spacing-0 : 0;
-    --spacing-025: 0.125rem;
-    --spacing-050: 0.25rem;
-    --spacing-075: 0.375rem;
-    --spacing-100: 0.5rem;
+    --spacing-025: 0.125rem; /* 2px */
+    --spacing-050: 0.25rem; /* 4px */   
+    --spacing-075: 0.375rem; /* 6px */
+    --spacing-100: 0.5rem; /* 8px */
     --spacing-150: 0.75rem;
-    --spacing-200: 1rem;
-    --spacing-250: 1.25rem;
-    --spacing-300: 1.5rem;
-    --spacing-400: 2rem;
-    --spacing-500: 2.5rem;
-    --spacing-600: 3rem;
-    --spacing-800: 4rem;
-    --spacing-1000: 5rem;
+    --spacing-200: 1rem;  /* 16px */
+    --spacing-250: 1.25rem; /* 20px */
+    --spacing-300: 1.5rem; /* 24px */
+    --spacing-400: 2rem;  /* 32px */
+    --spacing-500: 2.5rem; /* 40px */
+    --spacing-600: 3rem;  /* 48px */
+    --spacing-800: 4rem;  /* 64px */
+    --spacing-1000: 5rem; /* 80px */
 
     /* radius */
     --radius-0:0;
@@ -164,7 +164,7 @@
 
 
 html{
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     scroll-behavior: smooth;
 }
 
@@ -216,6 +216,7 @@ button{
     position: relative;
 }
 
+/* header styling */
 .app-header{
     grid-column: 1 / span 12;
     height: 3.375rem;
@@ -224,6 +225,22 @@ button{
     /* background-color: green; */
 }
 
+.app-logo{
+    font-family: var(--logo-font);
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: inherit;
+    border: none;
+    margin: auto 0;
+    color: var(--text-primary);
+}
+
+/* header styling ends here */
+
+/* main styling starts here */
 .app-main{
     grid-column: 1 / span 12;
     background-color: var(--secondary-bg);
@@ -245,18 +262,6 @@ button{
     z-index: 1;
 }
 
-.app-logo{
-    font-family: var(--logo-font);
-    font-size: 1.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: inherit;
-    border: none;
-    margin: auto 0;
-    color: var(--text-primary);
-}
 
 .app-main-container{
     display: flex;
@@ -266,6 +271,39 @@ button{
     min-height: 100%;
 }
 
+.content{
+    padding: var(--spacing-100);
+    background-color: var(--secondary-bg);
+    border-radius: var(--radius-8);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-secondary);
+}
+
+.content p{
+    font-size: var(--sans-serif-preset-5-size);
+    line-height: var(--sans-serif-preset-5-line-height);
+    font-weight: var(--sans-serif-preset-5-letter-weight);
+    letter-spacing: var(--sans-serif-preset-5-letter-spacing);
+    color: var(--text-primary);
+}
+
+.addNote-btn{
+    position: absolute;
+    min-width: 3rem;
+    min-height: 3rem;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--radius-full);
+    background-color: var(--blue-500);
+    bottom: 2rem;
+    right: 0;
+    cursor: pointer;
+}
+
+/* main styling ends here */
 
 
 /* aside styling */
@@ -289,7 +327,7 @@ button{
 }
 
 .menu-list .menu-item{
-    display: inline-block;
+    /* display: inline-block; */
     padding: 0 0.25rem;
     width: 100px;
     display: flex;
@@ -305,25 +343,8 @@ button{
     text-align: center;
 }
 
-
-
 /* aside styling ends here */
 
-.addNote-btn{
-    position: absolute;
-    min-width: 3rem;
-    min-height: 3rem;
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: var(--shadow-lg);
-    border-radius: var(--radius-full);
-    background-color: var(--blue-500);
-    bottom: 2rem;
-    right: 0;
-    cursor: pointer;
-}
 
 .dark{
     --background-color: var(--neutral-950);
@@ -376,5 +397,61 @@ button{
 }
 
 @media only screen and (min-width: 1024px){
+    .app-layout{
+        grid-template-columns: 240px 1fr;
+        grid-template-rows: 54px 1fr;
+    }
+
+    .app-header{
+        grid-column: 1 / span 1;
+        grid-row: 1 / 2;
+    }
+
+    .app-main{
+        grid-column: 2 / span 1;
+        grid-row: 1 / span 2;
+    }
+
+    .app-menu {
+        grid-column: 1 / 2;
+        grid-row: 2 / 3;
+        max-width: 240px;
+        height: auto;
+        border-top: none;
+        position: fixed;
+        left: 0;
+        top: 54px;
+    }
+
+    .menu-list .menu-item.mobile-tablet-only{
+        display: none;
+    }
+
+    .menu-list .menu-item.tablet-only{
+        display: none;
+    }
+
+    .menu-list .menu-item.desktop-only{
+        display: block;
+    }
     
+    .menu-list{
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+
+    .menu-list .menu-item{
+        padding: 0 0.25rem;
+        width: 100%;
+    }
+
+    .menu-item > a{
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+
 }
