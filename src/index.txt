@@ -1,0 +1,117 @@
+// theme.js
+import { loadSettings, saveSettings } from './storage.js';
+
+// Apply color theme
+export const applyTheme = (themeName) => {
+    const body = document.body;
+    const html = document.documentElement;
+    
+    // Remove existing theme classes
+    body.classList.remove('light', 'dark', 'system-theme');
+    html.classList.remove('light', 'dark', 'system-theme');
+    
+    if (themeName === 'system') {
+        // System theme: use prefers-color-scheme
+        body.classList.add('system-theme');
+        applySystemTheme();
+    } else if (themeName === 'dark') {
+        body.classList.add('dark');
+        html.classList.add('dark');
+    } else {
+        // Default to light
+        body.classList.add('light');
+        html.classList.add('light');
+    }
+    
+    // Save to storage
+    saveSettings({ colorTheme: themeName });
+    
+    return themeName;
+};
+
+// Apply system theme based on user's OS preference
+const applySystemTheme = () => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const body = document.body;
+    const html = document.documentElement;
+    
+    if (prefersDark) {
+        body.classList.add('dark');
+        html.classList.add('dark');
+    } else {
+        body.classList.remove('dark');
+        html.classList.remove('dark');
+    }
+};
+
+// Listen for system theme changes (if system theme is active)
+const systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+systemThemeMediaQuery.addEventListener('change', () => {
+    if (document.body.classList.contains('system-theme')) {
+        applySystemTheme();
+    }
+});
+
+// Apply font theme
+export const applyFont = (fontName) => {
+    const body = document.body;
+    const html = document.documentElement;
+    
+    // Remove existing font classes
+    body.classList.remove('font-sans-serif', 'font-serif', 'font-monospace');
+    html.classList.remove('font-sans-serif', 'font-serif', 'font-monospace');
+    
+    // Add new font class
+    const fontClass = `font-${fontName}`;
+    body.classList.add(fontClass);
+    html.classList.add(fontClass);
+    
+    // Save to storage
+    saveSettings({ fontTheme: fontName });
+    
+    return fontName;
+};
+
+// Initialize theme from storage on page load
+export const initThemeFromStorage = () => {
+    const settings = loadSettings();
+    
+    // Apply color theme
+    if (settings.colorTheme) {
+        applyTheme(settings.colorTheme);
+    } else {
+        // Default to light if no preference saved
+        applyTheme('light');
+    }
+    
+    // Apply font theme
+    if (settings.fontTheme) {
+        applyFont(settings.fontTheme);
+    } else {
+        // Default to sans-serif if no preference saved
+        applyFont('sans-serif');
+    }
+};
+
+
+
+/* Font theme classes */
+.font-sans-serif {
+  font-family: "Inter", sans-serif;
+}
+
+.font-serif {
+  font-family: "Georgia", "Times New Roman", serif;
+}
+
+.font-monospace {
+  font-family: "Courier New", "Monaco", monospace;
+}
+
+
+// main.js
+import { initThemeFromStorage } from './theme.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+    initThemeFromStorage(); // Apply saved theme on page load
+});

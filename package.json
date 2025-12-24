@@ -2,7 +2,7 @@
   "name": "note-taking-web-app",
   "version": "1.0.0",
   "description": "Note Taking Web App",
-  "main": "index.js",
+  "main": "./src/js/main.js",
   "repository": "https://github.com/mmanueljoe/note-taking-web-app.git",
   "author": "mmanueljoe <emmanuelletsu18@gmail.com>",
   "license": "MIT",

@@ -70,7 +70,7 @@
               />
 
               <span class="settings-icon">
-                <a href="settings.html" aria-label="Settings">
+                <a href="./settings.html" aria-label="Settings">
                   <svg
                     width="19"
                     height="20"
@@ -99,8 +99,8 @@
                 <!-- color theme settings -->
                 <li class="nav-item" aria-label="Settings Navigation Item">
                   <a
-                    href=""
-                    class="nav-item-link is-active"
+                    href="#color-theme-settings"
+                    class="nav-item-link"
                     aria-label="Settings Navigation Item Link"
                   >
                     <span
@@ -141,7 +141,7 @@
                     </span>
                     <!-- arrow icon for desktop only -->
                     <span
-                      class="nav-item-arrow link-active"
+                      class="nav-item-arrow"
                       aria-label="Settings Navigation Item Arrow"
                     >
                       <svg
@@ -165,7 +165,7 @@
                 <!-- font settings -->
                 <li class="nav-item" aria-label="Settings Navigation Item">
                   <a
-                    href=""
+                    href="#font-theme-settings"
                     class="nav-item-link"
                     aria-label="Settings Navigation Item Link"
                   >
@@ -227,7 +227,7 @@
                 <!-- change password settings -->
                 <li class="nav-item" aria-label="Settings Navigation Item">
                   <a
-                    href=""
+                    href="#change-password-settings"
                     class="nav-item-link"
                     aria-label="Settings Navigation Item Link"
                   >
@@ -301,7 +301,7 @@
                 <!-- logout -->
                 <li class="nav-item" aria-label="Settings Navigation Item">
                   <a
-                    href=""
+                    href="#logout-settings"
                     class="nav-item-link"
                     aria-label="Settings Navigation Item Link"
                   >
@@ -369,7 +369,7 @@
           <section class="app-main-container-content">
             <!-- color theme -->
             <section class="settings-section" id="color-theme-settings">
-              <a href="" class="back-btn mobile-tablet-only">
+              <a href="./settings.html" class="back-btn mobile-tablet-only">
                 <svg
                   width="9"
                   height="15"
@@ -507,8 +507,8 @@
                   </div>
                 </div>
 
-                <div class="color-theme-btn">
-                  <button class="apply-changes-btn" type="submit">
+                <div class="color-theme-btn-wrapper">
+                  <button class="color-theme-btn" type="submit">
                     Apply Changes
                   </button>
                 </div>
@@ -517,7 +517,7 @@
 
             <!-- font theme -->
             <section class="settings-section" id="font-theme-settings">
-              <a href="" class="back-btn mobile-tablet-only">
+              <a href="./settings.html" class="back-btn mobile-tablet-only">
                 <svg
                   width="9"
                   height="15"
@@ -638,8 +638,8 @@
                     <input type="radio" name="font-theme" id="sans-serif" />
                   </div>
                 </div>
-                  <div class="font-theme-btn">
-                    <button class="apply-changes-btn" type="submit">
+                  <div class="font-theme-btn-wrapper">
+                    <button class="font-theme-btn" type="submit">
                       Apply Changes
                     </button>
                   </div>
@@ -647,8 +647,8 @@
             </section>
 
             <!-- change password -->
-            <section class="settings-section">
-              <a href="" class="back-btn mobile-tablet-only">
+            <section class="settings-section" id="change-password-settings">
+              <a href="./settings.html" class="back-btn mobile-tablet-only">
                 <svg
                   width="9"
                   height="15"
@@ -674,103 +674,112 @@
               <form action="" class="change-passwd-form">
                 <div class="form-group">
                   <label for="current-password">Current Password</label>
-                  <input
-                    type="password"
-                    id="current-password"
-                    name="current-password"
-                  />
-                  <!-- show password toggle -->
-                  <button type="button" class="show-password-toggle">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M10.0022 8.42888C8.89226 8.42888 7.99219 9.2924 7.99219 10.3585C7.99219 11.4239 8.89235 12.2881 10.0022 12.2881C11.112 12.2881 12.0122 11.4239 12.0122 10.3585C12.0122 9.2924 11.1122 8.42888 10.0022 8.42888ZM6.74219 10.3585C6.74219 8.62936 8.20214 7.22888 10.0022 7.22888C11.8023 7.22888 13.2622 8.62936 13.2622 10.3585C13.2622 12.0866 11.8023 13.4881 10.0022 13.4881C8.20201 13.4881 6.74219 12.0866 6.74219 10.3585Z"
-                        fill="currentColor"
-                      />
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M4.14562 5.99548C5.64096 4.78181 7.7083 3.91687 10.001 3.91687C12.2932 3.91687 14.3606 4.78113 15.856 5.99451C17.3352 7.19468 18.336 8.80808 18.336 10.3585C18.336 11.9089 17.3352 13.5222 15.856 14.7224C14.3606 15.9358 12.2932 16.8001 10.001 16.8001C7.7083 16.8001 5.64096 15.9351 4.14562 14.7214C2.66664 13.521 1.66602 11.9077 1.66602 10.3585C1.66602 8.80928 2.66664 7.19588 4.14562 5.99548ZM4.95267 6.91186C3.64123 7.97626 2.91602 9.28368 2.91602 10.3585C2.91602 11.4333 3.64123 12.7406 4.95267 13.8051C6.24775 14.8562 8.03541 15.6001 10.001 15.6001C11.9663 15.6001 13.754 14.8567 15.0491 13.8059C16.3606 12.7418 17.086 11.4345 17.086 10.3585C17.086 9.28248 16.3606 7.97506 15.0491 6.91102C13.754 5.8602 11.9663 5.11687 10.001 5.11687C8.03541 5.11687 6.24775 5.86073 4.95267 6.91186Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </button>
+                  <div class="form-group-input">
+
+                    <input
+                      type="password"
+                      id="current-password"
+                      name="current-password"
+                    />
+                    <!-- show password toggle -->
+                    <button type="button" class="show-password-toggle">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M10.0022 8.42888C8.89226 8.42888 7.99219 9.2924 7.99219 10.3585C7.99219 11.4239 8.89235 12.2881 10.0022 12.2881C11.112 12.2881 12.0122 11.4239 12.0122 10.3585C12.0122 9.2924 11.1122 8.42888 10.0022 8.42888ZM6.74219 10.3585C6.74219 8.62936 8.20214 7.22888 10.0022 7.22888C11.8023 7.22888 13.2622 8.62936 13.2622 10.3585C13.2622 12.0866 11.8023 13.4881 10.0022 13.4881C8.20201 13.4881 6.74219 12.0866 6.74219 10.3585Z"
+                          fill="currentColor"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M4.14562 5.99548C5.64096 4.78181 7.7083 3.91687 10.001 3.91687C12.2932 3.91687 14.3606 4.78113 15.856 5.99451C17.3352 7.19468 18.336 8.80808 18.336 10.3585C18.336 11.9089 17.3352 13.5222 15.856 14.7224C14.3606 15.9358 12.2932 16.8001 10.001 16.8001C7.7083 16.8001 5.64096 15.9351 4.14562 14.7214C2.66664 13.521 1.66602 11.9077 1.66602 10.3585C1.66602 8.80928 2.66664 7.19588 4.14562 5.99548ZM4.95267 6.91186C3.64123 7.97626 2.91602 9.28368 2.91602 10.3585C2.91602 11.4333 3.64123 12.7406 4.95267 13.8051C6.24775 14.8562 8.03541 15.6001 10.001 15.6001C11.9663 15.6001 13.754 14.8567 15.0491 13.8059C16.3606 12.7418 17.086 11.4345 17.086 10.3585C17.086 9.28248 16.3606 7.97506 15.0491 6.91102C13.754 5.8602 11.9663 5.11687 10.001 5.11687C8.03541 5.11687 6.24775 5.86073 4.95267 6.91186Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label for="new-password">New Password</label>
-                  <input
-                    type="password"
-                    id="new-password"
-                    name="new-password"
-                    
-                  />
-                  <!-- show password toggle -->
-                  <button type="button" class="show-password-toggle">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M10.0022 8.42888C8.89226 8.42888 7.99219 9.2924 7.99219 10.3585C7.99219 11.4239 8.89235 12.2881 10.0022 12.2881C11.112 12.2881 12.0122 11.4239 12.0122 10.3585C12.0122 9.2924 11.1122 8.42888 10.0022 8.42888ZM6.74219 10.3585C6.74219 8.62936 8.20214 7.22888 10.0022 7.22888C11.8023 7.22888 13.2622 8.62936 13.2622 10.3585C13.2622 12.0866 11.8023 13.4881 10.0022 13.4881C8.20201 13.4881 6.74219 12.0866 6.74219 10.3585Z"
-                        fill="currentColor"
-                      />
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M4.14562 5.99548C5.64096 4.78181 7.7083 3.91687 10.001 3.91687C12.2932 3.91687 14.3606 4.78113 15.856 5.99451C17.3352 7.19468 18.336 8.80808 18.336 10.3585C18.336 11.9089 17.3352 13.5222 15.856 14.7224C14.3606 15.9358 12.2932 16.8001 10.001 16.8001C7.7083 16.8001 5.64096 15.9351 4.14562 14.7214C2.66664 13.521 1.66602 11.9077 1.66602 10.3585C1.66602 8.80928 2.66664 7.19588 4.14562 5.99548ZM4.95267 6.91186C3.64123 7.97626 2.91602 9.28368 2.91602 10.3585C2.91602 11.4333 3.64123 12.7406 4.95267 13.8051C6.24775 14.8562 8.03541 15.6001 10.001 15.6001C11.9663 15.6001 13.754 14.8567 15.0491 13.8059C16.3606 12.7418 17.086 11.4345 17.086 10.3585C17.086 9.28248 16.3606 7.97506 15.0491 6.91102C13.754 5.8602 11.9663 5.11687 10.001 5.11687C8.03541 5.11687 6.24775 5.86073 4.95267 6.91186Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </button>
+                  <div class="form-group-input">
+
+                    <input
+                      type="password"
+                      id="new-password"
+                      name="new-password"
+                      
+                    />
+                    <!-- show password toggle -->
+                    <button type="button" class="show-password-toggle">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M10.0022 8.42888C8.89226 8.42888 7.99219 9.2924 7.99219 10.3585C7.99219 11.4239 8.89235 12.2881 10.0022 12.2881C11.112 12.2881 12.0122 11.4239 12.0122 10.3585C12.0122 9.2924 11.1122 8.42888 10.0022 8.42888ZM6.74219 10.3585C6.74219 8.62936 8.20214 7.22888 10.0022 7.22888C11.8023 7.22888 13.2622 8.62936 13.2622 10.3585C13.2622 12.0866 11.8023 13.4881 10.0022 13.4881C8.20201 13.4881 6.74219 12.0866 6.74219 10.3585Z"
+                          fill="currentColor"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M4.14562 5.99548C5.64096 4.78181 7.7083 3.91687 10.001 3.91687C12.2932 3.91687 14.3606 4.78113 15.856 5.99451C17.3352 7.19468 18.336 8.80808 18.336 10.3585C18.336 11.9089 17.3352 13.5222 15.856 14.7224C14.3606 15.9358 12.2932 16.8001 10.001 16.8001C7.7083 16.8001 5.64096 15.9351 4.14562 14.7214C2.66664 13.521 1.66602 11.9077 1.66602 10.3585C1.66602 8.80928 2.66664 7.19588 4.14562 5.99548ZM4.95267 6.91186C3.64123 7.97626 2.91602 9.28368 2.91602 10.3585C2.91602 11.4333 3.64123 12.7406 4.95267 13.8051C6.24775 14.8562 8.03541 15.6001 10.001 15.6001C11.9663 15.6001 13.754 14.8567 15.0491 13.8059C16.3606 12.7418 17.086 11.4345 17.086 10.3585C17.086 9.28248 16.3606 7.97506 15.0491 6.91102C13.754 5.8602 11.9663 5.11687 10.001 5.11687C8.03541 5.11687 6.24775 5.86073 4.95267 6.91186Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label for="confirm-password">Confirm Password</label>
-                  <input
-                    type="password"
-                    id="confirm-password"
-                    name="confirm-password"
-                    
-                  />
+                  <div class="form-group-input">
 
-                  <!-- show password toggle -->
-                  <button type="button" class="show-password-toggle">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M10.0022 8.42888C8.89226 8.42888 7.99219 9.2924 7.99219 10.3585C7.99219 11.4239 8.89235 12.2881 10.0022 12.2881C11.112 12.2881 12.0122 11.4239 12.0122 10.3585C12.0122 9.2924 11.1122 8.42888 10.0022 8.42888ZM6.74219 10.3585C6.74219 8.62936 8.20214 7.22888 10.0022 7.22888C11.8023 7.22888 13.2622 8.62936 13.2622 10.3585C13.2622 12.0866 11.8023 13.4881 10.0022 13.4881C8.20201 13.4881 6.74219 12.0866 6.74219 10.3585Z"
-                        fill="currentColor"
-                      />
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M4.14562 5.99548C5.64096 4.78181 7.7083 3.91687 10.001 3.91687C12.2932 3.91687 14.3606 4.78113 15.856 5.99451C17.3352 7.19468 18.336 8.80808 18.336 10.3585C18.336 11.9089 17.3352 13.5222 15.856 14.7224C14.3606 15.9358 12.2932 16.8001 10.001 16.8001C7.7083 16.8001 5.64096 15.9351 4.14562 14.7214C2.66664 13.521 1.66602 11.9077 1.66602 10.3585C1.66602 8.80928 2.66664 7.19588 4.14562 5.99548ZM4.95267 6.91186C3.64123 7.97626 2.91602 9.28368 2.91602 10.3585C2.91602 11.4333 3.64123 12.7406 4.95267 13.8051C6.24775 14.8562 8.03541 15.6001 10.001 15.6001C11.9663 15.6001 13.754 14.8567 15.0491 13.8059C16.3606 12.7418 17.086 11.4345 17.086 10.3585C17.086 9.28248 16.3606 7.97506 15.0491 6.91102C13.754 5.8602 11.9663 5.11687 10.001 5.11687C8.03541 5.11687 6.24775 5.86073 4.95267 6.91186Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </button>
-                </div>
-                <div class="save-password-btn">
+                    <input
+                      type="password"
+                      id="confirm-password"
+                      name="confirm-password"
+                      
+                    />
+  
+                    <!-- show password toggle -->
+                    <button type="button" class="show-password-toggle">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M10.0022 8.42888C8.89226 8.42888 7.99219 9.2924 7.99219 10.3585C7.99219 11.4239 8.89235 12.2881 10.0022 12.2881C11.112 12.2881 12.0122 11.4239 12.0122 10.3585C12.0122 9.2924 11.1122 8.42888 10.0022 8.42888ZM6.74219 10.3585C6.74219 8.62936 8.20214 7.22888 10.0022 7.22888C11.8023 7.22888 13.2622 8.62936 13.2622 10.3585C13.2622 12.0866 11.8023 13.4881 10.0022 13.4881C8.20201 13.4881 6.74219 12.0866 6.74219 10.3585Z"
+                          fill="currentColor"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M4.14562 5.99548C5.64096 4.78181 7.7083 3.91687 10.001 3.91687C12.2932 3.91687 14.3606 4.78113 15.856 5.99451C17.3352 7.19468 18.336 8.80808 18.336 10.3585C18.336 11.9089 17.3352 13.5222 15.856 14.7224C14.3606 15.9358 12.2932 16.8001 10.001 16.8001C7.7083 16.8001 5.64096 15.9351 4.14562 14.7214C2.66664 13.521 1.66602 11.9077 1.66602 10.3585C1.66602 8.80928 2.66664 7.19588 4.14562 5.99548ZM4.95267 6.91186C3.64123 7.97626 2.91602 9.28368 2.91602 10.3585C2.91602 11.4333 3.64123 12.7406 4.95267 13.8051C6.24775 14.8562 8.03541 15.6001 10.001 15.6001C11.9663 15.6001 13.754 14.8567 15.0491 13.8059C16.3606 12.7418 17.086 11.4345 17.086 10.3585C17.086 9.28248 16.3606 7.97506 15.0491 6.91102C13.754 5.8602 11.9663 5.11687 10.001 5.11687C8.03541 5.11687 6.24775 5.86073 4.95267 6.91186Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  </div>
+                <div class="change-password-btn-wrapper">
 
-                  <button type="submit" class="save-password-btn">
+                  <button type="submit" class="change-password-btn">
                     Save Password
                   </button>
                 </div>
@@ -976,5 +985,7 @@
         </nav>
       </aside>
     </div>
+
+    <script src="./js/settings.js" type="module"></script>
   </body>
 </html>

@@ -163,7 +163,7 @@
   --border-secondary: var(--neutral-200);
 
   --icon-bordercolorPrimary: var(--neutral-600);
-  --icon--bordercolorSecondary: var(--neutral-500);
+  --icon-bordercolorSecondary: var(--neutral-500);
 }
 
 html {
