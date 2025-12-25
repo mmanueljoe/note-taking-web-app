@@ -508,7 +508,7 @@
                 </div>
 
                 <div class="color-theme-btn-wrapper">
-                  <button class="color-theme-btn" type="submit">
+                  <button id="color-theme-btn" type="submit">
                     Apply Changes
                   </button>
                 </div>
@@ -603,7 +603,7 @@
                     </div>
                   </div>
                   <div class="font-theme-input">
-                    <input type="radio" name="font-theme" id="sans-serif" />
+                    <input type="radio" name="font-theme" id="serif" />
                   </div>
                 </div>
                 <!-- monospace -->
@@ -635,13 +635,13 @@
                     </div>
                   </div>
                   <div class="font-theme-input">
-                    <input type="radio" name="font-theme" id="sans-serif" />
+                    <input type="radio" name="font-theme" id="monospace" />
                   </div>
                 </div>
                   <div class="font-theme-btn-wrapper">
-                    <button class="font-theme-btn" type="submit">
+                    <button id="font-theme-btn" type="submit">
                       Apply Changes
-                    </button>
+                    </button> 
                   </div>
               </div>
             </section>
@@ -670,7 +670,7 @@
                 <h2>Change Password</h2>
               </header>
 
-              <!--  -->
+              <!-- change password form -->
               <form action="" class="change-passwd-form">
                 <div class="form-group">
                   <label for="current-password">Current Password</label>
@@ -680,6 +680,7 @@
                       type="password"
                       id="current-password"
                       name="current-password"
+                      aria-label="Current password"
                     />
                     <!-- show password toggle -->
                     <button type="button" class="show-password-toggle">
@@ -714,7 +715,7 @@
                       type="password"
                       id="new-password"
                       name="new-password"
-                      
+                      aria-label="New password"
                     />
                     <!-- show password toggle -->
                     <button type="button" class="show-password-toggle">
@@ -749,7 +750,7 @@
                       type="password"
                       id="confirm-password"
                       name="confirm-password"
-                      
+                      aria-label="Confirm password"
                     />
   
                     <!-- show password toggle -->
@@ -779,7 +780,7 @@
                   </div>
                 <div class="change-password-btn-wrapper">
 
-                  <button type="submit" class="change-password-btn">
+                  <button type="submit" id="change-password-btn">
                     Save Password
                   </button>
                 </div>

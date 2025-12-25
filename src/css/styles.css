@@ -8,6 +8,7 @@
 }
 
 /* static fonts */
+/* inter */
 @font-face {
   font-family: "Inter";
   src: url("../assets/fonts/inter/static/Inter_18pt-Regular.ttf")
@@ -39,8 +40,7 @@
   font-weight: 700;
   font-style: normal;
 }
-
-/* variable fonts */
+/* variable fonts (inter)*/
 @font-face {
   font-family: "Inter";
   src: url("../assets/fonts/inter/Inter-Italic-VariableFont_opsz\,wght.ttf")
@@ -54,6 +54,14 @@
   src: url("../assets/fonts/inter/Inter-VariableFont_opsz\,wght.ttf")
     format("truetype");
   font-weight: 100 900;
+  font-style: normal;
+}
+
+/* georgia */
+@font-face {
+  font-family: "Georgia";
+  src: url("../assets/fonts/georgia/Georgia-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
 }
 
@@ -148,7 +156,6 @@
   --red-100: #ffd5d8;
   --red-500: #fb3748;
 
-
   --background-primary: var(--neutral-100);
   --background-secondary: var(--neutral-0);
 
@@ -203,6 +210,19 @@ button {
   line-height: var(--sans-serif-preset-3-line-height);
   letter-spacing: var(--sans-serif-preset-3-letter-spacing);
 }
+
+/* font theme classes */
+.font-sans-serif {
+  font-family: "Inter", sans-serif;
+}
+.font-serif {
+  font-family: "Georgia", "Times New Roman", serif;
+}
+.font-monospace {
+  font-family: "Courier New", "Monaco", monospace;
+}
+
+/* font theme classes ends here */
 
 .app-layout {
   display: grid;
@@ -351,13 +371,22 @@ button {
 
 /* aside styling ends here */
 
-.dark {
-  --background-primary: var(--neutral-950);
+html.dark, body.dark {
+  --background-primary: var(--neutral-700);
+  --background-secondary: var(--neutral-950);
+
   --text-primary: var(--neutral-0);
+  --text-tertiary: var(--neutral-600);
+  --btn-textWhite: var(--neutral-0);
+
+  --border-primary: var(--neutral-600);
+  --border-secondary: var(--neutral-800);
+
+  --icon-borderColor: var(--neutral-400);
 }
 
 /* prefers dark theme */
-/* @media (prefers-color-scheme: dark){
+@media (prefers-color-scheme: dark){
     :root{
         --background-primary: var(--neutral-700);
         --background-secondary: var(--neutral-950);
@@ -373,7 +402,7 @@ button {
 
         --icon-borderColor: var(--neutral-400);
     }
-}  */
+} 
 
 @media only screen and (min-width: 768px) {
   .app-header {
@@ -431,12 +460,12 @@ button {
     border-bottom: 1px solid var(--border-secondary);
   }
 
-  .app-main-container-nav{
+  .app-main-container-nav {
     grid-column: 1 / 2;
     grid-row: 2 / 3;
   }
 
-  .app-main-container-content{
+  .app-main-container-content {
     grid-column: 2 / span 1;
     grid-row: 2 / 3;
   }
@@ -464,18 +493,18 @@ button {
     background-color: var(--background-secondary);
   }
 
-  .search-container > .settings-icon svg{
+  .search-container > .settings-icon svg {
     color: var(--neutral-500);
   }
 
-  .app-main-container-nav{
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      border-right: 1px solid var(--border-secondary);
+  .app-main-container-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-right: 1px solid var(--border-secondary);
   }
 
-  .app-main-container-nav .add-note-btn.desktop-only{
+  .app-main-container-nav .add-note-btn.desktop-only {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -521,10 +550,9 @@ button {
     color: var(--text-primary);
   }
 
-  .menu-list .menu-item > a svg{
+  .menu-list .menu-item > a svg {
     color: var(--text-primary);
   }
-
 
   .menu-item .menu-item-arrow.desktop-only {
     display: flex;
