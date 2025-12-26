@@ -156,21 +156,7 @@
   --red-100: #ffd5d8;
   --red-500: #fb3748;
 
-  --background-primary: var(--neutral-100);
-  --background-secondary: var(--neutral-0);
 
-  --text-primary: var(--neutral-950);
-  --text-secondary: var(--neutral-700);
-  --text-tertiary: var(--neutral-600);
-  --btn-textWhite: var(--neutral-0);
-
-  --btn-textColor: var(--neutral-0);
-
-  --border-primary: var(--neutral-300);
-  --border-secondary: var(--neutral-200);
-
-  --icon-bordercolorPrimary: var(--neutral-600);
-  --icon-bordercolorSecondary: var(--neutral-500);
 }
 
 html {
@@ -262,6 +248,8 @@ button {
   border: none;
   margin: auto 0;
   color: var(--text-primary);
+  text-decoration: none;
+  cursor: pointer;
 }
 
 /* header styling ends here */
@@ -371,7 +359,7 @@ button {
 
 /* aside styling ends here */
 
-html.dark, body.dark {
+.dark {
   --background-primary: var(--neutral-700);
   --background-secondary: var(--neutral-950);
 
@@ -383,6 +371,26 @@ html.dark, body.dark {
   --border-secondary: var(--neutral-800);
 
   --icon-borderColor: var(--neutral-400);
+}
+
+
+
+.light {
+  --background-primary: var(--neutral-100);
+  --background-secondary: var(--neutral-0);
+
+  --text-primary: var(--neutral-950);
+  --text-secondary: var(--neutral-700);
+  --text-tertiary: var(--neutral-600);
+  --btn-textWhite: var(--neutral-0);
+
+  --btn-textColor: var(--neutral-0);
+
+  --border-primary: var(--neutral-300);
+  --border-secondary: var(--neutral-200);
+
+  --icon-bordercolorPrimary: var(--neutral-600);
+  --icon-bordercolorSecondary: var(--neutral-500);
 }
 
 /* prefers dark theme */

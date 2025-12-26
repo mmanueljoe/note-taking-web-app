@@ -10,3 +10,11 @@ export const getElementByType = (type, value) => {
             return null;
     }
 }
+
+export const debounce = (func, delay) => {
+    let timeoutId;
+    return function(...args){
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    }
+}

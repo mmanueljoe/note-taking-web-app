@@ -1,6 +1,6 @@
 import { getElementByType } from "./utils.js";
 import { applyTheme, applyFont } from "./theme.js";
-import { savePreferences } from "./storage.js";
+import { savePreferences, loadPreferences } from "./storage.js";
 
 const initializeSettings = () => {
   // 1. get all elements
@@ -13,6 +13,10 @@ const initializeSettings = () => {
     colorThemeBtn: getElementByType("id", "color-theme-btn"),
     fontThemeBtn: getElementByType("id", "font-theme-btn"),
     changePasswordBtn: getElementByType("id", "change-password-btn"),
+    colorThemeInput: getElementByType("id", "color-theme-input"),
+    fontThemeInput: getElementByType("id", "font-theme-input"),
+    colorThemeItem: getElementByType("class", "color-theme-item"),
+    fontThemeItem: getElementByType("class", "font-theme-item"),
   };
 
   // 2. helper function: set active section
@@ -72,14 +76,65 @@ const initializeSettings = () => {
     handleViewportChange();
   };
 
+  const restoreThemeSelection = () => {
+    const preferences = loadPreferences();
+
+    // restore color theme selection
+    if (preferences.colorTheme) {
+      const colorRadio = document.getElementById(preferences.colorTheme);
+      if (colorRadio) {
+        colorRadio.checked = true;
+      }
+    }
+
+    // restore font theme selection
+    if (preferences.fontTheme) {
+      const fontRadio = document.getElementById(preferences.fontTheme);
+      if (fontRadio) {
+        fontRadio.checked = true;
+      }
+    }
+
+    updateThemeItemActiveState();
+  };
+
+  const updateThemeItemActiveState = () => {
+    // remove active class from all color theme items
+    elements.colorThemeItem.forEach((item) => {
+      item.classList.remove("is-active");
+    });
+
+    // add active class to the selected color theme item
+    const checkedColorRadio = document.querySelector(
+      'input[name="color-theme"]:checked'
+    );
+    if (checkedColorRadio) {
+      checkedColorRadio.closest('.color-theme-item').classList.add("is-active");
+    }
+
+    // remove active class from all font theme items
+    elements.fontThemeItem.forEach((item) => {
+      item.classList.remove("is-active");
+    });
+
+    // add active class to the selected font theme item
+    const checkedFontRadio = document.querySelector(
+      'input[name="font-theme"]:checked'
+    );
+    if (checkedFontRadio) {
+      checkedFontRadio.closest('.font-theme-item').classList.add("is-active");
+    }
+  };
+
   // 3. === settings application handlers ===
 
   // handle color theme change
   const handleColorThemeChange = () => {
-    const selectedTheme = document.querySelector('input[name="color-theme"]:checked');
+    const selectedTheme = document.querySelector(
+      'input[name="color-theme"]:checked'
+    );
 
     if (selectedTheme) {
-      console.log(selectedTheme.id);
       applyTheme(selectedTheme.id);
       savePreferences({ colorTheme: selectedTheme.id });
     }
@@ -155,33 +210,51 @@ const initializeSettings = () => {
     resizeTimer = setTimeout(handleViewportChange, 50);
   });
 
-  // set initial active section
-  setActiveSection("color-theme-settings");
-  handleViewportChange();
-
   // handle color theme button clicks
-  if(elements.colorThemeBtn){
-        elements.colorThemeBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          handleColorThemeChange();
-      });
+  if (elements.colorThemeBtn) {
+    elements.colorThemeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      handleColorThemeChange();
+    });
   }
 
   // handle font theme button clicks
-  if(elements.fontThemeBtn){
-      elements.fontThemeBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          handleFontThemeChange();
-      });
+  if (elements.fontThemeBtn) {
+    elements.fontThemeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      handleFontThemeChange();
+    });
   }
 
   // handle change password button clicks
-  if(elements.changePasswordBtn){
-      elements.changePasswordBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          handleChangePassword();
-      });
+  if (elements.changePasswordBtn) {
+    elements.changePasswordBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      handleChangePassword();
+    });
   }
+
+  // update active state when user clicks a radio button
+  const colorThemeRadio = document.querySelectorAll(
+    'input[name="color-theme"]'
+  );
+  colorThemeRadio.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      updateThemeItemActiveState();
+    });
+  });
+
+  const fontThemeRadio = document.querySelectorAll('input[name="font-theme"]');
+  fontThemeRadio.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      updateThemeItemActiveState();
+    });
+  });
+
+  // set initial active section
+  setActiveSection("color-theme-settings");
+  restoreThemeSelection();
+  handleViewportChange();
 };
 
 if (document.querySelector(".settings-section")) {

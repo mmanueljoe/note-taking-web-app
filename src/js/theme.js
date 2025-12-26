@@ -1,14 +1,14 @@
 import {loadPreferences, savePreferences} from './storage.js';
 
 
-// 
+// apply color theme
 export const applyTheme = (themeName) => {
   const body = document.body;
   const html = document.documentElement;
 
   // remove existing themes classes
-  body.classList.remove( 'dark', 'system');
-  html.classList.remove('dark', 'system');
+  body.classList.remove( 'light', 'dark', 'system');
+  html.classList.remove('light', 'dark', 'system');
 
   if(themeName === 'system'){
     // use prefers-color-scheme to determine theme
@@ -19,8 +19,8 @@ export const applyTheme = (themeName) => {
       html.classList.add('dark');
     }else{
       // default to light
-      body.classList.remove('dark');
-      html.classList.remove('dark');
+      body.classList.add('light');
+      html.classList.add('light');
     }
 
     // save theme to localStorage
@@ -84,7 +84,7 @@ export const initThemeFromStorage = () => {
     applyTheme(preferences.colorTheme);
   }else{
     // default to light
-    applyTheme('light');
+    applyTheme('system');
   }
 
   // apply font theme

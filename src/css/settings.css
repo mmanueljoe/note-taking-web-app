@@ -278,6 +278,12 @@
     display: flex;
 }
 
+.color-theme-item.is-active, .font-theme-item.is-active{
+    border: 1px solid var(--border-primary);
+    box-shadow: var(--shadow-lg);
+    background-color: var(--background-primary);
+}
+
 .app-main-container.settings-section-open .app-main-container-nav{
     display: none;
 }

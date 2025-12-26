@@ -1,5 +1,21 @@
+
+
 export const renderNote = (note) => {
-  return note;
+  const noteElement = document.createElement('div');
+  noteElement.classList.add('note');
+
+  noteElement.innerHTML = `
+    <div class="note-header">
+      <h3 class="note-title">${note.title}</h3>
+      <div class="note-tags">
+        ${note.tags.map((tag) => `<span class="note-tag">${tag}</span>`).join('')}
+      </div>
+    </div>
+    <div class="note-content">
+      <p class="note-content-text">${note.content}</p>
+    </div>
+  `;
+
 };
 export const renderAllNotes = (notes) => {
   return notes;

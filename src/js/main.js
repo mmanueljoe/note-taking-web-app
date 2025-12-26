@@ -10,7 +10,7 @@ const initializeApp = () => {
     initThemeFromStorage();
 }
 
-if(document.querySelector('.app-container')){
+if(document.body){
     initializeApp();
 }
 

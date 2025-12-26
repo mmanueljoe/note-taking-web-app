@@ -17,7 +17,7 @@
     <div class="app-layout">
       <!-- header -->
       <header class="app-header">
-        <button class="app-logo">
+        <a class="app-logo" href="./index.html" aria-label="Home">
           <svg
             width="28"
             height="28"
@@ -46,12 +46,12 @@
             </defs>
           </svg>
           Notes
-        </button>
+        </a>
       </header>
 
       <!-- main content -->
       <main class="app-main">
-        <div class="app-main-container">
+        <section class="app-main-container">
           <header class="app-main-container-header">
             <h2>All Notes</h2>
             <div class="search-container desktop-only" aria-label="Search Container">
@@ -113,7 +113,7 @@
               />
             </svg>
           </button>
-        </div>
+        </section>
       </main>
 
       <!-- sidebar -->
@@ -312,5 +312,9 @@
         </nav>
       </aside>
     </div>
+
+    <script src="./js/theme.js" type="module"></script>
+    <script src="./js/settings.js" type="module"></script>
+    <script src="./js/main.js" type="module"></script>
   </body>
 </html>
