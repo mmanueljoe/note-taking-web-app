@@ -1,4 +1,5 @@
 import { formatDate, escapeHtml } from "./utils.js";
+import { getAllNotes } from "./noteManager.js";
 
 export const renderNote = (note) => {
   const noteElement = document.createElement("div");
@@ -24,10 +25,12 @@ export const renderNote = (note) => {
   return noteElement;
 };
 
-export const renderAllNotes = (notes) => {
+export const renderAllNotes = (notes, filterTag = null) => {
   // select container
-  const navContainer = document.querySelector(".app-main-container-nav");
-  const contentContainer = navContainer.querySelector(".content");
+  const contentContainer = document.querySelector(".app-main-container-nav .content");
+  if(!contentContainer) return;
+
+  console.log(contentContainer);
 
   // clear existing content
   contentContainer.innerHTML = "";
@@ -36,6 +39,41 @@ export const renderAllNotes = (notes) => {
   if (!notes || notes.length === 0) {
     renderEmptyState();
     return;
+  }
+
+  // If filtered by tag, add back button (mobile/tablet only) and update header
+  if (filterTag) {
+    // Update header to show tag name
+    const headerTitle = document.querySelector(".app-main-container-header h2");
+    if (headerTitle) {
+      headerTitle.textContent = `Tag: ${filterTag}`;
+    }
+
+    // Add back button in notes list area (mobile/tablet only)
+    const backButton = document.createElement("button");
+    backButton.classList.add("back-button", "filter-back-button", "mobile-tablet-only");
+    backButton.innerHTML = `
+      <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M6.31047 12.621L0 6.3105L6.31047 0L7.37097 1.0605L2.12097 6.3105L7.37097 11.5605L6.31047 12.621Z" fill="currentColor"/>
+      </svg>
+      <span class="back-button-label">Back to All Notes</span>
+    `;
+    backButton.addEventListener("click", () => {
+      // Update header back to "All Notes"
+      const headerTitle = document.querySelector(".app-main-container-header h2");
+      if (headerTitle) {
+        headerTitle.textContent = "All Notes";
+      }
+      // Dispatch event to show all notes
+      document.dispatchEvent(new CustomEvent("showAllNotes"));
+    });
+    contentContainer.appendChild(backButton);
+  } else {
+    // If not filtered, ensure header shows "All Notes"
+    const headerTitle = document.querySelector(".app-main-container-header h2");
+    if (headerTitle && !headerTitle.textContent.includes("Archived")) {
+      headerTitle.textContent = "All Notes";
+    }
   }
 
   // create container for notes cards
@@ -79,6 +117,131 @@ export const showValidationError = (field, message) => {
   // Insert error message after the field
   fieldElement.parentElement.appendChild(errorElement);
 };
+
+// render tags menu for desktop
+export const renderTagLinks = (tags) => {
+  const menuList = document.querySelector(".menu-list");
+  if(!menuList) return;
+
+  const tagListContainer = document.createElement("li");
+  tagListContainer.classList.add("menu-item","tags-section", "desktop-only");
+  
+  const existingTagsSection = menuList.querySelector(".tags-section");
+  if(existingTagsSection) {
+    existingTagsSection.remove();
+  }
+  
+  // if no tags, hide the tags section
+  if (!tags || tags.length === 0) {
+    tagListContainer.style.display = "none";
+    return;
+  }
+  
+  // find "archived notes" link
+  const archivedNotesLink = Array.from(menuList.children).find(child => {
+    const isArchivedLink = child.querySelector('a');
+    return (isArchivedLink && isArchivedLink.textContent.includes('Archived Notes')) || (isArchivedLink && isArchivedLink.textContent.includes('Archived'));
+  });
+  
+
+  tagListContainer.innerHTML = `
+    <h2 class="tags-heading">Tags</h2>
+    <ul class="tags-list">
+      ${tags.map(tag => `<li class="tag-item">
+        <a href="#" class="tag-link" data-tag="${escapeHtml(tag)}">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M2.51318 4.97208C2.51562 3.79561 3.40507 2.74076 4.55965 2.54211C4.7964 2.50076 7.5734 2.50643 8.72233 2.50724C9.85909 2.50806 10.828 2.9167 11.6307 3.71777C13.335 5.41883 15.0377 7.12152 16.7379 8.82585C17.7441 9.83369 17.7579 11.3807 16.7558 12.3918C15.3101 13.8512 13.8571 15.3034 12.3985 16.749C11.3883 17.7504 9.84125 17.7374 8.83259 16.7312C7.11287 15.0163 5.39315 13.3014 3.68074 11.5793C3.01831 10.9129 2.62751 10.1077 2.54075 9.16636C2.47102 8.41394 2.51156 5.61667 2.51318 4.97208Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M8.25593 6.9294C8.25268 7.65426 7.64702 8.2502 6.91487 8.24858C6.18757 8.24696 5.5819 7.64048 5.58596 6.91805C5.59082 6.164 6.18757 5.57618 6.94648 5.57942C7.66647 5.58185 8.25917 6.19239 8.25593 6.9294Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="tag-label">${escapeHtml(tag)}</span> 
+        </a></li>`).join('')}
+    </ul>
+  `;
+
+  // click handler for tag links
+  const tagLinks = tagListContainer.querySelectorAll(".tag-link");
+  tagLinks.forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const tag = link.getAttribute("data-tag");
+      // console.log(tag);
+      document.dispatchEvent(new CustomEvent("filterNotesByTag", {
+        detail: { tag: tag }
+      }));
+    });
+  });
+
+  // insert tagListContainer after archivedNotesLink
+  if(archivedNotesLink && archivedNotesLink.nextSibling) {
+    archivedNotesLink.parentNode.insertBefore(tagListContainer, archivedNotesLink.nextSibling);
+  } else {
+    menuList.appendChild(tagListContainer);
+  }
+};
+
+// initialize tags menu for mobile and tablet
+export const initializeTagsMenu  = () =>{
+  const tags = getAllUniqueTags();
+
+
+  const tagsLinkItem = document.querySelector(".tags-link");
+  if(!tagsLinkItem) return;
+
+  const tagsLink = tagsLinkItem.querySelector("a");
+  if(!tagsLink) return;
+
+  // create tags section
+  const appMainContainer = document.querySelector(".app-main-container");
+  const tagsSection = document.createElement("section");
+  tagsSection.classList.add("tags-section-sm", "mobile-tablet-only");
+  tagsSection.id = "tags-menu";
+
+  tagsSection.innerHTML = `
+   <header class="tags-section-header">
+    <h2 class="tags-heading">Tags</h2>
+   </header>
+   <div class="tags-section-content">
+    <ul class="tags-list-sm">
+      ${tags.map(tag => `<li class="tag-item-sm">
+        <a href="#" class="tag-link" data-tag="${escapeHtml(tag)}">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M2.51318 4.97208C2.51562 3.79561 3.40507 2.74076 4.55965 2.54211C4.7964 2.50076 7.5734 2.50643 8.72233 2.50724C9.85909 2.50806 10.828 2.9167 11.6307 3.71777C13.335 5.41883 15.0377 7.12152 16.7379 8.82585C17.7441 9.83369 17.7579 11.3807 16.7558 12.3918C15.3101 13.8512 13.8571 15.3034 12.3985 16.749C11.3883 17.7504 9.84125 17.7374 8.83259 16.7312C7.11287 15.0163 5.39315 13.3014 3.68074 11.5793C3.01831 10.9129 2.62751 10.1077 2.54075 9.16636C2.47102 8.41394 2.51156 5.61667 2.51318 4.97208Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M8.25593 6.9294C8.25268 7.65426 7.64702 8.2502 6.91487 8.24858C6.18757 8.24696 5.5819 7.64048 5.58596 6.91805C5.59082 6.164 6.18757 5.57618 6.94648 5.57942C7.66647 5.58185 8.25917 6.19239 8.25593 6.9294Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="tag-label">${escapeHtml(tag)}</span> 
+        </a></li>`).join('')}
+    </ul>
+   </div>
+  `;
+  
+  appMainContainer.appendChild(tagsSection);
+
+
+  tagsLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    tagsSection.classList.add("is-active");
+
+    appMainContainer.classList.add("tags-section-open");
+  });
+
+  // click handler to tag links
+  const tagLinks = tagsSection.querySelectorAll(".tag-link");
+  tagLinks.forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const tag = link.getAttribute("data-tag");
+
+      tagsSection.classList.remove("is-active");
+      appMainContainer.classList.remove("tags-section-open");
+      document.dispatchEvent(new CustomEvent("filterNotesByTag", {
+        detail: { tag: tag }
+      }));
+    });
+  });
+};
+
+
+
 
 // Clear validation error
 export const clearValidationError = (field) => {
@@ -146,8 +309,6 @@ export const toggleArchiveView = (showArchived = false) => {
   // Return the state for use in other functions
   return showArchived;
 };
-
-
 
 
 // Clear note form (for creating/editing notes)
@@ -385,3 +546,13 @@ export const renderNoteDetails = (note) => {
 
   container.appendChild(detailWrapper);
 };
+
+export const getAllUniqueTags = () => {
+  const allNotes = getAllNotes();
+
+  const uniqueTags = [...new Set(allNotes.flatMap((note) => note.tags))].sort();
+
+  return uniqueTags;
+}
+
+
