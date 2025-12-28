@@ -313,6 +313,9 @@ function showCreateNoteForm() {
         </span>
         </div>
         <div class="form-group">
+            <button type="button" class="location-button" id="location-button">Add Location</button>
+        </div>
+        <div class="form-group">
           <textarea id="note-content" name="note-content" placeholder="Start typing your note here..." required></textarea>
         </div>
         <div class="form-group">
@@ -326,11 +329,9 @@ function showCreateNoteForm() {
 
 
     // add location permission request button to form
-    const locationButton = document.createElement("button");
-    locationButton.type = "button";
-    locationButton.classList.add("location-button");
-    locationButton.textContent = "Add Location";
-    locationButton.addEventListener('click', async () =>{
+    const locationButton = document.getElementById("location-button");
+    if(locationButton) {
+      locationButton.addEventListener('click', async () =>{
         try{
             const location = await geolocation.requestLocationPermission();
 
@@ -343,6 +344,7 @@ function showCreateNoteForm() {
             ui.showValidationError('location', error.message);
         }
     });
+    }
 
     // add event listener to create note button
     const createNoteBtn = document.getElementById("create-note-btn");
@@ -407,8 +409,13 @@ function showCreateNoteForm() {
     if(savedDraft){
         if(titleInput) titleInput.value = savedDraft.title || "";
         if(contentInput) contentInput.value = savedDraft.content || "";
-        if(tagsInput) tagsInput.value = savedDraft.tags.join(", ") || "";
-        if(tagsInput) tagsInput.value = savedDraft.tags.join(", ");
+        if(tagsInput) {
+            if(Array.isArray(savedDraft.tags)) {
+                tagsInput.value = savedDraft.tags.join(", ") || "";
+            } else {
+                tagsInput.value = savedDraft.tags || "";
+            }
+        };
         console.log("Draft restored:", savedDraft);
     }
 
