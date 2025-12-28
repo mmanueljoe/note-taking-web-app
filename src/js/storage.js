@@ -9,10 +9,28 @@ const STORAGE_KEYS = {
 export const saveNotes = (notes) => {
   try {
     localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify(notes));
-    return true;
+    return {success: true, error: null};
   } catch (error) {
-    console.error("Error saving notes:", error);
-    return false;
+    // check if it's a quota error
+    if(error.name === 'QuotaExceededError' || error.code === 22){
+      console.error('Storage quota exceeded!');
+
+      // return error info for user feedback
+      return {
+        success: false,
+        error: 'quota',
+        message: 'Storage quota exceeded. Please delete some notes to free up space.'
+      };
+    } else {
+      console.error("Error saving notes:", error);
+
+      // return error info for user feedback
+      return {
+        success: false,
+        error: 'unknown',
+        message: 'Failed to save notes. Please try again.'
+      };
+    }
   }
 };
 
@@ -38,10 +56,23 @@ export const savePreferences = (prefs) => {
       STORAGE_KEYS.PREFERENCES,
       JSON.stringify(updatedPrefs)
     );
-    return true;
+  return {success: true, error: null};
   } catch (error) {
-    console.error("Error saving preferences:", error);
-    return false;
+    if(error.name === 'QuotaExceededError' || error.code === 22){
+       return {
+        success: false,
+        error: 'quota',
+        message: 'Storage quota exceeded. Please delete some preferences to free up space.'
+       };
+    } else {
+
+      console.error("Error saving preferences:", error);
+      return {
+        success: false,
+        error: 'unknown',
+        message: 'Failed to save preferences. Please try again.'
+      };
+    }
   }
 };
 
@@ -59,21 +90,32 @@ export const loadPreferences = () => {
 // save draft to localStorage
 export const saveDraft = (draft) => {
   try {
-    localStorage.setItem(STORAGE_KEYS.DRAFT, JSON.stringify(draft));
-    return true;
+    sessionStorage.setItem(STORAGE_KEYS.DRAFT, JSON.stringify(draft));
+    return {success: true, error: null};
   } catch (error) {
     console.error("Error saving draft:", error);
-    return false;
+    return {success: false, error: 'unknown', message: 'Failed to save draft. Please try again.'};
   }
 };
 
 // load draft from localStorage
 export const loadDraft = () => {
   try {
-    const storedDraft = localStorage.getItem(STORAGE_KEYS.DRAFT);
-    return storedDraft ? JSON.parse(storedDraft) : null;
+    const storedDraft = sessionStorage.getItem(STORAGE_KEYS.DRAFT);
+    return storedDraft ? JSON.parse(storedDraft) : {success: true, error: null};
   } catch (error) {
     console.error("Error loading draft:", error);
-    return null;
+    return {success: false, error: 'unknown', message: 'Failed to load draft. Please try again.', draft: null};
+  }
+};
+
+// clear draft from sessionStorage
+export const clearDraft = () => {
+  try {
+    sessionStorage.removeItem(STORAGE_KEYS.DRAFT);
+    return {success: true, error: null};
+  } catch (error) {
+    console.error("Error clearing draft:", error);
+    return {success: false, error: 'unknown', message: 'Failed to clear draft. Please try again.'};
   }
 };

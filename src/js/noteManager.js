@@ -10,6 +10,7 @@ export class Note {
     this.createdAt = new Date();
     this.lastEdited = new Date();
     this.isArchived = false;
+    this.location = null;
   }
 
   archive() {
@@ -34,6 +35,7 @@ export class Note {
       createdAt: this.createdAt,
       lastEdited: this.lastEdited,
       isArchived: this.isArchived,
+      location: this.location,
     };
   }
 
@@ -44,6 +46,7 @@ export class Note {
     note.createdAt = json.createdAt ? new Date(json.createdAt) : new Date();
     note.lastEdited = json.lastEdited ? new Date(json.lastEdited) : new Date();
     note.isArchived = json.isArchived;
+    note.location = json.location;
     return note;
   }
 }
@@ -89,6 +92,7 @@ export const searchNotes = (query) => {
   );
 };
 
+
 // filter notes by tag
 export const filterByTag = (tag) => {
   const notes = loadNotes();
@@ -99,4 +103,23 @@ export const filterByTag = (tag) => {
 // get all notes
 export const getAllNotes = () => {
   return loadNotes();
+};
+
+// get archived notes
+export const getArchivedNotes = () => {
+  const notes = loadNotes();
+  return notes.filter((note) => note.isArchived === true);
+};
+
+// get unarchived notes
+export const getUnarchivedNotes = () => {
+  const notes = loadNotes();
+  return notes.filter((note) => !note.isArchived);
+};
+
+
+// get note by id
+export const getNoteById = (id) => {
+  const notes = loadNotes();
+  return notes.find((note) => note.id === id);
 };

@@ -2,6 +2,7 @@ import * as storage from './storage.js';
 import * as noteManager from './noteManager.js';
 import * as ui from './ui.js';
 import * as theme from './theme.js';
+import * as geolocation from './geolocation.js';
 import { formatDate } from './utils.js';
 
 // helper function to refresh everything
@@ -89,6 +90,31 @@ function setupEventListeners() {
         
     });
 
+    // === all notes link ===
+    const allNotesLink = document.querySelector(".all-notes-link");
+    if(allNotesLink) {
+        allNotesLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            const unarchivedNotes = noteManager.getUnarchivedNotes();
+            ui.renderAllNotes(unarchivedNotes);
+
+            ui.toggleArchiveView(false);
+        });
+    }
+
+
+    // === archived note ===
+    const archiveNoteLink = document.querySelector(".archived-notes-link");
+    if(archiveNoteLink) {
+        archiveNoteLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            const archivedNotes = noteManager.getArchivedNotes();
+            ui.renderAllNotes(archivedNotes);
+
+            ui.toggleArchiveView(true);
+        });
+    }
+
 
     // === filter notes by tag ===
     document.addEventListener("filterByTag", (e) => {
@@ -113,10 +139,133 @@ function setupEventListeners() {
     // archive note
     document.addEventListener("archiveNote", (e) => {
         const { noteId, isArchived } = e.detail;
-    noteManager.archiveNote(noteId, {isArchived});
+        noteManager.updateNote(noteId, {isArchived: !isArchived});
         refreshNotes();
     });
+
+    // === search functionality ===
+    const searchInput = document.querySelector(".search-container input[type='text']");
+    if(searchInput){
+        // debounce
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+
+            const query = e.target.value.trim();
+
+            searchTimeout = setTimeout(() => {
+                if(query.length === 0){
+                    refreshNotes();
+                    return;
+                } else {
+                    const results = noteManager.searchNotes(query);
+                    ui.renderAllNotes(results);
+
+                    const headerTitle = document.querySelector(".app-main-container-header h2");
+                    if(headerTitle){
+                        headerTitle.textContent = `Search Results for "${query}"`;
+                    }
+                }
+            }, 500);
+  
+        });
+    }
+
+
+    // === note click event delegation ===
+    const notesContainer = document.querySelector('.app-main-container-nav .content');
+    if(notesContainer){
+        notesContainer.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            // find the closest note card
+            const noteCard = e.target.closest('.note-card');
+            if(!noteCard) return;
+
+            // get note id
+            const noteId = noteCard.getAttribute('data-note-id');
+
+            // show note details
+            const note = noteManager.getNoteById(noteId);
+            if(note){
+                ui.renderNoteDetails(note);
+            }
+        });
+    }
+
+
+    // === note keyboard navigation ===
+    document.addEventListener('keydown', (e) => {
+        // enter key on form inputs
+        if(e.key === 'Enter' && e.target.matches('input, textarea')) {
+            const form = e.target.closest('form');
+            if(form && e.target.matches('textarea')) {
+                e.preventDefault();
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                if(submitButton) {
+                    submitButton.click();
+                }
+            }
+        }
+
+        // escape key on form inputs
+        if(e.key === 'Escape'){
+            const detailContainer = document.querySelector('.app-main-container-content');
+            if(detailContainer) {
+                detailContainer.innerHTML = "";
+                document.dispatchEvent(new CustomEvent("showNotesList"));
+            }
+ 
+        }
+
+        // arrow keys for note list navigation (implement later)
+    });
+
+    // keyboard navigation for note cards
+    const noteContainer = document.querySelector('.app-main-container-nav .content');
+    if(noteContainer){
+        noteContainer.addEventListener('keydown', (e) => {
+            if(e.target.classList.contains('note-card')) {
+                e.preventDefault();
+                const noteId = e.target.getAttribute('data-note-id');
+                if(noteId){
+                    const note = noteManager.getNoteById(noteId);
+                    if(note) {
+                        ui.renderNoteDetails(note);
+                    }
+                }
+            }
+        });
+    }
 }
+
+
+// === helper functions ===
+
+// function manageFocus(action, element){
+//     if(action === 'set'){
+//         element?.focus();
+//     } else if(action === 'trap'){
+//         // trap focus within a container(for modals)
+//         const focusableElements = element.querySelectorAll('button, input, textarea, [href], select, [tabindex]:not([tabindex="-1"])');
+
+//         const firstFocusable = focusableElements[0];
+//         const lastFocusable = focusableElements[focusableElements.length - 1];
+
+//         element.addEventListener('keydown', (e) => {
+//             if(e.key === 'Tab'){
+//                 if(e.shiftKey && document.activeElement === firstFocusable){
+//                     e.preventDefault();
+//                     lastFocusable.focus();
+//                 } else if(!e.shiftKey && document.activeElement === lastFocusable){
+//                     e.preventDefault();
+//                     firstFocusable.focus();
+//                 }
+//             }
+//         });
+//     } 
+// }
 
 
 // show create note form
@@ -175,10 +324,31 @@ function showCreateNoteForm() {
 
     container.appendChild(formWrapper);
 
+
+    // add location permission request button to form
+    const locationButton = document.createElement("button");
+    locationButton.type = "button";
+    locationButton.classList.add("location-button");
+    locationButton.textContent = "Add Location";
+    locationButton.addEventListener('click', async () =>{
+        try{
+            const location = await geolocation.requestLocationPermission();
+
+            locationButton.setAttribute('data-location', JSON.stringify(location));
+            locationButton.textContent = 'Location Added';
+        }catch(error){
+            console.error("Error requesting location:", error);
+
+            // show error message to user through ui
+            ui.showValidationError('location', error.message);
+        }
+    });
+
     // add event listener to create note button
     const createNoteBtn = document.getElementById("create-note-btn");
     if(createNoteBtn) {
-        createNoteBtn.addEventListener("click", () => {
+        createNoteBtn.addEventListener("click", (e) => {
+            e.preventDefault();
            handleCreateNote();
         });
     }
@@ -186,11 +356,67 @@ function showCreateNoteForm() {
     // add event listener to cancel button
     const cancelBtn = document.getElementById("create-cancel-btn");
     if(cancelBtn) {
-        cancelBtn.addEventListener("click", () => {
+        cancelBtn.addEventListener("click", (e) => {
+            e.preventDefault();
             container.innerHTML = "";
         });
     }
     // add event listener to form
+    const form = document.getElementById("create-note-form");
+    if(form) {
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            handleCreateNote();
+        });
+    }
+
+    // add event listener to draft save button
+    const titleInput = document.getElementById("note-title");
+    const contentInput = document.getElementById("note-content");
+    const tagsInput = document.getElementById("note-tags");
+    
+    // debounce function for autosave
+    let draftTimeout;
+    const autosaveDraft = () => {
+        clearTimeout(draftTimeout);
+        draftTimeout = setTimeout(() => {
+            const draft = {
+                title: titleInput.value.trim(),
+                content: contentInput.value,
+                tags: tagsInput.value.trim().split(",").map(tag => tag.trim()).filter(tag => tag.length > 0),
+                lastEdited: formatDate(new Date()),
+            }
+            storage.saveDraft(draft);
+            console.log("Draft saved:", draft);
+        }, 1000);
+    };
+
+    // input listeners for auto-save
+    if(titleInput){
+        titleInput.addEventListener("input", autosaveDraft);
+    }
+    if(contentInput){
+        contentInput.addEventListener("input", autosaveDraft);
+    }
+    if(tagsInput){
+        tagsInput.addEventListener("input", autosaveDraft);
+    }
+
+    // restore draft on form load
+    const savedDraft = storage.loadDraft();
+    if(savedDraft){
+        if(titleInput) titleInput.value = savedDraft.title || "";
+        if(contentInput) contentInput.value = savedDraft.content || "";
+        if(tagsInput) tagsInput.value = savedDraft.tags.join(", ") || "";
+        if(tagsInput) tagsInput.value = savedDraft.tags.join(", ");
+        console.log("Draft restored:", savedDraft);
+    }
+
+    // clear draft on form submission
+    // form.addEventListener("submit", () => {
+    //     storage.clearDraft();
+    //     console.log("Draft cleared");
+    // });
 }
 
 // handle create note submission
@@ -198,6 +424,12 @@ function handleCreateNote() {
     const titleInput = document.getElementById("note-title").value;
     const contentInput = document.getElementById("note-content").value;
     const tagsInput = document.getElementById("note-tags").value;
+    const locationButton = document.querySelector(".location-button");
+
+    let location = null;
+    if(locationButton && locationButton.hasAttribute('data-location')) {
+        location = JSON.parse(locationButton.getAttribute('data-location'));
+    }
 
     const title = titleInput.trim();
     const content = contentInput.trim();
@@ -214,12 +446,25 @@ function handleCreateNote() {
     try{
         // create note object
     const newNote = noteManager.createNote(title, content, tags);
+    newNote.location = location;
 
     // save note to storage
-    storage.saveNotes([...storage.getNotes(), newNote]);
+    // noteManager.saveNotes([...storage.getNotes(), newNote]);
+    const allNotes = noteManager.getAllNotes();
+    allNotes.push(newNote);
+
+    const result = storage.saveNotes(allNotes);
+    if(!result.success){
+        alert(result.message); // remember to show error in ui 
+        return;
+    }
+
+    // clear draft on successful note creation
+    storage.clearDraft();
+    console.log("Draft cleared");
 
     // refresh notes
-    // refreshNotes();
+    refreshNotes();
 
     // clear form/ close create view
     // const container = document.querySelector('.app-main-container-content');
