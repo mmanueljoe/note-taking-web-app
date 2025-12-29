@@ -37,9 +37,9 @@ export const requestLocationPermission = () => {
                 reject(new Error(message));
             },
             {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0,
+                enableHighAccuracy: false, // lower accuracy for battery savings
+                timeout: 15000, // 15 seconds
+                maximumAge: 60000, // 1 minute
             }
         );
     });

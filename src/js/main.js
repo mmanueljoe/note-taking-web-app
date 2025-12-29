@@ -5,6 +5,81 @@ import * as theme from './theme.js';
 import * as geolocation from './geolocation.js';
 import { formatDate } from './utils.js';
 
+
+// validation rules
+const VALIDATION_RULES = {
+    title: {
+        required: true,
+        minLength: 3,
+        maxLength: 100,
+        message: 'Title is required and must be between 3 and 100 characters.',
+    },
+    content: {
+        required: true,
+        minLength: 10,
+        maxLength: 1000,
+        message: 'Content is required and must be between 10 and 1000 characters.',
+    },
+    tags: {
+        required: true,
+        minLength: 1,
+        maxLength: 10,
+        message: 'Tags are required and must be between 1 and 10 tags.',
+    },
+    location: {
+        required: false,
+        message: 'Location is optional.',
+    },
+}
+
+// validate a single field
+function validateField(fieldId, value){
+    const field = VALIDATION_RULES[fieldId];
+    if(!field) return {isValid: true};
+
+    const trimmedValue = value.trim();
+
+    if(field.required && !trimmedValue){
+        return {
+            isValid: false,
+            message: `${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} is required.`
+        };
+    }
+
+    if(field.minLength && trimmedValue.length < field.minLength){
+        return {
+            isValid: false,
+            message: field.message || `${fieldId} must be at least ${field.minLength} characters.`
+        };
+    }
+
+    return { isValid: true};
+}
+
+// check if entire form is valid
+function isFormValid(){
+    const titleInput = document.getElementById("note-title");
+    const contentInput = document.getElementById("note-content");
+
+    if(!titleInput || !contentInput) return false;
+
+    const titleValidation = validateField("title", titleInput.value);
+    const contentValidation = validateField('content', contentInput.value);
+
+    return titleValidation.isValid && contentValidation.isValid;
+}
+
+// update submit button state
+function updateSubmitButtonState(){
+    const submitButton = document.getElementById("create-note-btn");
+
+    if(!submitButton) return;
+
+    const valid = isFormValid();
+    submitButton.disabled = !valid;
+    submitButton.classList.toggle('disabled', !valid);
+}
+
 // helper function to refresh everything
 function refreshNotes() {
     const allNotes = noteManager.getAllNotes();
@@ -75,11 +150,12 @@ function setupEventListeners() {
             detailContainer.innerHTML = "";
         }
 
-        // show success message
+        // show toast notification
+        ui.showToastDeleted();
     });
 
-    // === update note ===
-    document.addEventListener("updateNote", (e) => {
+    // === save note (from detail view) ===
+    document.addEventListener("saveNote", (e) => {
         const {noteId, title, content, tags} = e.detail;
 
         // update the note
@@ -88,6 +164,8 @@ function setupEventListeners() {
         // refresh the display
         refreshNotes();
         
+        // show toast notification
+        ui.showToastSaved();
     });
 
     // === all notes link ===
@@ -139,8 +217,25 @@ function setupEventListeners() {
     // archive note
     document.addEventListener("archiveNote", (e) => {
         const { noteId, isArchived } = e.detail;
-        noteManager.updateNote(noteId, {isArchived: !isArchived});
+        const newArchivedState = !isArchived;
+        noteManager.updateNote(noteId, {isArchived: newArchivedState});
         refreshNotes();
+        
+        // show toast notification
+        ui.showToastArchived(newArchivedState);
+    });
+
+    // show archived notes (from toast link)
+    document.addEventListener("showArchivedNotes", () => {
+        const archivedNotes = noteManager.getArchivedNotes();
+        ui.renderAllNotes(archivedNotes);
+        ui.toggleArchiveView(true);
+        
+        // Update nav link active state
+        const archiveLink = document.querySelector(".archived-notes-link");
+        const allNotesLink = document.querySelector(".all-notes-link");
+        if (archiveLink) archiveLink.classList.add("is-active");
+        if (allNotesLink) allNotesLink.classList.remove("is-active");
     });
 
     // === search functionality ===
@@ -419,11 +514,60 @@ function showCreateNoteForm() {
         console.log("Draft restored:", savedDraft);
     }
 
+    setupFormValidation();
+
     // clear draft on form submission
     // form.addEventListener("submit", () => {
     //     storage.clearDraft();
     //     console.log("Draft cleared");
     // });
+}
+
+// setup form validation listeners
+function setupFormValidation(){
+    const titleInput = document.getElementById('note-title');
+    const contentInput = document.getElementById('note-content');
+    const tagsInput = document.getElementById('note-tags');
+
+    if(!titleInput || !contentInput) return;
+
+    // validate blur
+    titleInput.addEventListener('blur', () => {
+        const validation = validateField('title', titleInput.value);
+        if(!validation.isValid){
+            ui.showValidationError('#note-title', validation.message);
+        } else {
+            ui.clearValidationError('#note-title');
+        }
+        updateSubmitButtonState();
+    });
+
+    contentInput.addEventListener('blur', () => {
+        const validation = validateField('content', contentInput.value);
+        if(!validation.isValid){
+            ui.showValidationError('#note-content', validation.message);
+        } else {
+            ui.clearValidationError('#note-content');
+        }
+        updateSubmitButtonState();
+    });
+
+    // clear errors on input (real-time feedback)
+    titleInput.addEventListener('input', () => {
+        ui.clearValidationError('#note-title');
+        updateSubmitButtonState();
+    });
+    contentInput.addEventListener('input', () => {
+        ui.clearValidationError('#note-content');
+        updateSubmitButtonState();
+    });
+    tagsInput.addEventListener('input', () => {
+        ui.clearValidationError('#note-tags');
+        updateSubmitButtonState();
+    });
+
+    // initial state check
+    updateSubmitButtonState();
 }
 
 // handle create note submission
@@ -441,6 +585,30 @@ function handleCreateNote() {
     const title = titleInput.trim();
     const content = contentInput.trim();
 
+    // validate inputs with dynamic DOM errors
+    const titleValidation = validateField('title', title);
+    const contentValidation = validateField('content', content);
+
+    let hasErrors = false;
+
+    if(!titleValidation.isValid){
+        ui.showValidationError('#note-title', titleValidation.message);
+        hasErrors = true;
+    }
+    if(!contentValidation.isValid){
+        ui.showValidationError('#note-content', contentValidation.message);
+        hasErrors = true;
+    }
+
+    if(hasErrors){
+        // focus first invalid
+        if(!titleValidation.isValid){
+            titleInput.focus();
+        } else if(!contentValidation.isValid){
+            contentInput.focus();
+        }
+        return;
+    }
     // parse tags into array
     const tags = tagsInput.trim().split(",").map(tag => tag.trim());
 
@@ -472,6 +640,9 @@ function handleCreateNote() {
 
     // refresh notes
     refreshNotes();
+
+    // show toast notification with link to view note
+    ui.showToastCreated(newNote.id);
 
     // clear form/ close create view
     // const container = document.querySelector('.app-main-container-content');

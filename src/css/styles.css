@@ -359,6 +359,149 @@ button {
 
 /* aside styling ends here */
 
+/* success message styling */
+.create-note-btn:disabled,
+.create-note-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.validation-error {
+    color: var(--error-color, #dc3545);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-group input.error,
+.form-group textarea.error {
+    border-color: var(--error-color, #dc3545);
+}
+
+/* Toast notification styling */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 400px;
+    background-color: var(--background-secondary, #fff);
+    border: 1px solid var(--border-primary, #e0e0e0);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    z-index: 10000;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.toast-notification.toast-enter {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast-notification.toast-exit {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary, #000);
+}
+
+.toast-created .toast-icon {
+    color: #4CAF50;
+}
+
+.toast-archived .toast-icon {
+    color: #FF9800;
+}
+
+.toast-deleted .toast-icon {
+    color: #F44336;
+}
+
+.toast-saved .toast-icon {
+    color: #2196F3;
+}
+
+.toast-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.toast-message {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-primary, #000);
+    line-height: 1.4;
+}
+
+.toast-link {
+    color: var(--text-primary, #000);
+    text-decoration: underline;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.toast-link:hover {
+    opacity: 0.7;
+}
+
+.toast-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--text-tertiary, #666);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.toast-close:hover {
+    color: var(--text-primary, #000);
+}
+
+/* Dark theme toast adjustments */
+.dark .toast-notification {
+    background-color: var(--background-secondary, #1a1a1a);
+    border-color: var(--border-primary, #333);
+}
+
+.dark .toast-message {
+    color: var(--text-primary, #fff);
+}
+
+.dark .toast-link {
+    color: var(--text-primary, #fff);
+}
+
+.dark .toast-close {
+    color: var(--text-tertiary, #999);
+}
+
+.dark .toast-close:hover {
+    color: var(--text-primary, #fff);
+}
+
+/* success message styling ends here */
+
 .dark {
   --background-primary: var(--neutral-700);
   --background-secondary: var(--neutral-950);
@@ -372,8 +515,6 @@ button {
 
   --icon-borderColor: var(--neutral-400);
 }
-
-
 
 .light {
   --background-primary: var(--neutral-100);
@@ -457,6 +598,34 @@ button {
     display: grid;
     grid-template-columns: 300px 1fr;
     grid-template-rows: 81px 1fr;
+  }
+
+  /* check this line(experimental) */
+  .app-main-container.has-note-selected{
+    grid-template-columns: 300px 1fr 200px;
+  }
+
+  .app-main-container-actions{
+    grid-column: 3 / span 1;
+    grid-row: 2 / 3;
+    padding: 1rem;
+    border-left: 1px solid var(--border-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+    background-color: var(--background-secondary);
+  }
+  
+  .app-main-container-actions:empty{
+    display: none;
+  }
+
+  .app-main-container-actions .archive-button,
+  .app-main-container-actions .delete-button{
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.75rem 1rem;
   }
 
   .app-main-container-header {

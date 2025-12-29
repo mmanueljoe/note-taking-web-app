@@ -135,6 +135,148 @@ export const showValidationError = (field, message) => {
   fieldElement.parentElement.appendChild(errorElement);
 };
 
+// Clear validation error
+export const clearValidationError = (field) => {
+  const fieldElement =
+    typeof field === "string" ? document.querySelector(field) : field;
+
+  if (!fieldElement) return;
+
+  fieldElement.classList.remove("error");
+  const existingError =
+    fieldElement.parentElement.querySelector(".validation-error");
+  if (existingError) {
+    existingError.remove();
+  }
+};
+
+// Toast notification system with icons and links
+export const showToast = (type, message, options = {}) => {
+  const { duration = 4000, linkText, linkAction, noteId } = options;
+  
+  // Remove existing toasts
+  const existingToasts = document.querySelectorAll(".toast-notification");
+  existingToasts.forEach(toast => {
+    toast.classList.add("toast-exit");
+    setTimeout(() => toast.remove(), 300);
+  });
+
+  // Create toast container
+  const toast = document.createElement("div");
+  toast.classList.add("toast-notification", `toast-${type}`);
+  toast.setAttribute("role", "alert");
+  toast.setAttribute("aria-live", "polite");
+
+  // Icons for different toast types
+  const icons = {
+    created: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 0C10.5523 0 11 0.447715 11 1V9H19C19.5523 9 20 9.44772 20 10C20 10.5523 19.5523 11 19 11H11V19C11 19.5523 10.5523 20 10 20C9.44772 20 9 19.5523 9 19V11H1C0.447715 11 0 10.5523 0 10C0 9.44772 0.447715 9 1 9H9V1C9 0.447715 9.44772 0 10 0Z" fill="currentColor"/>
+    </svg>`,
+    archived: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 3C2 2.44772 2.44772 2 3 2H17C17.5523 2 18 2.44772 18 3V5C18 5.55228 17.5523 6 17 6H16V15C16 16.1046 15.1046 17 14 17H6C4.89543 17 4 16.1046 4 15V6H3C2.44772 6 2 5.55228 2 5V3ZM6 6V15H14V6H6Z" fill="currentColor"/>
+    </svg>`,
+    deleted: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 2C7.44772 2 7 2.44772 7 3V4H3C2.44772 4 2 4.44772 2 5C2 5.55228 2.44772 6 3 6H4V15C4 16.1046 4.89543 17 6 17H14C15.1046 17 16 16.1046 16 15V6H17C17.5523 6 18 5.55228 18 5C18 4.44772 17.5523 4 17 4H13V3C13 2.44772 12.5523 2 12 2H8ZM14 6V15H6V6H14Z" fill="currentColor"/>
+    </svg>`,
+    saved: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16.7071 5.29289C17.0976 5.68342 17.0976 6.31658 16.7071 6.70711L8.70711 14.7071C8.31658 15.0976 7.68342 15.0976 7.29289 14.7071L3.29289 10.7071C2.90237 10.3166 2.90237 9.68342 3.29289 9.29289C3.68342 8.90237 4.31658 8.90237 4.70711 9.29289L8 12.5858L15.2929 5.29289C15.6834 4.90237 16.3166 4.90237 16.7071 5.29289Z" fill="currentColor"/>
+    </svg>`
+  };
+
+  // Build toast content
+  let toastContent = `
+    <div class="toast-icon">
+      ${icons[type] || icons.saved}
+    </div>
+    <div class="toast-content">
+      <p class="toast-message">${escapeHtml(message)}</p>
+      ${linkText && linkAction ? `
+        <a href="#" class="toast-link" data-action="${linkAction}" ${noteId ? `data-note-id="${noteId}"` : ''}>
+          ${escapeHtml(linkText)}
+        </a>
+      ` : ''}
+    </div>
+    <button class="toast-close" aria-label="Close notification">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  `;
+
+  toast.innerHTML = toastContent;
+  document.body.appendChild(toast);
+
+  // Trigger slide-in animation
+  setTimeout(() => toast.classList.add("toast-enter"), 10);
+
+  // Handle close button
+  const closeBtn = toast.querySelector(".toast-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      toast.classList.add("toast-exit");
+      setTimeout(() => toast.remove(), 300);
+    });
+  }
+
+  // Handle link click
+  const toastLink = toast.querySelector(".toast-link");
+  if (toastLink) {
+    toastLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const action = toastLink.getAttribute("data-action");
+      const noteId = toastLink.getAttribute("data-note-id");
+      
+      if (action === "view-note" && noteId) {
+        // Dispatch event to show note details
+        document.dispatchEvent(new CustomEvent("showNoteDetails", {
+          detail: { noteId }
+        }));
+      } else if (action === "view-archived") {
+        // Dispatch event to show archived notes
+        document.dispatchEvent(new CustomEvent("showArchivedNotes"));
+      }
+      
+      // Close toast after link click
+      toast.classList.add("toast-exit");
+      setTimeout(() => toast.remove(), 300);
+    });
+  }
+
+  // Auto-remove after duration
+  setTimeout(() => {
+    toast.classList.add("toast-exit");
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+};
+
+// Convenience functions for different toast types
+export const showToastCreated = (noteId) => {
+  showToast("created", "Note created successfully", {
+    linkText: "View note",
+    linkAction: "view-note",
+    noteId: noteId
+  });
+};
+
+export const showToastArchived = (isArchived) => {
+  showToast("archived", isArchived ? "Note archived" : "Note unarchived", {
+    linkText: "View archived notes",
+    linkAction: "view-archived"
+  });
+};
+
+export const showToastDeleted = () => {
+  showToast("deleted", "Note deleted successfully", {
+    duration: 3000
+  });
+};
+
+export const showToastSaved = () => {
+  showToast("saved", "Note saved successfully", {
+    duration: 3000
+  });
+};
+
 // render tags menu for desktop
 export const renderTagLinks = (tags) => {
   const menuList = document.querySelector(".menu-list");
@@ -273,20 +415,6 @@ export const initializeTagsMenu = () => {
   });
 };
 
-// Clear validation error
-export const clearValidationError = (field) => {
-  const fieldElement =
-    typeof field === "string" ? document.querySelector(field) : field;
-
-  if (!fieldElement) return;
-
-  fieldElement.classList.remove("error");
-  const existingError =
-    fieldElement.parentElement.querySelector(".validation-error");
-  if (existingError) {
-    existingError.remove();
-  }
-};
 
 // Update tag list display (for tag management UI)
 export const updateTagList = (tags) => {
@@ -416,6 +544,21 @@ export const renderNoteDetails = (note) => {
   });
 
   // actions buttons container (desktop, top right corner)
+  let actionsColumn = document.querySelector(".app-main-container-actions");
+  if(!actionsColumn){
+    actionsColumn = document.createElement('div');
+    actionsColumn.classList.add('app-main-container-actions', 'desktop-only');
+    const appMainContainer = document.querySelector('.app-main-container');
+    if(appMainContainer){
+      appMainContainer.appendChild(actionsColumn);
+
+      appMainContainer.classList.add('has-note-selected');
+    } else {
+      // clear existing actions
+      actionsColumn.innerHTML = "";
+    }
+  }
+
   const actionButtons = document.createElement("div");
   actionButtons.classList.add("note-actions", "desktop-only");
 
@@ -469,11 +612,11 @@ export const renderNoteDetails = (note) => {
     }
   });
 
-  actionButtons.appendChild(archiveButton);
-  actionButtons.appendChild(deleteButton);
+  // actionButtons.appendChild(archiveButton);
+  // actionButtons.appendChild(deleteButton);
+  actionsColumn.appendChild(archiveButton);
+  actionsColumn.appendChild(deleteButton);
 
-  headerSection.appendChild(backButton);
-  headerSection.appendChild(actionButtons);
 
   // create content section
   const contentSection = document.createElement("div");
@@ -490,7 +633,7 @@ export const renderNoteDetails = (note) => {
   metaRow.classList.add("note-details-meta");
 
   const tagsDisplay = document.createElement("div");
-  tagsDisplay.classList.add("note-details-tags");
+  tagsDisplay.classList.add("note-details-tags", "desktop-only");
 
   // label with icon
   const tagsLabel = document.createElement("span");
@@ -557,13 +700,20 @@ export const renderNoteDetails = (note) => {
   const contentDisplay = document.createElement("textarea");
   contentDisplay.classList.add("note-details-body", "editable");
   contentDisplay.value = note.content || "";
-  // Preserve line breaks in content
-  const contentText = escapeHtml(note.content || "");
-  contentDisplay.innerHTML = contentText.replace(/\n/g, "<br>");
 
   contentSection.appendChild(title);
   contentSection.appendChild(metaRow);
   contentSection.appendChild(contentDisplay);
+
+  contentDisplay.addEventListener("keydown", (e) => {
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      const saveButton = document.querySelector(".save-button");
+      if(saveButton){
+        saveButton.click();
+      }
+    }
+  });
 
   // footer section
   const footerSection = document.createElement("div");
