@@ -150,6 +150,18 @@ function setupEventListeners() {
             detailContainer.innerHTML = "";
         }
 
+        // remove 3-column layout
+        const appMainContainer = document.querySelector('.app-main-container');
+        if(appMainContainer){
+            appMainContainer.classList.remove('has-note-selected');
+        }
+
+        // clear actions columns
+        const actionsColumn = document.querySelector('.app-main-container-actions');
+        if(actionsColumn){
+            actionsColumn.innerHTML = "";
+        }
+
         // show toast notification
         ui.showToastDeleted();
     });
@@ -174,12 +186,11 @@ function setupEventListeners() {
         allNotesLink.addEventListener("click", (e) => {
             e.preventDefault();
             const unarchivedNotes = noteManager.getUnarchivedNotes();
-            ui.renderAllNotes(unarchivedNotes);
+            ui.renderAllNotes(unarchivedNotes, null, "all");
 
             ui.toggleArchiveView(false);
         });
     }
-
 
     // === archived note ===
     const archiveNoteLink = document.querySelector(".archived-notes-link");
@@ -187,7 +198,7 @@ function setupEventListeners() {
         archiveNoteLink.addEventListener("click", (e) => {
             e.preventDefault();
             const archivedNotes = noteManager.getArchivedNotes();
-            ui.renderAllNotes(archivedNotes);
+            ui.renderAllNotes(archivedNotes, null, 'archived');
 
             ui.toggleArchiveView(true);
         });
@@ -195,16 +206,16 @@ function setupEventListeners() {
 
 
     // === filter notes by tag ===
-    document.addEventListener("filterByTag", (e) => {
+    document.addEventListener("filterNotesByTag", (e) => {
         const { tag } = e.detail;
         const filteredNotes = noteManager.filterByTag(tag);
-        ui.renderAllNotes(filteredNotes, tag);
+        ui.renderAllNotes(filteredNotes, tag, "all");
     });
 
     // show all notes (backbutton)
     document.addEventListener("showAllNotes", () => {
         const allNotes = noteManager.getAllNotes();
-        ui.renderAllNotes(allNotes);
+        ui.renderAllNotes(allNotes, null, 'all');
     });
 
     // show note details
@@ -268,25 +279,41 @@ function setupEventListeners() {
 
 
     // === note click event delegation ===
-    const notesContainer = document.querySelector('.app-main-container-nav .content');
-    if(notesContainer){
-        notesContainer.addEventListener('click', (e) => {
-            e.preventDefault();
+    // const notesContainer = document.querySelector('.app-main-container-nav .content');
+    // if(notesContainer){
+    //     notesContainer.addEventListener('click', (e) => {
+    //         e.preventDefault();
 
-            // find the closest note card
-            const noteCard = e.target.closest('.note-card');
-            if(!noteCard) return;
+    //         // find the closest note card
+    //         const noteCard = e.target.closest('.note-card');
+    //         if(!noteCard) return;
 
-            // get note id
-            const noteId = noteCard.getAttribute('data-note-id');
+    //         // get note id
+    //         const noteId = noteCard.getAttribute('data-note-id');
 
-            // show note details
-            const note = noteManager.getNoteById(noteId);
-            if(note){
-                ui.renderNoteDetails(note);
-            }
-        });
-    }
+    //         // show note details
+    //         const note = noteManager.getNoteById(noteId);
+    //         if(note){
+    //             ui.renderNoteDetails(note);
+    //         }
+    //     });
+    // }
+    document.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const noteCard = e.target.closest('.note-card');
+        if(!noteCard) return;
+
+
+        const noteId = noteCard.getAttribute('data-note-id');
+        if(!noteId) return;
+
+        
+        const note = noteManager.getNoteById(noteId);
+        if(note){
+            ui.renderNoteDetails(note);
+        }
+    });
 
 
     // === note keyboard navigation ===

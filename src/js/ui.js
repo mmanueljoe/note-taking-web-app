@@ -10,7 +10,7 @@ export const renderNote = (note) => {
 
   noteElement.innerHTML = `
     <h3 class="note-title">${escapeHtml(note.title)}</h3>
-    <div class="note-tags">
+      <div class="note-tags">
       ${note.tags
         .map((tag) => `<span class="note-tag">${escapeHtml(tag)}</span>`)
         .join("")}
@@ -24,27 +24,52 @@ export const renderNote = (note) => {
   return noteElement;
 };
 
-export const renderAllNotes = (notes, filterTag = null) => {
+export const renderAllNotes = (notes, filterTag = null, viewType = "all") => {
   // select container
-  const navContainer = document.querySelector(".app-main-container-nav");
-  if (!navContainer) return;
+  const isDesktop = window.innerWidth >= 1024;
 
-  const contentContainer = document.querySelector(".content");
-  if (!contentContainer) return;
+  let targetContainer;
+  if(isDesktop){
+    const navContainer = document.querySelector('.app-main-container-nav');
+    if(!navContainer) return;
+    targetContainer = navContainer.querySelector('.content');
+    if(!targetContainer) return;
+    targetContainer.innerHTML = "";
+  }else{
+    targetContainer = document.querySelector('.app-main-container-content');
+    if(!targetContainer) return;
 
-  // clear existing content
-  contentContainer.innerHTML = "";
+    const tagsMenu = targetContainer.querySelector("#tags-menu-sm");
+    
+    const children = Array.from(targetContainer.children);
+    children.forEach(child => {
+      if(child.id !== "tags-menu-sm"){
+        child.remove();
+      }
+    });
 
-  console.log(contentContainer);
+    if(tagsMenu){
+      tagsMenu.style.display = "none";
+      tagsMenu.classList.remove('is-active');
+    }
+  }
+
+
+  if(!targetContainer) return;
+  
 
   // if no notes, show a placeholder message
   if (!notes || notes.length === 0) {
-    renderEmptyState();
+    renderEmptyState(viewType);
+    updateHeader(filterTag, viewType);
     return;
   }
 
+  // update header title
+  updateHeader(filterTag, viewType);
+
   // If filtered by tag, add back button (mobile/tablet only) and update header
-  if (filterTag) {
+  if (filterTag && !isDesktop) {
     // Update header to show tag name
     const headerTitle = document.querySelector(".app-main-container-header h2");
     if (headerTitle) {
@@ -58,6 +83,7 @@ export const renderAllNotes = (notes, filterTag = null) => {
       "filter-back-button",
       "mobile-tablet-only"
     );
+
     backButton.innerHTML = `
       <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path fill-rule="evenodd" clip-rule="evenodd" d="M6.31047 12.621L0 6.3105L6.31047 0L7.37097 1.0605L2.12097 6.3105L7.37097 11.5605L6.31047 12.621Z" fill="currentColor"/>
@@ -75,7 +101,7 @@ export const renderAllNotes = (notes, filterTag = null) => {
       // Dispatch event to show all notes
       document.dispatchEvent(new CustomEvent("showAllNotes"));
     });
-    contentContainer.appendChild(backButton);
+    targetContainer.appendChild(backButton);
   } else {
     // If not filtered, ensure header shows "All Notes"
     const headerTitle = document.querySelector(".app-main-container-header h2");
@@ -85,7 +111,7 @@ export const renderAllNotes = (notes, filterTag = null) => {
   }
 
   //  data attribute for event delegation
-  contentContainer.setAttribute("data-notes-container", "true");
+  targetContainer.setAttribute("data-notes-container", "true");
 
   //  note list container
   const noteList = document.createElement("div");
@@ -104,7 +130,7 @@ export const renderAllNotes = (notes, filterTag = null) => {
   });
 
   // append note list to content container
-  contentContainer.appendChild(noteList);
+  targetContainer.appendChild(noteList);
 };
 
 // Show validation error for form fields
@@ -279,6 +305,7 @@ export const showToastSaved = () => {
 
 // render tags menu for desktop
 export const renderTagLinks = (tags) => {
+
   const menuList = document.querySelector(".menu-list");
   if (!menuList) return;
 
@@ -298,7 +325,8 @@ export const renderTagLinks = (tags) => {
 
   // find "archived notes" link
   const archivedNotesLink = Array.from(menuList.children).find((child) => {
-    const isArchivedLink = child.querySelector("a");
+    console.log(child);
+    const isArchivedLink = child.querySelector(".archived-notes-link");
     return (
       (isArchivedLink &&
         isArchivedLink.textContent.includes("Archived Notes")) ||
@@ -358,21 +386,51 @@ export const initializeTagsMenu = () => {
   if (!tagsLinkItem) return;
 
   const tagsLink = tagsLinkItem.querySelector("a");
+  console.log(tagsLink);
   if (!tagsLink) return;
 
-  // create tags section
-  const appMainContainer = document.querySelector(".app-main-container");
-  const tagsSection = document.createElement("section");
-  tagsSection.classList.add("tags-section-sm", "mobile-tablet-only");
-  tagsSection.id = "tags-menu";
+  // get content container
+  const contentContainer = document.querySelector(".app-main-container-content");
+  if(!contentContainer) return;
 
-  tagsSection.innerHTML = `
-   <header class="tags-section-header">
-    <h2 class="tags-heading">Tags</h2>
-   </header>
-   <div class="tags-section-content">
-    <ul class="tags-list-sm">
-      ${tags
+  // check if tags menu already exists
+  let tagsMenu = contentContainer.querySelector('#tags-menu-sm');
+
+  if(!tagsMenu){
+    //  create tags menu container directly
+    tagsMenu = document.createElement('div');
+    tagsMenu.id = 'tags-menu-sm';
+    tagsMenu.classList.add('tags-section-sm', 'mobile-tablet-only');
+    contentContainer.appendChild(tagsMenu);
+
+
+    tagsMenu.innerHTML = `
+     <div class="tags-section-content">
+      <ul class="tags-list-sm">
+        ${tags
+          .map(
+            (tag) => `<li class="tag-item-sm">
+          <a href="#" class="tag-link" data-tag="${escapeHtml(tag)}">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M2.51318 4.97208C2.51562 3.79561 3.40507 2.74076 4.55965 2.54211C4.7964 2.50076 7.5734 2.50643 8.72233 2.50724C9.85909 2.50806 10.828 2.9167 11.6307 3.71777C13.335 5.41883 15.0377 7.12152 16.7379 8.82585C17.7441 9.83369 17.7579 11.3807 16.7558 12.3918C15.3101 13.8512 13.8571 15.3034 12.3985 16.749C11.3883 17.7504 9.84125 17.7374 8.83259 16.7312C7.11287 15.0163 5.39315 13.3014 3.68074 11.5793C3.01831 10.9129 2.62751 10.1077 2.54075 9.16636C2.47102 8.41394 2.51156 5.61667 2.51318 4.97208Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M8.25593 6.9294C8.25268 7.65426 7.64702 8.2502 6.91487 8.24858C6.18757 8.24696 5.5819 7.64048 5.58596 6.91805C5.59082 6.164 6.18757 5.57618 6.94648 5.57942C7.66647 5.58185 8.25917 6.19239 8.25593 6.9294Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="tag-label">${escapeHtml(tag)}</span> 
+          </a></li>`
+          )
+          .join("")}
+      </ul>
+     </div>
+    `;
+    tagsMenu.style.display = "none";
+
+
+    setupTagsMenuEventListeners(tagsMenu, tagsLink, contentContainer);
+  } else {
+    // If tags menu exists, just update the tags list without removing listeners
+    const tagsList = tagsMenu.querySelector('.tags-list-sm');
+    if(tagsList) {
+      tagsList.innerHTML = tags
         .map(
           (tag) => `<li class="tag-item-sm">
         <a href="#" class="tag-link" data-tag="${escapeHtml(tag)}">
@@ -383,38 +441,29 @@ export const initializeTagsMenu = () => {
         <span class="tag-label">${escapeHtml(tag)}</span> 
         </a></li>`
         )
-        .join("")}
-    </ul>
-   </div>
-  `;
+        .join("");
+      
+      // Re-attach listeners to new tag links
+      const tagLinks = tagsList.querySelectorAll(".tag-link");
+      tagLinks.forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const tag = link.getAttribute("data-tag");
+          tagsMenu.style.display = "none";
+          tagsMenu.classList.remove("is-active");
+          contentContainer.classList.remove("tags-section-open");
+          tagsLink.classList.remove("is-active");
+          document.dispatchEvent(
+            new CustomEvent("filterNotesByTag", {
+              detail: { tag: tag },
+            })
+          );
+        });
+      });
+    }
+  }
 
-  appMainContainer.appendChild(tagsSection);
-
-  tagsLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    tagsSection.classList.add("is-active");
-
-    appMainContainer.classList.add("tags-section-open");
-  });
-
-  // click handler to tag links
-  const tagLinks = tagsSection.querySelectorAll(".tag-link");
-  tagLinks.forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      const tag = link.getAttribute("data-tag");
-
-      tagsSection.classList.remove("is-active");
-      appMainContainer.classList.remove("tags-section-open");
-      document.dispatchEvent(
-        new CustomEvent("filterNotesByTag", {
-          detail: { tag: tag },
-        })
-      );
-    });
-  });
-};
-
+}
 
 // Update tag list display (for tag management UI)
 export const updateTagList = (tags) => {
@@ -498,24 +547,93 @@ export const clearNoteForm = () => {
 
 // === helper functions ===
 // render empty state
-export const renderEmptyState = () => {
-  const contentContainer = document
-    .querySelector(".app-main-container-nav")
-    .querySelector(".content");
-  contentContainer.innerHTML = `
-   <p>
-      You don't have any notes yet. Start a new note to capture your
-      thoughts and ideas.
-    </p>
-  `;
+export const renderEmptyState = (viewType = "all") => {
+  const isDesktop = window.innerWidth >= 1024;
+
+  let targetContainer;
+  if(isDesktop){
+    const navContainer = document.querySelector('.app-main-container-nav');
+    if(!navContainer) return;
+    targetContainer = navContainer.querySelector('.content');
+  }else{
+    targetContainer = document.querySelector('.app-main-container-content');
+  }
+
+  // Preserve tags menu
+  const tagsMenu = targetContainer.querySelector("#tags-menu-sm");
+    
+  // Clear but preserve tags menu
+  const children = Array.from(targetContainer.children);
+  children.forEach(child => {
+    if(child.id !== "tags-menu-sm") {
+      child.remove();
+    }
+  });
+  
+  // Ensure tags menu is hidden
+  if(tagsMenu) {
+    tagsMenu.style.display = "none";
+    tagsMenu.classList.remove("is-active");
+  }
+
+  if(!targetContainer) return;
+
+   // Create empty state container
+   const emptyStateContainer = document.createElement("div");
+   emptyStateContainer.classList.add("empty-state");
+ 
+   if(viewType === "archived") {
+     // Archived notes empty state
+     emptyStateContainer.innerHTML = `
+       <div class="empty-state-content">
+         <p class="empty-state-message">All your archived notes are stored here. You can restore or delete them anytime.</p>
+         <p class="empty-state-submessage">
+           No notes have been archived yet. Move notes here for safekeeping, or
+           <a href="#" class="empty-state-link" id="create-note-link">create a new note</a>.
+         </p>
+       </div>
+     `;
+     
+     // Add click handler for the link
+     const createNoteLink = emptyStateContainer.querySelector("#create-note-link");
+     if(createNoteLink) {
+       createNoteLink.addEventListener("click", (e) => {
+         e.preventDefault();
+         // Dispatch event to show create note form
+         document.dispatchEvent(new CustomEvent("showCreateNoteForm"));
+       });
+     }
+   } else {
+     // All notes empty state
+     emptyStateContainer.innerHTML = `
+       <div class="empty-state-content">
+         <p class="empty-state-submessage">You don't have any notes yet. Start a new note to capture your thoughts and ideas.</p>
+       </div>
+     `;
+   }
+ 
+   targetContainer.appendChild(emptyStateContainer);
 };
 
 // render note details
 export const renderNoteDetails = (note) => {
   const container = document.querySelector(".app-main-container-content");
 
-  // clear existing content
-  container.innerHTML = "";
+   // Preserve tags menu when clearing
+   const tagsMenu = container.querySelector("#tags-menu-sm");
+  
+   // Clear container but preserve tags menu
+   const children = Array.from(container.children);
+   children.forEach(child => {
+     if(child.id !== "tags-menu-sm") {
+       child.remove();
+     }
+   });
+
+  if(tagsMenu){
+    tagsMenu.style.display = "none";
+    tagsMenu.classList.remove("is-active");
+  }
 
   // create main wrapper
   const detailWrapper = document.createElement("div");
@@ -524,7 +642,7 @@ export const renderNoteDetails = (note) => {
 
   // create header section
   const headerSection = document.createElement("div");
-  headerSection.classList.add("note-details-header");
+  headerSection.classList.add("note-details-header", "mobile-tablet-only");
   detailWrapper.appendChild(headerSection);
 
   //  back button (mobile, tablet)
@@ -536,10 +654,250 @@ export const renderNoteDetails = (note) => {
     </svg>
     <span class="back-button-label">Back</span>
   `;
+
+  headerSection.appendChild(backButton);
+
+  // === mobile/tablet actions buttons ===
+  const mobileActionsRow = document.createElement("div");
+  mobileActionsRow.classList.add("note-details-header-actions", "mobile-tablet-only");
+
+  // Delete button for mobile/tablet
+  const mobileDeleteButton = document.createElement("button");
+  mobileDeleteButton.classList.add("delete-button", "mobile-tablet-only");
+  mobileDeleteButton.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.3769 3.10322L13.0587 4.53105H15.2582C15.9345 4.53105 16.4827 5.05735 16.4827 5.70658V6.57714C16.4827 7.02103 16.1079 7.38087 15.6455 7.38087H4.17071C3.70833 7.38087 3.3335 7.02103 3.3335 6.57714V5.70658C3.3335 5.05735 3.88173 4.53105 4.55802 4.53105H6.75754L7.43937 3.10322C7.64395 2.67474 8.08995 2.40002 8.58095 2.40002H11.2353C11.7263 2.40002 12.1722 2.67474 12.3769 3.10322Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M15.2 7.44061V14.3892C15.2 15.7209 14.0895 16.8004 12.7195 16.8004H7.09717C5.72725 16.8004 4.6167 15.7209 4.6167 14.3892V7.44061" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8.49951 10.2531V13.8598M11.3165 10.2531V13.8598" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `;
+  mobileDeleteButton.addEventListener("click", () => {
+    // display modal for confirmation
+    const modal = document.createElement("div");
+    modal.classList.add("modal");
+    modal.innerHTML = `
+      <div class="modal-content">
+       <span class="modal-icon">
+         <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.8521 3.87899L15.6702 5.66378H18.3097C19.1212 5.66378 19.7791 6.32166 19.7791 7.1332V8.2214C19.7791 8.77626 19.3293 9.22606 18.7745 9.22606H5.00466C4.4498 9.22606 4 8.77626 4 8.2214V7.1332C4 6.32166 4.65788 5.66378 5.46943 5.66378H8.10885L8.92705 3.87899C9.17255 3.34339 9.70775 3 10.2969 3H13.4821C14.0713 3 14.6065 3.34339 14.8521 3.87899Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18.24 9.30078V17.9865C18.24 19.6511 16.9073 21.0005 15.2634 21.0005H8.51661C6.8727 21.0005 5.54004 19.6511 5.54004 17.9865V9.30078" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10.1992 12.8164V17.3248M13.5796 12.8164V17.3248" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+       </span>
+       <div class="modal-label">
+          <h2>Delete Note</h2>
+          <p>Are you sure you want to delete this note? This action cannot be undone.</p>
+       </div>
+       <div class="modal-buttons">
+          <button class="modal-cancel-button">Cancel</button>
+          <button class="modal-delete-button">Delete Note</button>
+       </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => {
+      modal.style.display = 'flex';
+      modal.classList.add('modal-open');
+    }, 10);
+
+    // close modal when clicking backdrop
+    modal.addEventListener("click", (e) => {
+      if(e.target.classList.contains("modal")) {
+        closeModal();
+      }
+    });
+
+    const cancelBtn = modal.querySelector('.modal-cancel-button');
+    cancelBtn.addEventListener('click', () => {
+      closeModal();
+    });
+    
+    const deleteBtn = modal.querySelector('.modal-delete-button');
+    deleteBtn.addEventListener('click', () => {
+      const event = new CustomEvent('deleteNote', {
+        detail: { noteId: note.id},
+      });
+      document.dispatchEvent(event);
+      closeModal();
+    });
+
+    function closeModal(){
+      modal.classList.remove('modal-open');
+      modal.classList.add('modal-close');
+      setTimeout(() => {
+        modal.remove();
+        document.body.style.overflow = "";
+      }, 300);
+    }
+  });
+
+  // save button for mobile/tablet
+  const mobileSaveButton = document.createElement('button');
+  mobileSaveButton.classList.add('save-button', 'mobile-tablet-only');
+  mobileSaveButton.textContent = 'Save Note';
+
+  mobileSaveButton.addEventListener('click', () => {
+    const updatedTitle = title.value.trim();
+    const updatedContent = contentDisplay.value.trim();
+
+    // parse tags
+    const updatedTags = tagsInput.value
+    .trim()
+    .split(',')
+    .map(tag => tag.trim())
+    .filter((tag) => tag.length > 0);
+
+    const event = new CustomEvent("saveNote", {
+      detail: {
+        noteId: note.id,
+        title: updatedTitle,
+        content: updatedContent,
+        tags: updatedTags,
+      },
+    });
+    document.dispatchEvent(event);
+  });
+
+  // cancel button for mobile/tablet
+  const mobileCancelButton = document.createElement("button");
+  mobileCancelButton.classList.add('cancel-button', 'mobile-tablet-only');
+  mobileCancelButton.textContent = 'Cancel';
+  mobileCancelButton.addEventListener('click', () => {
+    // Clear container but preserve tags menu
+    const children = Array.from(container.children);
+    children.forEach(child => {
+      if(child.id !== "tags-menu-sm") {
+        child.remove();
+      }
+    });
+    
+    // Ensure tags menu is hidden
+    if(tagsMenu) {
+      tagsMenu.style.display = "none";
+      tagsMenu.classList.remove("is-active");
+    }
+
+     // remove 3-column layout
+     const appMainContainer = document.querySelector('.app-main-container');
+     if(appMainContainer){
+       appMainContainer.classList.remove('has-note-selected');
+     }
+ 
+     // remove actions column
+     const actionsColumn = document.querySelector('.app-main-container-actions');
+     if(actionsColumn){
+       actionsColumn.remove();
+     }
+
+    const event = new CustomEvent("cancelNote", {
+      detail: { noteId: note.id },
+    });
+    document.dispatchEvent(event);
+  });
+
+  const mobileArchiveButton = document.createElement("button");
+  mobileArchiveButton.classList.add('archive-button', 'mobile-tablet-only');
+  mobileArchiveButton.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M3.09026 6.16962C3.4082 6.03519 3.7749 6.18396 3.90932 6.50189L5.00629 9.09638L7.58326 8.0068C7.9012 7.87239 8.2679 8.02114 8.40233 8.33904C8.53675 8.65704 8.388 9.02371 8.07005 9.15813L4.91741 10.491C4.59948 10.6255 4.23278 10.4767 4.09836 10.1588L2.758 6.98867C2.62357 6.67074 2.77234 6.30404 3.09026 6.16962Z" fill="currentColor"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M10.7624 4.71991C7.89009 4.71991 5.55539 7.008 5.4832 9.85328C5.47445 10.1983 5.18762 10.4709 4.84255 10.4622C4.49749 10.4534 4.22485 10.1666 4.2336 9.82153C4.32299 6.29821 7.21239 3.46991 10.7624 3.46991C14.366 3.46991 17.2915 6.39544 17.2915 9.99894C17.2915 13.6097 14.3655 16.528 10.7624 16.528C8.52867 16.528 6.56351 15.41 5.38176 13.708C5.18489 13.4244 5.25516 13.035 5.53869 12.8382C5.82223 12.6413 6.21167 12.7115 6.40854 12.9951C7.36759 14.3764 8.957 15.278 10.7624 15.278C13.6761 15.278 16.0415 12.9184 16.0415 9.99894C16.0415 7.0858 13.6756 4.71991 10.7624 4.71991Z" fill="currentColor"/>
+    </svg>
+    <span class="archive-button-label">Archive Note</span>
+  `;
+  mobileArchiveButton.addEventListener("click", () => {
+    // confirmation  modal
+    const modal = document.createElement("div");
+    modal.classList.add("modal");
+
+    modal.innerHTML = `
+      <div class="modal-content">
+       <span class="modal-icon">
+         <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.8521 3.87899L15.6702 5.66378H18.3097C19.1212 5.66378 19.7791 6.32166 19.7791 7.1332V8.2214C19.7791 8.77626 19.3293 9.22606 18.7745 9.22606H5.00466C4.4498 9.22606 4 8.77626 4 8.2214V7.1332C4 6.32166 4.65788 5.66378 5.46943 5.66378H8.10885L8.92705 3.87899C9.17255 3.34339 9.70775 3 10.2969 3H13.4821C14.0713 3 14.6065 3.34339 14.8521 3.87899Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18.24 9.30078V17.9865C18.24 19.6511 16.9073 21.0005 15.2634 21.0005H8.51661C6.8727 21.0005 5.54004 19.6511 5.54004 17.9865V9.30078" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10.1992 12.8164V17.3248M13.5796 12.8164V17.3248" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+       </span>
+       <div class="modal-label">
+          <h2>Archive Note</h2>
+          <p>Are you sure you want to archive this note? This action cannot be undone.</p>
+       </div>
+       <div class="modal-buttons">
+          <button class="modal-cancel-button">Cancel</button>
+          <button class="modal-archive-button">Delete Note</button>
+       </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => {
+      modal.style.display = 'flex';
+      modal.classList.add('modal-open');
+    }, 10);
+
+    // close modal when clicking backdrop
+    modal.addEventListener("click", (e) => {
+      if(e.target.classList.contains("modal")) {
+        closeModal();
+      }
+    });
+
+    const cancelBtn = modal.querySelector('.modal-cancel-button');
+    cancelBtn.addEventListener('click', () => {
+      closeModal();
+    });
+    
+    const archiveBtn = modal.querySelector('.modal-archive-button');
+    archiveBtn.addEventListener('click', () => {
+      const event = new CustomEvent('archiveNote', {
+        detail: { noteId: note.id, isArchived: true },
+      });
+      document.dispatchEvent(event);
+      closeModal();
+    });
+
+    function closeModal(){
+      modal.classList.remove('modal-open');
+      modal.classList.add('modal-close');
+      setTimeout(() => {
+        modal.remove();
+        document.body.style.overflow = "";
+      }, 300);
+    }
+  });
+
+  mobileActionsRow.appendChild(backButton);
+  mobileActionsRow.appendChild(mobileArchiveButton);
+  mobileActionsRow.appendChild(mobileCancelButton);
+  mobileActionsRow.appendChild(mobileSaveButton);
+
+
+
+  headerSection.appendChild(mobileActionsRow);
+
   backButton.addEventListener("click", () => {
-    // Clear detail view and show list again
-    container.innerHTML = "";
-    // Dispatch event to reload notes list
+   // Preserve tags menu when clearing
+   const tagsMenu = container.querySelector("#tags-menu-sm");
+    
+   // Clear container but preserve tags menu
+   const children = Array.from(container.children);
+   children.forEach(child => {
+     if(child.id !== "tags-menu-sm") {
+       child.remove();
+     }
+   });
+   
+   // Ensure tags menu is hidden
+   if(tagsMenu) {
+     tagsMenu.style.display = "none";
+     tagsMenu.classList.remove("is-active");
+   }
+
     document.dispatchEvent(new CustomEvent("showNotesList"));
   });
 
@@ -551,12 +909,17 @@ export const renderNoteDetails = (note) => {
     const appMainContainer = document.querySelector('.app-main-container');
     if(appMainContainer){
       appMainContainer.appendChild(actionsColumn);
-
       appMainContainer.classList.add('has-note-selected');
-    } else {
-      // clear existing actions
-      actionsColumn.innerHTML = "";
     }
+  } else {
+    // Clear existing buttons to prevent duplicates
+    actionsColumn.innerHTML = "";
+  }
+  
+  // Ensure has-note-selected class is added even if actionsColumn already exists
+  const appMainContainer = document.querySelector('.app-main-container');
+  if(appMainContainer){
+    appMainContainer.classList.add('has-note-selected');
   }
 
   const actionButtons = document.createElement("div");
@@ -715,12 +1078,12 @@ export const renderNoteDetails = (note) => {
     }
   });
 
-  // footer section
+  // footer section (desktopo only, bottom right corner)
   const footerSection = document.createElement("div");
-  footerSection.classList.add("note-details-footer");
+  footerSection.classList.add("note-details-footer", "desktop-only");
 
   const saveButton = document.createElement("button");
-  saveButton.classList.add("save-button");
+  saveButton.classList.add("save-button", "desktop-only");
   saveButton.textContent = "Save Note";
   saveButton.addEventListener("click", () => {
     // Get updated values from the detail view
@@ -747,11 +1110,38 @@ export const renderNoteDetails = (note) => {
   });
 
   const cancelButton = document.createElement("button");
-  cancelButton.classList.add("cancel-button");
+  cancelButton.classList.add("cancel-button", "desktop-only");
   cancelButton.textContent = "Cancel";
   cancelButton.addEventListener("click", () => {
-    // Clear detail view
-    container.innerHTML = "";
+   // Preserve tags menu when clearing
+    const tagsMenu = container.querySelector("#tags-menu-sm");
+    
+    // Clear container but preserve tags menu
+    const children = Array.from(container.children);
+    children.forEach(child => {
+      if(child.id !== "tags-menu-sm") {
+        child.remove();
+      }
+    });
+    
+    // Ensure tags menu is hidden
+    if(tagsMenu) {
+      tagsMenu.style.display = "none";
+      tagsMenu.classList.remove("is-active");
+    }
+
+    // remove 3-column layout
+    const appMainContainer = document.querySelector('.app-main-container');
+    if(appMainContainer){
+      appMainContainer.classList.remove('has-note-selected');
+    }
+
+    // remove actions column
+    const actionsColumn = document.querySelector('.app-main-container-actions');
+    if(actionsColumn){
+      actionsColumn.remove();
+    }
+
     // Dispatch event to reload notes list
     document.dispatchEvent(new CustomEvent("showNotesList"));
   });
@@ -764,6 +1154,8 @@ export const renderNoteDetails = (note) => {
   detailWrapper.appendChild(footerSection);
 
   container.appendChild(detailWrapper);
+
+  
 };
 
 export const getAllUniqueTags = () => {
@@ -777,3 +1169,78 @@ export const getAllUniqueTags = () => {
 
   return uniqueTags;
 };
+
+
+function updateHeader(filterTag = null, view){
+  const headerTitle = document.querySelector('.app-main-container-header h2');
+
+  if(!headerTitle) return;
+
+  if(filterTag){
+    headerTitle.textContent = `Tag: ${filterTag}`;
+  } else if(view === 'archived'){
+    headerTitle.textContent = 'Archived Notes';
+  } else {
+    headerTitle.textContent = 'All Notes';
+  }
+}
+
+function setupTagsMenuEventListeners(tagsMenu, tagsLink, contentContainer){
+  // Tags link click handler
+  tagsLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    const allLinks = document.querySelectorAll('.menu-item > a');
+    allLinks.forEach(link => link.classList.remove('is-active'));
+    tagsLink.classList.add('is-active');
+    const otherElements = contentContainer.querySelectorAll('.app-main-container-content > *:not(#tags-menu-sm)');
+    otherElements.forEach(element => element.style.display = 'none');
+    tagsMenu.style.display = "flex";
+    tagsMenu.classList.add("is-active");
+    contentContainer.classList.add("tags-section-open");
+    const headerTitle = document.querySelector('.app-main-container-header h2');
+    if(headerTitle){
+      headerTitle.textContent = 'Tags';
+    }
+  });
+
+  // Back button handler
+  const backButton = tagsMenu.querySelector("#tags-back-btn");
+  if (backButton) {
+    backButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      tagsMenu.style.display = "none";
+      tagsMenu.classList.remove("is-active");
+      contentContainer.classList.remove("tags-section-open");
+      tagsLink.classList.remove("is-active");
+      const notesList = contentContainer.querySelector(".notes-list");
+      if (notesList) {
+        notesList.style.display = "block";
+        const headerTitle = document.querySelector('.app-main-container-header h2');
+        if(headerTitle && !headerTitle.textContent.includes("Archived")) {
+          headerTitle.textContent = "All Notes";
+        }
+      } else {
+        document.dispatchEvent(new CustomEvent("showAllNotes"));
+      }
+    });
+  }
+
+  // Tag links click handlers
+  const tagLinks = tagsMenu.querySelectorAll(".tag-link");
+  tagLinks.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const tag = link.getAttribute("data-tag");
+      tagsMenu.style.display = "none";
+      tagsMenu.classList.remove("is-active");
+      contentContainer.classList.remove("tags-section-open");
+      tagsLink.classList.remove("is-active");
+      document.dispatchEvent(
+        new CustomEvent("filterNotesByTag", {
+          detail: { tag: tag },
+        })
+      );
+    });
+  });
+}
+
