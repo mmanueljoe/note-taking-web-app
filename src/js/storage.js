@@ -3,6 +3,8 @@ const STORAGE_KEYS = {
   NOTES: "notes",
   PREFERENCES: "preferences",
   DRAFT: "draft",
+  AUTH: "auth_user",
+  USERS: "app_users",
 };
 
 //  save notes to localStorage

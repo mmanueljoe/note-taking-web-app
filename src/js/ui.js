@@ -29,34 +29,32 @@ export const renderAllNotes = (notes, filterTag = null, viewType = "all") => {
   const isDesktop = window.innerWidth >= 1024;
 
   let targetContainer;
-  if(isDesktop){
-    const navContainer = document.querySelector('.app-main-container-nav');
-    if(!navContainer) return;
-    targetContainer = navContainer.querySelector('.content');
-    if(!targetContainer) return;
+  if (isDesktop) {
+    const navContainer = document.querySelector(".app-main-container-nav");
+    if (!navContainer) return;
+    targetContainer = navContainer.querySelector(".content");
+    if (!targetContainer) return;
     targetContainer.innerHTML = "";
-  }else{
-    targetContainer = document.querySelector('.app-main-container-content');
-    if(!targetContainer) return;
+  } else {
+    targetContainer = document.querySelector(".app-main-container-content");
+    if (!targetContainer) return;
 
     const tagsMenu = targetContainer.querySelector("#tags-menu-sm");
-    
+
     const children = Array.from(targetContainer.children);
-    children.forEach(child => {
-      if(child.id !== "tags-menu-sm"){
+    children.forEach((child) => {
+      if (child.id !== "tags-menu-sm") {
         child.remove();
       }
     });
 
-    if(tagsMenu){
+    if (tagsMenu) {
       tagsMenu.style.display = "none";
-      tagsMenu.classList.remove('is-active');
+      tagsMenu.classList.remove("is-active");
     }
   }
 
-
-  if(!targetContainer) return;
-  
+  if (!targetContainer) return;
 
   // if no notes, show a placeholder message
   if (!notes || notes.length === 0) {
@@ -179,10 +177,10 @@ export const clearValidationError = (field) => {
 // Toast notification system with icons and links
 export const showToast = (type, message, options = {}) => {
   const { duration = 4000, linkText, linkAction, noteId } = options;
-  
+
   // Remove existing toasts
   const existingToasts = document.querySelectorAll(".toast-notification");
-  existingToasts.forEach(toast => {
+  existingToasts.forEach((toast) => {
     toast.classList.add("toast-exit");
     setTimeout(() => toast.remove(), 300);
   });
@@ -195,18 +193,22 @@ export const showToast = (type, message, options = {}) => {
 
   // Icons for different toast types
   const icons = {
-    created: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M10 0C10.5523 0 11 0.447715 11 1V9H19C19.5523 9 20 9.44772 20 10C20 10.5523 19.5523 11 19 11H11V19C11 19.5523 10.5523 20 10 20C9.44772 20 9 19.5523 9 19V11H1C0.447715 11 0 10.5523 0 10C0 9.44772 0.447715 9 1 9H9V1C9 0.447715 9.44772 0 10 0Z" fill="currentColor"/>
-    </svg>`,
-    archived: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M2 3C2 2.44772 2.44772 2 3 2H17C17.5523 2 18 2.44772 18 3V5C18 5.55228 17.5523 6 17 6H16V15C16 16.1046 15.1046 17 14 17H6C4.89543 17 4 16.1046 4 15V6H3C2.44772 6 2 5.55228 2 5V3ZM6 6V15H14V6H6Z" fill="currentColor"/>
-    </svg>`,
-    deleted: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M8 2C7.44772 2 7 2.44772 7 3V4H3C2.44772 4 2 4.44772 2 5C2 5.55228 2.44772 6 3 6H4V15C4 16.1046 4.89543 17 6 17H14C15.1046 17 16 16.1046 16 15V6H17C17.5523 6 18 5.55228 18 5C18 4.44772 17.5523 4 17 4H13V3C13 2.44772 12.5523 2 12 2H8ZM14 6V15H6V6H14Z" fill="currentColor"/>
-    </svg>`,
-    saved: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16.7071 5.29289C17.0976 5.68342 17.0976 6.31658 16.7071 6.70711L8.70711 14.7071C8.31658 15.0976 7.68342 15.0976 7.29289 14.7071L3.29289 10.7071C2.90237 10.3166 2.90237 9.68342 3.29289 9.29289C3.68342 8.90237 4.31658 8.90237 4.70711 9.29289L8 12.5858L15.2929 5.29289C15.6834 4.90237 16.3166 4.90237 16.7071 5.29289Z" fill="currentColor"/>
-    </svg>`
+    created: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M10.6618 6.81467L7.58317 9.89334C7.48517 9.99134 7.35784 10.04 7.22984 10.04C7.10117 10.04 6.97384 9.99134 6.87584 9.89334L5.3365 8.35401C5.14117 8.15867 5.14117 7.84201 5.3365 7.64667C5.53184 7.45134 5.84784 7.45134 6.04317 7.64667L7.22984 8.83267L9.9545 6.10734C10.1498 5.91201 10.4665 5.91201 10.6618 6.10734C10.8572 6.30267 10.8572 6.61934 10.6618 6.81467ZM7.99984 1.66667C4.50784 1.66667 1.6665 4.50801 1.6665 8.00001C1.6665 11.4927 4.50784 14.3333 7.99984 14.3333C11.4918 14.3333 14.3332 11.4927 14.3332 8.00001C14.3332 4.50801 11.4918 1.66667 7.99984 1.66667Z" fill="currentColor"/>
+</svg>
+`,
+    archived: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M10.6618 6.81467L7.58317 9.89334C7.48517 9.99134 7.35784 10.04 7.22984 10.04C7.10117 10.04 6.97384 9.99134 6.87584 9.89334L5.3365 8.35401C5.14117 8.15867 5.14117 7.84201 5.3365 7.64667C5.53184 7.45134 5.84784 7.45134 6.04317 7.64667L7.22984 8.83267L9.9545 6.10734C10.1498 5.91201 10.4665 5.91201 10.6618 6.10734C10.8572 6.30267 10.8572 6.61934 10.6618 6.81467ZM7.99984 1.66667C4.50784 1.66667 1.6665 4.50801 1.6665 8.00001C1.6665 11.4927 4.50784 14.3333 7.99984 14.3333C11.4918 14.3333 14.3332 11.4927 14.3332 8.00001C14.3332 4.50801 11.4918 1.66667 7.99984 1.66667Z" fill="currentColor"/>
+</svg>
+`,
+    deleted: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M10.6618 6.81467L7.58317 9.89334C7.48517 9.99134 7.35784 10.04 7.22984 10.04C7.10117 10.04 6.97384 9.99134 6.87584 9.89334L5.3365 8.35401C5.14117 8.15867 5.14117 7.84201 5.3365 7.64667C5.53184 7.45134 5.84784 7.45134 6.04317 7.64667L7.22984 8.83267L9.9545 6.10734C10.1498 5.91201 10.4665 5.91201 10.6618 6.10734C10.8572 6.30267 10.8572 6.61934 10.6618 6.81467ZM7.99984 1.66667C4.50784 1.66667 1.6665 4.50801 1.6665 8.00001C1.6665 11.4927 4.50784 14.3333 7.99984 14.3333C11.4918 14.3333 14.3332 11.4927 14.3332 8.00001C14.3332 4.50801 11.4918 1.66667 7.99984 1.66667Z" fill="currentColor"/>
+</svg>
+`,
+    saved: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M10.6618 6.81467L7.58317 9.89334C7.48517 9.99134 7.35784 10.04 7.22984 10.04C7.10117 10.04 6.97384 9.99134 6.87584 9.89334L5.3365 8.35401C5.14117 8.15867 5.14117 7.84201 5.3365 7.64667C5.53184 7.45134 5.84784 7.45134 6.04317 7.64667L7.22984 8.83267L9.9545 6.10734C10.1498 5.91201 10.4665 5.91201 10.6618 6.10734C10.8572 6.30267 10.8572 6.61934 10.6618 6.81467ZM7.99984 1.66667C4.50784 1.66667 1.6665 4.50801 1.6665 8.00001C1.6665 11.4927 4.50784 14.3333 7.99984 14.3333C11.4918 14.3333 14.3332 11.4927 14.3332 8.00001C14.3332 4.50801 11.4918 1.66667 7.99984 1.66667Z" fill="#21C16B"/>
+</svg>
+`,
   };
 
   // Build toast content
@@ -216,11 +218,17 @@ export const showToast = (type, message, options = {}) => {
     </div>
     <div class="toast-content">
       <p class="toast-message">${escapeHtml(message)}</p>
-      ${linkText && linkAction ? `
-        <a href="#" class="toast-link" data-action="${linkAction}" ${noteId ? `data-note-id="${noteId}"` : ''}>
+      ${
+        linkText && linkAction
+          ? `
+        <a href="#" class="toast-link" data-action="${linkAction}" ${
+              noteId ? `data-note-id="${noteId}"` : ""
+            }>
           ${escapeHtml(linkText)}
         </a>
-      ` : ''}
+      `
+          : ""
+      }
     </div>
     <button class="toast-close" aria-label="Close notification">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -251,17 +259,19 @@ export const showToast = (type, message, options = {}) => {
       e.preventDefault();
       const action = toastLink.getAttribute("data-action");
       const noteId = toastLink.getAttribute("data-note-id");
-      
+
       if (action === "view-note" && noteId) {
         // Dispatch event to show note details
-        document.dispatchEvent(new CustomEvent("showNoteDetails", {
-          detail: { noteId }
-        }));
+        document.dispatchEvent(
+          new CustomEvent("showNoteDetails", {
+            detail: { noteId },
+          })
+        );
       } else if (action === "view-archived") {
         // Dispatch event to show archived notes
         document.dispatchEvent(new CustomEvent("showArchivedNotes"));
       }
-      
+
       // Close toast after link click
       toast.classList.add("toast-exit");
       setTimeout(() => toast.remove(), 300);
@@ -280,32 +290,31 @@ export const showToastCreated = (noteId) => {
   showToast("created", "Note created successfully", {
     linkText: "View note",
     linkAction: "view-note",
-    noteId: noteId
+    noteId: noteId,
   });
 };
 
 export const showToastArchived = (isArchived) => {
   showToast("archived", isArchived ? "Note archived" : "Note unarchived", {
     linkText: "View archived notes",
-    linkAction: "view-archived"
+    linkAction: "view-archived",
   });
 };
 
 export const showToastDeleted = () => {
   showToast("deleted", "Note deleted successfully", {
-    duration: 3000
+    duration: 3000,
   });
 };
 
 export const showToastSaved = () => {
   showToast("saved", "Note saved successfully", {
-    duration: 3000
+    duration: 3000,
   });
 };
 
 // render tags menu for desktop
 export const renderTagLinks = (tags) => {
-
   const menuList = document.querySelector(".menu-list");
   if (!menuList) return;
 
@@ -390,19 +399,20 @@ export const initializeTagsMenu = () => {
   if (!tagsLink) return;
 
   // get content container
-  const contentContainer = document.querySelector(".app-main-container-content");
-  if(!contentContainer) return;
+  const contentContainer = document.querySelector(
+    ".app-main-container-content"
+  );
+  if (!contentContainer) return;
 
   // check if tags menu already exists
-  let tagsMenu = contentContainer.querySelector('#tags-menu-sm');
+  let tagsMenu = contentContainer.querySelector("#tags-menu-sm");
 
-  if(!tagsMenu){
+  if (!tagsMenu) {
     //  create tags menu container directly
-    tagsMenu = document.createElement('div');
-    tagsMenu.id = 'tags-menu-sm';
-    tagsMenu.classList.add('tags-section-sm', 'mobile-tablet-only');
+    tagsMenu = document.createElement("div");
+    tagsMenu.id = "tags-menu-sm";
+    tagsMenu.classList.add("tags-section-sm", "mobile-tablet-only");
     contentContainer.appendChild(tagsMenu);
-
 
     tagsMenu.innerHTML = `
      <div class="tags-section-content">
@@ -424,12 +434,11 @@ export const initializeTagsMenu = () => {
     `;
     tagsMenu.style.display = "none";
 
-
     setupTagsMenuEventListeners(tagsMenu, tagsLink, contentContainer);
   } else {
     // If tags menu exists, just update the tags list without removing listeners
-    const tagsList = tagsMenu.querySelector('.tags-list-sm');
-    if(tagsList) {
+    const tagsList = tagsMenu.querySelector(".tags-list-sm");
+    if (tagsList) {
       tagsList.innerHTML = tags
         .map(
           (tag) => `<li class="tag-item-sm">
@@ -442,7 +451,7 @@ export const initializeTagsMenu = () => {
         </a></li>`
         )
         .join("");
-      
+
       // Re-attach listeners to new tag links
       const tagLinks = tagsList.querySelectorAll(".tag-link");
       tagLinks.forEach((link) => {
@@ -462,8 +471,7 @@ export const initializeTagsMenu = () => {
       });
     }
   }
-
-}
+};
 
 // Update tag list display (for tag management UI)
 export const updateTagList = (tags) => {
@@ -551,40 +559,40 @@ export const renderEmptyState = (viewType = "all") => {
   const isDesktop = window.innerWidth >= 1024;
 
   let targetContainer;
-  if(isDesktop){
-    const navContainer = document.querySelector('.app-main-container-nav');
-    if(!navContainer) return;
-    targetContainer = navContainer.querySelector('.content');
-  }else{
-    targetContainer = document.querySelector('.app-main-container-content');
+  if (isDesktop) {
+    const navContainer = document.querySelector(".app-main-container-nav");
+    if (!navContainer) return;
+    targetContainer = navContainer.querySelector(".content");
+  } else {
+    targetContainer = document.querySelector(".app-main-container-content");
   }
 
   // Preserve tags menu
   const tagsMenu = targetContainer.querySelector("#tags-menu-sm");
-    
+
   // Clear but preserve tags menu
   const children = Array.from(targetContainer.children);
-  children.forEach(child => {
-    if(child.id !== "tags-menu-sm") {
+  children.forEach((child) => {
+    if (child.id !== "tags-menu-sm") {
       child.remove();
     }
   });
-  
+
   // Ensure tags menu is hidden
-  if(tagsMenu) {
+  if (tagsMenu) {
     tagsMenu.style.display = "none";
     tagsMenu.classList.remove("is-active");
   }
 
-  if(!targetContainer) return;
+  if (!targetContainer) return;
 
-   // Create empty state container
-   const emptyStateContainer = document.createElement("div");
-   emptyStateContainer.classList.add("empty-state");
- 
-   if(viewType === "archived") {
-     // Archived notes empty state
-     emptyStateContainer.innerHTML = `
+  // Create empty state container
+  const emptyStateContainer = document.createElement("div");
+  emptyStateContainer.classList.add("empty-state");
+
+  if (viewType === "archived") {
+    // Archived notes empty state
+    emptyStateContainer.innerHTML = `
        <div class="empty-state-content">
          <p class="empty-state-message">All your archived notes are stored here. You can restore or delete them anytime.</p>
          <p class="empty-state-submessage">
@@ -593,44 +601,45 @@ export const renderEmptyState = (viewType = "all") => {
          </p>
        </div>
      `;
-     
-     // Add click handler for the link
-     const createNoteLink = emptyStateContainer.querySelector("#create-note-link");
-     if(createNoteLink) {
-       createNoteLink.addEventListener("click", (e) => {
-         e.preventDefault();
-         // Dispatch event to show create note form
-         document.dispatchEvent(new CustomEvent("showCreateNoteForm"));
-       });
-     }
-   } else {
-     // All notes empty state
-     emptyStateContainer.innerHTML = `
+
+    // Add click handler for the link
+    const createNoteLink =
+      emptyStateContainer.querySelector("#create-note-link");
+    if (createNoteLink) {
+      createNoteLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        // Dispatch event to show create note form
+        document.dispatchEvent(new CustomEvent("showCreateNoteForm"));
+      });
+    }
+  } else {
+    // All notes empty state
+    emptyStateContainer.innerHTML = `
        <div class="empty-state-content">
          <p class="empty-state-submessage">You don't have any notes yet. Start a new note to capture your thoughts and ideas.</p>
        </div>
      `;
-   }
- 
-   targetContainer.appendChild(emptyStateContainer);
+  }
+
+  targetContainer.appendChild(emptyStateContainer);
 };
 
 // render note details
 export const renderNoteDetails = (note) => {
   const container = document.querySelector(".app-main-container-content");
 
-   // Preserve tags menu when clearing
-   const tagsMenu = container.querySelector("#tags-menu-sm");
-  
-   // Clear container but preserve tags menu
-   const children = Array.from(container.children);
-   children.forEach(child => {
-     if(child.id !== "tags-menu-sm") {
-       child.remove();
-     }
-   });
+  // Preserve tags menu when clearing
+  const tagsMenu = container.querySelector("#tags-menu-sm");
 
-  if(tagsMenu){
+  // Clear container but preserve tags menu
+  const children = Array.from(container.children);
+  children.forEach((child) => {
+    if (child.id !== "tags-menu-sm") {
+      child.remove();
+    }
+  });
+
+  if (tagsMenu) {
     tagsMenu.style.display = "none";
     tagsMenu.classList.remove("is-active");
   }
@@ -645,23 +654,13 @@ export const renderNoteDetails = (note) => {
   headerSection.classList.add("note-details-header", "mobile-tablet-only");
   detailWrapper.appendChild(headerSection);
 
-  //  back button (mobile, tablet)
-  // const backButton = document.createElement("button");
-  // backButton.classList.add("back-button", "mobile-tablet-only");
-  // backButton.innerHTML = `
-  //   <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-  //     <path fill-rule="evenodd" clip-rule="evenodd" d="M6.31047 12.621L0 6.3105L6.31047 0L7.37097 1.0605L2.12097 6.3105L7.37097 11.5605L6.31047 12.621Z" fill="currentColor"/>
-  //   </svg>
-  //   <span class="back-button-label">Back</span>
-  // `;
-
-  // headerSection.appendChild(backButton);
-
   // === mobile/tablet actions buttons ===
-  // === mobile/tablet header with actions row ===
   const mobileActionsRow = document.createElement("div");
-  mobileActionsRow.classList.add("note-details-header-actions", "mobile-tablet-only");
-  
+  mobileActionsRow.classList.add(
+    "note-details-header-actions",
+    "mobile-tablet-only"
+  );
+
   // Create all buttons in one innerHTML for better layout control
   mobileActionsRow.innerHTML = `
     <div class="note-details-left">
@@ -700,21 +699,23 @@ export const renderNoteDetails = (note) => {
   `;
 
   // Attach event listeners using data-action attributes
-  const mobileBackButton = mobileActionsRow.querySelector('[data-action="back"]');
+  const mobileBackButton = mobileActionsRow.querySelector(
+    '[data-action="back"]'
+  );
   mobileBackButton.addEventListener("click", () => {
     // Preserve tags menu when clearing
     const tagsMenu = container.querySelector("#tags-menu-sm");
-    
+
     // Clear container but preserve tags menu
     const children = Array.from(container.children);
-    children.forEach(child => {
-      if(child.id !== "tags-menu-sm") {
+    children.forEach((child) => {
+      if (child.id !== "tags-menu-sm") {
         child.remove();
       }
     });
-    
+
     // Ensure tags menu is hidden
-    if(tagsMenu) {
+    if (tagsMenu) {
       tagsMenu.style.display = "none";
       tagsMenu.classList.remove("is-active");
     }
@@ -722,7 +723,9 @@ export const renderNoteDetails = (note) => {
     document.dispatchEvent(new CustomEvent("showAllNotes"));
   });
 
-  const mobileDeleteButton = mobileActionsRow.querySelector('[data-action="delete"]');
+  const mobileDeleteButton = mobileActionsRow.querySelector(
+    '[data-action="delete"]'
+  );
   mobileDeleteButton.addEventListener("click", () => {
     // Display modal for confirmation
     const modal = document.createElement("div");
@@ -730,7 +733,7 @@ export const renderNoteDetails = (note) => {
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-labelledby", "modal-title");
     modal.setAttribute("aria-modal", "true");
-    
+
     modal.innerHTML = `
       <div class="modal-content">
       <div class="modal-content-top">
@@ -752,18 +755,18 @@ export const renderNoteDetails = (note) => {
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(modal);
     document.body.style.overflow = "hidden";
 
     setTimeout(() => {
-      modal.style.display = 'flex';
-      modal.classList.add('modal-open');
+      modal.style.display = "flex";
+      modal.classList.add("modal-open");
     }, 10);
 
     // Close modal when clicking backdrop
     modal.addEventListener("click", (e) => {
-      if(e.target.classList.contains("modal")) {
+      if (e.target.classList.contains("modal")) {
         closeModal();
       }
     });
@@ -777,23 +780,23 @@ export const renderNoteDetails = (note) => {
     };
     document.addEventListener("keydown", handleEscape);
 
-    const cancelBtn = modal.querySelector('.modal-cancel-button');
-    cancelBtn.addEventListener('click', () => {
+    const cancelBtn = modal.querySelector(".modal-cancel-button");
+    cancelBtn.addEventListener("click", () => {
       closeModal();
     });
-    
-    const deleteBtn = modal.querySelector('.modal-delete-button');
-    deleteBtn.addEventListener('click', () => {
-      const event = new CustomEvent('deleteNote', {
+
+    const deleteBtn = modal.querySelector(".modal-delete-button");
+    deleteBtn.addEventListener("click", () => {
+      const event = new CustomEvent("deleteNote", {
         detail: { noteId: note.id },
       });
       document.dispatchEvent(event);
       closeModal();
     });
 
-    function closeModal(){
-      modal.classList.remove('modal-open');
-      modal.classList.add('modal-close');
+    function closeModal() {
+      modal.classList.remove("modal-open");
+      modal.classList.add("modal-close");
       setTimeout(() => {
         modal.remove();
         document.body.style.overflow = "";
@@ -801,7 +804,9 @@ export const renderNoteDetails = (note) => {
     }
   });
 
-  const mobileArchiveButton = mobileActionsRow.querySelector('[data-action="archive"]');
+  const mobileArchiveButton = mobileActionsRow.querySelector(
+    '[data-action="archive"]'
+  );
   mobileArchiveButton.addEventListener("click", () => {
     // Confirmation modal
     const modal = document.createElement("div");
@@ -833,18 +838,18 @@ export const renderNoteDetails = (note) => {
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(modal);
     document.body.style.overflow = "hidden";
 
     setTimeout(() => {
-      modal.style.display = 'flex';
-      modal.classList.add('modal-open');
+      modal.style.display = "flex";
+      modal.classList.add("modal-open");
     }, 10);
 
     // Close modal when clicking backdrop
     modal.addEventListener("click", (e) => {
-      if(e.target.classList.contains("modal")) {
+      if (e.target.classList.contains("modal")) {
         closeModal();
       }
     });
@@ -858,23 +863,23 @@ export const renderNoteDetails = (note) => {
     };
     document.addEventListener("keydown", handleEscape);
 
-    const cancelBtn = modal.querySelector('.modal-cancel-button');
-    cancelBtn.addEventListener('click', () => {
+    const cancelBtn = modal.querySelector(".modal-cancel-button");
+    cancelBtn.addEventListener("click", () => {
       closeModal();
     });
-    
-    const archiveBtn = modal.querySelector('.modal-archive-button');
-    archiveBtn.addEventListener('click', () => {
-      const event = new CustomEvent('archiveNote', {
+
+    const archiveBtn = modal.querySelector(".modal-archive-button");
+    archiveBtn.addEventListener("click", () => {
+      const event = new CustomEvent("archiveNote", {
         detail: { noteId: note.id, isArchived: !note.isArchived },
       });
       document.dispatchEvent(event);
       closeModal();
     });
 
-    function closeModal(){
-      modal.classList.remove('modal-open');
-      modal.classList.add('modal-close');
+    function closeModal() {
+      modal.classList.remove("modal-open");
+      modal.classList.add("modal-close");
       setTimeout(() => {
         modal.remove();
         document.body.style.overflow = "";
@@ -882,54 +887,58 @@ export const renderNoteDetails = (note) => {
     }
   });
 
-  const mobileCancelButton = mobileActionsRow.querySelector('[data-action="cancel"]');
-  mobileCancelButton.addEventListener('click', () => {
+  const mobileCancelButton = mobileActionsRow.querySelector(
+    '[data-action="cancel"]'
+  );
+  mobileCancelButton.addEventListener("click", () => {
     // Clear container but preserve tags menu
     const children = Array.from(container.children);
-    children.forEach(child => {
-      if(child.id !== "tags-menu-sm") {
+    children.forEach((child) => {
+      if (child.id !== "tags-menu-sm") {
         child.remove();
       }
     });
-    
+
     // Ensure tags menu is hidden
-    if(tagsMenu) {
+    if (tagsMenu) {
       tagsMenu.style.display = "none";
       tagsMenu.classList.remove("is-active");
     }
 
     // Remove 3-column layout
-    const appMainContainer = document.querySelector('.app-main-container');
-    if(appMainContainer){
-      appMainContainer.classList.remove('has-note-selected');
+    const appMainContainer = document.querySelector(".app-main-container");
+    if (appMainContainer) {
+      appMainContainer.classList.remove("has-note-selected");
     }
 
     // Remove actions column
-    const actionsColumn = document.querySelector('.app-main-container-actions');
-    if(actionsColumn){
+    const actionsColumn = document.querySelector(".app-main-container-actions");
+    if (actionsColumn) {
       actionsColumn.remove();
     }
 
     document.dispatchEvent(new CustomEvent("showNotesList"));
   });
 
-  const mobileSaveButton = mobileActionsRow.querySelector('[data-action="save"]');
-  mobileSaveButton.addEventListener('click', () => {
+  const mobileSaveButton = mobileActionsRow.querySelector(
+    '[data-action="save"]'
+  );
+  mobileSaveButton.addEventListener("click", () => {
     // Query for elements when event fires (they're created later in the function)
-    const titleInput = detailWrapper.querySelector('.note-details-title');
-    const contentTextarea = detailWrapper.querySelector('.note-details-body');
-    const tagsInput = detailWrapper.querySelector('.note-details-tags-input');
-    
+    const titleInput = detailWrapper.querySelector(".note-details-title");
+    const contentTextarea = detailWrapper.querySelector(".note-details-body");
+    const tagsInput = detailWrapper.querySelector(".note-details-tags-input");
+
     if (!titleInput || !contentTextarea || !tagsInput) return;
-    
+
     const updatedTitle = titleInput.value.trim();
     const updatedContent = contentTextarea.value.trim();
 
     // Parse tags
     const updatedTags = tagsInput.value
       .trim()
-      .split(',')
-      .map(tag => tag.trim())
+      .split(",")
+      .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
     const event = new CustomEvent("saveNote", {
@@ -946,26 +955,25 @@ export const renderNoteDetails = (note) => {
   // Append mobile actions row to header
   headerSection.appendChild(mobileActionsRow);
 
-
   // actions buttons container (desktop, top right corner)
   let actionsColumn = document.querySelector(".app-main-container-actions");
-  if(!actionsColumn){
-    actionsColumn = document.createElement('div');
-    actionsColumn.classList.add('app-main-container-actions', 'desktop-only');
-    const appMainContainer = document.querySelector('.app-main-container');
-    if(appMainContainer){
+  if (!actionsColumn) {
+    actionsColumn = document.createElement("div");
+    actionsColumn.classList.add("app-main-container-actions", "desktop-only");
+    const appMainContainer = document.querySelector(".app-main-container");
+    if (appMainContainer) {
       appMainContainer.appendChild(actionsColumn);
-      appMainContainer.classList.add('has-note-selected');
+      appMainContainer.classList.add("has-note-selected");
     }
   } else {
     // Clear existing buttons to prevent duplicates
     actionsColumn.innerHTML = "";
   }
-  
+
   // Ensure has-note-selected class is added even if actionsColumn already exists
-  const appMainContainer = document.querySelector('.app-main-container');
-  if(appMainContainer){
-    appMainContainer.classList.add('has-note-selected');
+  const appMainContainer = document.querySelector(".app-main-container");
+  if (appMainContainer) {
+    appMainContainer.classList.add("has-note-selected");
   }
 
   const actionButtons = document.createElement("div");
@@ -1019,18 +1027,18 @@ export const renderNoteDetails = (note) => {
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(modal);
     document.body.style.overflow = "hidden";
 
     setTimeout(() => {
-      modal.style.display = 'flex';
-      modal.classList.add('modal-open');
+      modal.style.display = "flex";
+      modal.classList.add("modal-open");
     }, 10);
 
     // Close modal when clicking backdrop
     modal.addEventListener("click", (e) => {
-      if(e.target.classList.contains("modal")) {
+      if (e.target.classList.contains("modal")) {
         closeModal();
       }
     });
@@ -1044,23 +1052,23 @@ export const renderNoteDetails = (note) => {
     };
     document.addEventListener("keydown", handleEscape);
 
-    const cancelBtn = modal.querySelector('.modal-cancel-button');
-    cancelBtn.addEventListener('click', () => {
+    const cancelBtn = modal.querySelector(".modal-cancel-button");
+    cancelBtn.addEventListener("click", () => {
       closeModal();
     });
-    
-    const archiveBtn = modal.querySelector('.modal-archive-button');
-    archiveBtn.addEventListener('click', () => {
-      const event = new CustomEvent('archiveNote', {
+
+    const archiveBtn = modal.querySelector(".modal-archive-button");
+    archiveBtn.addEventListener("click", () => {
+      const event = new CustomEvent("archiveNote", {
         detail: { noteId: note.id, isArchived: !note.isArchived },
       });
       document.dispatchEvent(event);
       closeModal();
     });
 
-    function closeModal(){
-      modal.classList.remove('modal-open');
-      modal.classList.add('modal-close');
+    function closeModal() {
+      modal.classList.remove("modal-open");
+      modal.classList.add("modal-close");
       setTimeout(() => {
         modal.remove();
         document.body.style.overflow = "";
@@ -1087,7 +1095,7 @@ export const renderNoteDetails = (note) => {
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-labelledby", "modal-title");
     modal.setAttribute("aria-modal", "true");
-    
+
     modal.innerHTML = `
       <div class="modal-content">
       <div class="modal-content-top">
@@ -1109,18 +1117,18 @@ export const renderNoteDetails = (note) => {
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(modal);
     document.body.style.overflow = "hidden";
 
     setTimeout(() => {
-      modal.style.display = 'flex';
-      modal.classList.add('modal-open');
+      modal.style.display = "flex";
+      modal.classList.add("modal-open");
     }, 10);
 
     // Close modal when clicking backdrop
     modal.addEventListener("click", (e) => {
-      if(e.target.classList.contains("modal")) {
+      if (e.target.classList.contains("modal")) {
         closeModal();
       }
     });
@@ -1134,23 +1142,23 @@ export const renderNoteDetails = (note) => {
     };
     document.addEventListener("keydown", handleEscape);
 
-    const cancelBtn = modal.querySelector('.modal-cancel-button');
-    cancelBtn.addEventListener('click', () => {
+    const cancelBtn = modal.querySelector(".modal-cancel-button");
+    cancelBtn.addEventListener("click", () => {
       closeModal();
     });
-    
-    const deleteBtn = modal.querySelector('.modal-delete-button');
-    deleteBtn.addEventListener('click', () => {
-      const event = new CustomEvent('deleteNote', {
+
+    const deleteBtn = modal.querySelector(".modal-delete-button");
+    deleteBtn.addEventListener("click", () => {
+      const event = new CustomEvent("deleteNote", {
         detail: { noteId: note.id },
       });
       document.dispatchEvent(event);
       closeModal();
     });
 
-    function closeModal(){
-      modal.classList.remove('modal-open');
-      modal.classList.add('modal-close');
+    function closeModal() {
+      modal.classList.remove("modal-open");
+      modal.classList.add("modal-close");
       setTimeout(() => {
         modal.remove();
         document.body.style.overflow = "";
@@ -1161,116 +1169,120 @@ export const renderNoteDetails = (note) => {
   actionsColumn.appendChild(archiveButton);
   actionsColumn.appendChild(deleteButton);
 
-
   // create content section
   const contentSection = document.createElement("div");
   contentSection.classList.add("note-details-content");
 
-  // create title element
-  const title = document.createElement("input");
-  title.type = "text";
-  title.classList.add("note-details-title", "editable");
-  title.value = note.title;
+  // Build the innerHTML string
+  const tagsValue = note.tags.join(", ");
+  const locationHtml = note.location
+    ? `<div class="note-details-location">
+          <span class="note-details-location-label">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M8.00005 2.5C5.10074 2.5 2.66671 4.93403 2.66671 7.83334C2.66671 10.7327 5.10074 13.1667 8.00005 13.1667C10.8994 13.1667 13.3334 10.7327 13.3334 7.83334C13.3334 4.93403 10.8994 2.5 8.00005 2.5ZM1.66671 7.83334C1.66671 4.39131 4.41474 1.66667 8.00005 1.66667C11.5854 1.66667 14.3334 4.39131 14.3334 7.83334C14.3334 11.2754 11.5854 14 8.00005 14C4.41474 14 1.66671 11.2754 1.66671 7.83334ZM8.00005 10.1667C7.17167 10.1667 6.50005 9.49506 6.50005 8.66667C6.50005 7.83829 7.17167 7.16667 8.00005 7.16667C8.82843 7.16667 9.50005 7.83829 9.50005 8.66667C9.50005 9.49506 8.82843 10.1667 8.00005 10.1667Z" fill="currentColor"/>
+            </svg>
+            Location
+          </span>
+          <span class="note-details-location-value">${escapeHtml(
+            note.location.city
+          )}, ${escapeHtml(note.location.country)}</span>
+        </div>`
+    : "";
 
-  // create tags element
-  const metaRow = document.createElement("div");
-  metaRow.classList.add("note-details-meta");
-
-  const tagsDisplay = document.createElement("div");
-  tagsDisplay.classList.add("note-details-tags", "desktop-only");
-
-  // label with icon
-  const tagsLabel = document.createElement("span");
-  tagsLabel.innerHTML = `
-     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M2.01055 3.9783C2.01249 3.03712 2.72405 2.19324 3.64772 2.03432C3.83712 2.00124 6.05872 2.00578 6.97787 2.00643C7.88727 2.00708 8.6624 2.33399 9.30454 2.97485C10.668 4.3357 12.0301 5.69785 13.3903 7.06132C14.1953 7.86759 14.2063 9.10519 13.4046 9.91405C12.2481 11.0816 11.0857 12.2433 9.9188 13.3999C9.1106 14.2009 7.873 14.1905 7.06607 13.3856C5.69029 12.0137 4.31452 10.6418 2.94459 9.26405C2.41465 8.73092 2.10201 8.08679 2.0326 7.33372C1.97681 6.73179 2.00925 4.49397 2.01055 3.9783Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M6.60475 5.54289C6.60215 6.12277 6.11761 6.59953 5.53189 6.59823C4.95006 6.59693 4.46552 6.11175 4.46877 5.53381C4.47266 4.93057 4.95006 4.46031 5.55719 4.4629C6.13318 4.46485 6.60734 4.95327 6.60475 5.54289Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-    Tags 
-  `;
-
-  // input tags
-  const tagsInput = document.createElement("input");
-  tagsInput.type = "text";
-  tagsInput.classList.add("note-details-tags-input", "editable");
-  tagsInput.value = note.tags.join(", ");
-  tagsInput.placeholder = "Add tags separated by commas(e.g. Work, Planning)";
-
-  tagsDisplay.appendChild(tagsLabel);
-  tagsDisplay.appendChild(tagsInput);
-
-  const statusDisplay = document.createElement("div");
-  statusDisplay.classList.add("note-details-status");
-  statusDisplay.innerHTML = `
-  <span class="note-details-status-label">
-   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-   <path fill-rule="evenodd" clip-rule="evenodd" d="M3.772 4.23187C3.95224 4.05162 4.24447 4.05162 4.42471 4.23186L5.00871 4.81583C5.18895 4.99607 5.18895 5.2883 5.00871 5.46855C4.82847 5.64879 4.53624 5.64879 4.356 5.46855L3.77201 4.88458C3.59176 4.70434 3.59176 4.41211 3.772 4.23187ZM5.00861 10.5293C5.18891 10.7095 5.18899 11.0018 5.0088 11.1821L3.94961 12.2418C3.76942 12.4221 3.47719 12.4222 3.2969 12.242C3.1166 12.0618 3.11652 11.7696 3.29671 11.5893L4.3559 10.5295C4.53609 10.3492 4.82832 10.3491 5.00861 10.5293ZM10.0703 10.5293C10.2505 10.3491 10.5428 10.3492 10.723 10.5295L11.7822 11.5893C11.9623 11.7696 11.9623 12.0618 11.782 12.242C11.6017 12.4222 11.3095 12.4221 11.1293 12.2418L10.0701 11.1821C9.88992 11.0018 9.88998 10.7095 10.0703 10.5293Z" fill="currentColor"/>
-   <path fill-rule="evenodd" clip-rule="evenodd" d="M7.53852 3.05566C7.79341 3.05566 8.00005 3.2623 8.00005 3.5172V3.95892C8.00005 4.21382 7.79341 4.42046 7.53852 4.42046C7.28362 4.42046 7.07698 4.21382 7.07698 3.95892V3.5172C7.07698 3.2623 7.28362 3.05566 7.53852 3.05566ZM1.88232 7.99927C1.88232 7.74438 2.08896 7.53773 2.34386 7.53773H3.49815C3.75304 7.53773 3.95968 7.74438 3.95968 7.99927C3.95968 8.25416 3.75304 8.46081 3.49815 8.46081H2.34386C2.08896 8.46081 1.88232 8.25416 1.88232 7.99927ZM11.1174 7.99927C11.1174 7.74438 11.324 7.53773 11.5789 7.53773H13.077C13.3319 7.53773 13.5385 7.74438 13.5385 7.99927C13.5385 8.25416 13.3319 8.46081 13.077 8.46081H11.5789C11.324 8.46081 11.1174 8.25416 11.1174 7.99927ZM7.53852 11.5782C7.79341 11.5782 8.00005 11.7848 8.00005 12.0397V13.5378C8.00005 13.7927 7.79341 13.9993 7.53852 13.9993C7.28362 13.9993 7.07698 13.7927 7.07698 13.5378V12.0397C7.07698 11.7848 7.28362 11.5782 7.53852 11.5782Z" fill="currentColor"/>
-  </svg>
-    Status
-  </span>
-   <span class="note-details-status-value">${
-     note.isArchived ? "Archived" : "Active"
-   }</span>  
-  `;
-
-  const dateDisplay = document.createElement("div");
-  dateDisplay.classList.add("note-details-date");
-  dateDisplay.innerHTML = `
-  <span class="note-details-date-label">
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.16699 2.5C5.12919 2.5 2.66699 4.96219 2.66699 8C2.66699 11.0372 5.12923 13.5 8.16699 13.5C11.2048 13.5 13.667 11.0372 13.667 8C13.667 4.96219 11.2048 2.5 8.16699 2.5ZM1.66699 8C1.66699 4.40991 4.57691 1.5 8.16699 1.5C11.7571 1.5 14.667 4.40991 14.667 8C14.667 11.5894 11.7571 14.5 8.16699 14.5C4.57687 14.5 1.66699 11.5894 1.66699 8Z" fill="currentColor"/>
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M7.94824 5.21777C8.22438 5.21777 8.44824 5.44163 8.44824 5.71777V8.16619L10.3212 9.28553C10.5583 9.42719 10.6356 9.73419 10.494 9.97126C10.3523 10.2083 10.0453 10.2856 9.80824 10.1439L7.69171 8.87906C7.54071 8.78879 7.44824 8.62586 7.44824 8.44986V5.71777C7.44824 5.44163 7.67211 5.21777 7.94824 5.21777Z" fill="currentColor"/>
- </svg>
- Last Edited
-</span>
-  <span class="note-details-date-value">${formatDate(note.lastEdited)}</span>
-  `;
-
-  metaRow.appendChild(tagsDisplay);
-  metaRow.appendChild(statusDisplay);
-  metaRow.appendChild(dateDisplay);
-
-  // add location display if available
-  if (note.location) {
-    const locationDisplay = document.createElement("div");
-    locationDisplay.classList.add("note-details-location");
-    locationDisplay.innerHTML = `
-      <span>Location: ${note.location.city}, ${note.location.country}</span>
+  contentSection.innerHTML = `
+      <input 
+        type="text" 
+        class="note-details-title editable" 
+        value="${escapeHtml(note.title)}"
+      />
+      <div class="note-details-meta">
+        <div class="note-details-tags">
+          <span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M2.01055 3.9783C2.01249 3.03712 2.72405 2.19324 3.64772 2.03432C3.83712 2.00124 6.05872 2.00578 6.97787 2.00643C7.88727 2.00708 8.6624 2.33399 9.30454 2.97485C10.668 4.3357 12.0301 5.69785 13.3903 7.06132C14.1953 7.86759 14.2063 9.10519 13.4046 9.91405C12.2481 11.0816 11.0857 12.2433 9.9188 13.3999C9.1106 14.2009 7.873 14.1905 7.06607 13.3856C5.69029 12.0137 4.31452 10.6418 2.94459 9.26405C2.41465 8.73092 2.10201 8.08679 2.0326 7.33372C1.97681 6.73179 2.00925 4.49397 2.01055 3.9783Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M6.60475 5.54289C6.60215 6.12277 6.11761 6.59953 5.53189 6.59823C4.95006 6.59693 4.46552 6.11175 4.46877 5.53381C4.47266 4.93057 4.95006 4.46031 5.55719 4.4629C6.13318 4.46485 6.60734 4.95327 6.60475 5.54289Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Tags 
+          </span>
+          <input 
+            type="text" 
+            class="note-details-tags-input editable" 
+            value="${escapeHtml(tagsValue)}"
+            placeholder="Add tags separated by commas(e.g. Work, Planning)"
+          />
+        </div>
+        <div class="note-details-status">
+          <span class="note-details-status-label">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M3.772 4.23187C3.95224 4.05162 4.24447 4.05162 4.42471 4.23186L5.00871 4.81583C5.18895 4.99607 5.18895 5.2883 5.00871 5.46855C4.82847 5.64879 4.53624 5.64879 4.356 5.46855L3.77201 4.88458C3.59176 4.70434 3.59176 4.41211 3.772 4.23187ZM5.00861 10.5293C5.18891 10.7095 5.18899 11.0018 5.0088 11.1821L3.94961 12.2418C3.76942 12.4221 3.47719 12.4222 3.2969 12.242C3.1166 12.0618 3.11652 11.7696 3.29671 11.5893L4.3559 10.5295C4.53609 10.3492 4.82832 10.3491 5.00861 10.5293ZM10.0703 10.5293C10.2505 10.3491 10.5428 10.3492 10.723 10.5295L11.7822 11.5893C11.9623 11.7696 11.9623 12.0618 11.782 12.242C11.6017 12.4222 11.3095 12.4221 11.1293 12.2418L10.0701 11.1821C9.88992 11.0018 9.88998 10.7095 10.0703 10.5293Z" fill="currentColor"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M7.53852 3.05566C7.79341 3.05566 8.00005 3.2623 8.00005 3.5172V3.95892C8.00005 4.21382 7.79341 4.42046 7.53852 4.42046C7.28362 4.42046 7.07698 4.21382 7.07698 3.95892V3.5172C7.07698 3.2623 7.28362 3.05566 7.53852 3.05566ZM1.88232 7.99927C1.88232 7.74438 2.08896 7.53773 2.34386 7.53773H3.49815C3.75304 7.53773 3.95968 7.74438 3.95968 7.99927C3.95968 8.25416 3.75304 8.46081 3.49815 8.46081H2.34386C2.08896 8.46081 1.88232 8.25416 1.88232 7.99927ZM11.1174 7.99927C11.1174 7.74438 11.324 7.53773 11.5789 7.53773H13.077C13.3319 7.53773 13.5385 7.74438 13.5385 7.99927C13.5385 8.25416 13.3319 8.46081 13.077 8.46081H11.5789C11.324 8.46081 11.1174 8.25416 11.1174 7.99927ZM7.53852 11.5782C7.79341 11.5782 8.00005 11.7848 8.00005 12.0397V13.5378C8.00005 13.7927 7.79341 13.9993 7.53852 13.9993C7.28362 13.9993 7.07698 13.7927 7.07698 13.5378V12.0397C7.07698 11.7848 7.28362 11.5782 7.53852 11.5782Z" fill="currentColor"/>
+            </svg>
+            Status
+          </span>
+          <span class="note-details-status-value">${
+            note.isArchived ? "Archived" : "Active"
+          }</span>  
+        </div>
+        <div class="note-details-date">
+          <span class="note-details-date-label">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M8.16699 2.5C5.12919 2.5 2.66699 4.96219 2.66699 8C2.66699 11.0372 5.12923 13.5 8.16699 13.5C11.2048 13.5 13.667 11.0372 13.667 8C13.667 4.96219 11.2048 2.5 8.16699 2.5ZM1.66699 8C1.66699 4.40991 4.57691 1.5 8.16699 1.5C11.7571 1.5 14.667 4.40991 14.667 8C14.667 11.5894 11.7571 14.5 8.16699 14.5C4.57687 14.5 1.66699 11.5894 1.66699 8Z" fill="currentColor"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M7.94824 5.21777C8.22438 5.21777 8.44824 5.44163 8.44824 5.71777V8.16619L10.3212 9.28553C10.5583 9.42719 10.6356 9.73419 10.494 9.97126C10.3523 10.2083 10.0453 10.2856 9.80824 10.1439L7.69171 8.87906C7.54071 8.78879 7.44824 8.62586 7.44824 8.44986V5.71777C7.44824 5.44163 7.67211 5.21777 7.94824 5.21777Z" fill="currentColor"/>
+            </svg>
+            Last Edited
+          </span>
+          <span class="note-details-date-value">${formatDate(
+            note.lastEdited
+          )}</span>
+        </div>
+        ${locationHtml}
+      </div>
+      <textarea 
+        class="note-details-body editable"
+      >${escapeHtml(note.content || "")}</textarea>
     `;
-    metaRow.appendChild(locationDisplay);
-  }
 
-  // content display
-  const contentDisplay = document.createElement("textarea");
-  contentDisplay.classList.add("note-details-body", "editable");
-  contentDisplay.value = note.content || "";
+  // Get references to elements after innerHTML
+  const title = contentSection.querySelector(".note-details-title");
+  const tagsInput = contentSection.querySelector(".note-details-tags-input");
+  const contentDisplay = contentSection.querySelector(".note-details-body");
 
-  contentSection.appendChild(title);
-  contentSection.appendChild(metaRow);
-  contentSection.appendChild(contentDisplay);
-
+  // Add event listener for Enter key on textarea
   contentDisplay.addEventListener("keydown", (e) => {
-    if(e.key === "Enter" && !e.shiftKey){
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       const saveButton = document.querySelector(".save-button");
-      if(saveButton){
+      if (saveButton) {
         saveButton.click();
       }
     }
   });
 
+  // Update header title based on screen size
   const headerTitle = document.querySelector(".app-main-container-header h2");
-  if(headerTitle){
-    headerTitle.textContent = "";
+  if (headerTitle) {
+    const isMobileOrTablet = window.innerWidth < 1024;
+    if (isMobileOrTablet) {
+      // Hide on mobile/tablet
+      headerTitle.textContent = "";
+      headerTitle.style.display = "none";
+    }
   }
 
-  // footer section (desktopo only, bottom right corner)
+  // Footer section (desktop only, bottom right corner)
   const footerSection = document.createElement("div");
   footerSection.classList.add("note-details-footer", "desktop-only");
 
-  const saveButton = document.createElement("button");
-  saveButton.classList.add("save-button", "desktop-only");
-  saveButton.textContent = "Save Note";
+  footerSection.innerHTML = `
+      <button class="save-button desktop-only">Save Note</button>
+      <button class="cancel-button desktop-only">Cancel</button>
+    `;
+
+  // Get footer button references
+  const saveButton = footerSection.querySelector(".save-button");
+  const cancelButton = footerSection.querySelector(".cancel-button");
+
+  // Add event listeners to footer buttons
   saveButton.addEventListener("click", () => {
     // Get updated values from the detail view
     const updatedTitle = title.value.trim();
@@ -1295,36 +1307,33 @@ export const renderNoteDetails = (note) => {
     document.dispatchEvent(event);
   });
 
-  const cancelButton = document.createElement("button");
-  cancelButton.classList.add("cancel-button", "desktop-only");
-  cancelButton.textContent = "Cancel";
   cancelButton.addEventListener("click", () => {
-   // Preserve tags menu when clearing
+    // Preserve tags menu when clearing
     const tagsMenu = container.querySelector("#tags-menu-sm");
-    
+
     // Clear container but preserve tags menu
     const children = Array.from(container.children);
-    children.forEach(child => {
-      if(child.id !== "tags-menu-sm") {
+    children.forEach((child) => {
+      if (child.id !== "tags-menu-sm") {
         child.remove();
       }
     });
-    
+
     // Ensure tags menu is hidden
-    if(tagsMenu) {
+    if (tagsMenu) {
       tagsMenu.style.display = "none";
       tagsMenu.classList.remove("is-active");
     }
 
     // remove 3-column layout
-    const appMainContainer = document.querySelector('.app-main-container');
-    if(appMainContainer){
-      appMainContainer.classList.remove('has-note-selected');
+    const appMainContainer = document.querySelector(".app-main-container");
+    if (appMainContainer) {
+      appMainContainer.classList.remove("has-note-selected");
     }
 
     // remove actions column
-    const actionsColumn = document.querySelector('.app-main-container-actions');
-    if(actionsColumn){
+    const actionsColumn = document.querySelector(".app-main-container-actions");
+    if (actionsColumn) {
       actionsColumn.remove();
     }
 
@@ -1332,16 +1341,12 @@ export const renderNoteDetails = (note) => {
     document.dispatchEvent(new CustomEvent("showNotesList"));
   });
 
-  footerSection.appendChild(saveButton);
-  footerSection.appendChild(cancelButton);
-
+  // Append sections to detail wrapper
   detailWrapper.appendChild(headerSection);
   detailWrapper.appendChild(contentSection);
   detailWrapper.appendChild(footerSection);
 
   container.appendChild(detailWrapper);
-
-  
 };
 
 export const getAllUniqueTags = () => {
@@ -1356,36 +1361,37 @@ export const getAllUniqueTags = () => {
   return uniqueTags;
 };
 
+function updateHeader(filterTag = null, view) {
+  const headerTitle = document.querySelector(".app-main-container-header h2");
 
-function updateHeader(filterTag = null, view){
-  const headerTitle = document.querySelector('.app-main-container-header h2');
+  if (!headerTitle) return;
 
-  if(!headerTitle) return;
-
-  if(filterTag){
+  if (filterTag) {
     headerTitle.textContent = `Tag: ${filterTag}`;
-  } else if(view === 'archived'){
-    headerTitle.textContent = 'Archived Notes';
+  } else if (view === "archived") {
+    headerTitle.textContent = "Archived Notes";
   } else {
-    headerTitle.textContent = 'All Notes';
+    headerTitle.textContent = "All Notes";
   }
 }
 
-function setupTagsMenuEventListeners(tagsMenu, tagsLink, contentContainer){
+function setupTagsMenuEventListeners(tagsMenu, tagsLink, contentContainer) {
   // Tags link click handler
   tagsLink.addEventListener("click", (e) => {
     e.preventDefault();
-    const allLinks = document.querySelectorAll('.menu-item > a');
-    allLinks.forEach(link => link.classList.remove('is-active'));
-    tagsLink.classList.add('is-active');
-    const otherElements = contentContainer.querySelectorAll('.app-main-container-content > *:not(#tags-menu-sm)');
-    otherElements.forEach(element => element.style.display = 'none');
+    const allLinks = document.querySelectorAll(".menu-item > a");
+    allLinks.forEach((link) => link.classList.remove("is-active"));
+    tagsLink.classList.add("is-active");
+    const otherElements = contentContainer.querySelectorAll(
+      ".app-main-container-content > *:not(#tags-menu-sm)"
+    );
+    otherElements.forEach((element) => (element.style.display = "none"));
     tagsMenu.style.display = "flex";
     tagsMenu.classList.add("is-active");
     contentContainer.classList.add("tags-section-open");
-    const headerTitle = document.querySelector('.app-main-container-header h2');
-    if(headerTitle){
-      headerTitle.textContent = 'Tags';
+    const headerTitle = document.querySelector(".app-main-container-header h2");
+    if (headerTitle) {
+      headerTitle.textContent = "Tags";
     }
   });
 
@@ -1401,8 +1407,10 @@ function setupTagsMenuEventListeners(tagsMenu, tagsLink, contentContainer){
       const notesList = contentContainer.querySelector(".notes-list");
       if (notesList) {
         notesList.style.display = "block";
-        const headerTitle = document.querySelector('.app-main-container-header h2');
-        if(headerTitle && !headerTitle.textContent.includes("Archived")) {
+        const headerTitle = document.querySelector(
+          ".app-main-container-header h2"
+        );
+        if (headerTitle && !headerTitle.textContent.includes("Archived")) {
           headerTitle.textContent = "All Notes";
         }
       } else {
@@ -1429,4 +1437,3 @@ function setupTagsMenuEventListeners(tagsMenu, tagsLink, contentContainer){
     });
   });
 }
-

@@ -4,7 +4,18 @@ import * as ui from './ui.js';
 import * as theme from './theme.js';
 import * as geolocation from './geolocation.js';
 import { formatDate } from './utils.js';
+import { isAuthenticated } from './auth.js';
 
+
+// check if user is authenticated
+function checkAuth(){
+    if(!isAuthenticated()){
+        // redirect to login page
+        window.location.href = '../auth/login.html';
+        return false;
+    }
+    return true;
+}
 
 // validation rules
 const VALIDATION_RULES = {
@@ -91,6 +102,11 @@ function refreshNotes() {
 
 // Initialize app, set up event listeners, and load data
 const initializeApp = () => {
+    // check if user is authenticated
+    if(!checkAuth()){
+        return;
+    }
+
     // get all notes
     const allNotes = noteManager.getAllNotes();
     console.log(allNotes);
@@ -308,7 +324,7 @@ function setupEventListeners() {
         const noteId = noteCard.getAttribute('data-note-id');
         if(!noteId) return;
 
-        
+
         const note = noteManager.getNoteById(noteId);
         if(note){
             ui.renderNoteDetails(note);
@@ -391,64 +407,177 @@ function setupEventListeners() {
 
 
 // show create note form
+// show create note form
 function showCreateNoteForm() {
     const container = document.querySelector('.app-main-container-content');
     if(!container) return false;
 
-    // clear existing content
-    container.innerHTML = "";
+    // Preserve tags menu when clearing
+    const tagsMenu = container.querySelector("#tags-menu-sm");
+    
+    // Clear existing content but preserve tags menu
+    const children = Array.from(container.children);
+    children.forEach(child => {
+        if(child.id !== "tags-menu-sm") {
+            child.remove();
+        }
+    });
+
+    if(tagsMenu){
+        tagsMenu.style.display = "none";
+        tagsMenu.classList.remove("is-active");
+    }
+
+    // Update header title based on screen size
+  const headerTitle = document.querySelector(".app-main-container-header h2");
+  if (headerTitle) {
+    const isMobileOrTablet = window.innerWidth < 1024;
+    if (isMobileOrTablet) {
+      // Hide on mobile/tablet
+      headerTitle.textContent = "";
+    //   headerTitle.style.display = "none";
+    }
+  }
 
     // create form wrapper
     const formWrapper = document.createElement("div");
     formWrapper.classList.add("note-details-wrapper");
 
-    // create form html
-    formWrapper.innerHTML = `
-      <form id="create-note-form">
-        <div class="form-group">
-          <input type="text" id="note-title" name="note-title" placeholder="Enter a title..." required>
+    // Create header section for mobile/tablet
+    const headerSection = document.createElement("div");
+    headerSection.classList.add("note-details-header", "mobile-tablet-only");
+    
+    // Create mobile/tablet actions row
+    const mobileActionsRow = document.createElement("div");
+    mobileActionsRow.classList.add("note-details-header-actions", "mobile-tablet-only");
+    
+    mobileActionsRow.innerHTML = `
+        <div class="note-details-left">
+            <button class="back-button mobile-tablet-only" data-action="back">
+                <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.31047 12.621L0 6.3105L6.31047 0L7.37097 1.0605L2.12097 6.3105L7.37097 11.5605L6.31047 12.621Z" fill="currentColor"/>
+                </svg>
+                <span class="back-button-label">Go Back</span>
+            </button>
         </div>
-        <div class="form-group">
-        <label for="note-tags">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-             <path fill-rule="evenodd" clip-rule="evenodd" d="M2.01055 3.9783C2.01249 3.03712 2.72405 2.19324 3.64772 2.03432C3.83712 2.00124 6.05872 2.00578 6.97787 2.00643C7.88727 2.00708 8.6624 2.33399 9.30454 2.97485C10.668 4.3357 12.0301 5.69785 13.3903 7.06132C14.1953 7.86759 14.2063 9.10519 13.4046 9.91405C12.2481 11.0816 11.0857 12.2433 9.9188 13.3999C9.1106 14.2009 7.873 14.1905 7.06607 13.3856C5.69029 12.0137 4.31452 10.6418 2.94459 9.26405C2.41465 8.73092 2.10201 8.08679 2.0326 7.33372C1.97681 6.73179 2.00925 4.49397 2.01055 3.9783Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-             <path fill-rule="evenodd" clip-rule="evenodd" d="M6.60475 5.54289C6.60215 6.12277 6.11761 6.59953 5.53189 6.59823C4.95006 6.59693 4.46552 6.11175 4.46877 5.53381C4.47266 4.93057 4.95006 4.46031 5.55719 4.4629C6.13318 4.46485 6.60734 4.95327 6.60475 5.54289Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="form-group-label">
-              Tags
-            </span>
-        </label>
-        <input type="text" id="note-tags" name="note-tags" placeholder="Add tags separated by commas(e.g. Work, Planning)" required>
+        
+        <div class="note-details-right">
+            <button class="cancel-button mobile-tablet-only" data-action="cancel">Cancel</button>
+            <button class="save-button mobile-tablet-only" data-action="create">Save Note</button>
         </div>
-        <div class="form-group">
-        <label for="note-last-edited">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M8.16699 2.5C5.12919 2.5 2.66699 4.96219 2.66699 8C2.66699 11.0372 5.12923 13.5 8.16699 13.5C11.2048 13.5 13.667 11.0372 13.667 8C13.667 4.96219 11.2048 2.5 8.16699 2.5ZM1.66699 8C1.66699 4.40991 4.57691 1.5 8.16699 1.5C11.7571 1.5 14.667 4.40991 14.667 8C14.667 11.5894 11.7571 14.5 8.16699 14.5C4.57687 14.5 1.66699 11.5894 1.66699 8Z" fill="currentColor"/>
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M7.94824 5.21777C8.22438 5.21777 8.44824 5.44163 8.44824 5.71777V8.16619L10.3212 9.28553C10.5583 9.42719 10.6356 9.73419 10.494 9.97126C10.3523 10.2083 10.0453 10.2856 9.80824 10.1439L7.69171 8.87906C7.54071 8.78879 7.44824 8.62586 7.44824 8.44986V5.71777C7.44824 5.44163 7.67211 5.21777 7.94824 5.21777Z" fill="currentColor"/>
-            </svg>
-            <span class="form-group-label">
-              Last Edited
-            </span>
-        </label>
-        <span id="note-last-edited" class="form-group-value">
-            ${formatDate(new Date())}
-        </span>
-        </div>
-        <div class="form-group">
-            <button type="button" class="location-button" id="location-button">Add Location</button>
-        </div>
-        <div class="form-group">
-          <textarea id="note-content" name="note-content" placeholder="Start typing your note here..." required></textarea>
-        </div>
-        <div class="form-group">
-          <button type="submit" class="create-note-btn" id="create-note-btn">Create Note</button>
-          <button type="button" class="cancel-btn" id="create-cancel-btn">Cancel</button>
-        </div>
-      </form>
     `;
 
-    container.appendChild(formWrapper);
+    // Back button handler
+    const backButton = mobileActionsRow.querySelector('[data-action="back"]');
+    backButton.addEventListener("click", () => {
+        // Preserve tags menu when clearing
+        const tagsMenu = container.querySelector("#tags-menu-sm");
+        
+        const children = Array.from(container.children);
+        children.forEach(child => {
+            if(child.id !== "tags-menu-sm") {
+                child.remove();
+            }
+        });
+        
+        if(tagsMenu) {
+            tagsMenu.style.display = "none";
+            tagsMenu.classList.remove("is-active");
+        }
 
+        document.dispatchEvent(new CustomEvent("showAllNotes"));
+    });
+
+    // Cancel button handler
+    const cancelButton = mobileActionsRow.querySelector('[data-action="cancel"]');
+    cancelButton.addEventListener("click", () => {
+        // Preserve tags menu when clearing
+        const tagsMenu = container.querySelector("#tags-menu-sm");
+        
+        const children = Array.from(container.children);
+        children.forEach(child => {
+            if(child.id !== "tags-menu-sm") {
+                child.remove();
+            }
+        });
+        
+        if(tagsMenu) {
+            tagsMenu.style.display = "none";
+            tagsMenu.classList.remove("is-active");
+        }
+    });
+
+    // Create Note button handler
+    const createButton = mobileActionsRow.querySelector('[data-action="create"]');
+    createButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        handleCreateNote();
+    });
+
+    headerSection.appendChild(mobileActionsRow);
+    formWrapper.appendChild(headerSection);
+
+    // Create form content section
+    const formContentSection = document.createElement("div");
+    formContentSection.classList.add("note-details-content");
+
+       // create form html
+    formContentSection.innerHTML = `
+       <form id="create-note-form">
+         <input 
+           type="text" 
+           id="note-title" 
+           name="note-title" 
+           class="note-details-title editable" 
+           placeholder="Enter a title..." 
+           required
+         />
+         <div class="note-details-meta">
+           <div class="note-details-tags">
+             <span>
+               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 <path fill-rule="evenodd" clip-rule="evenodd" d="M2.01055 3.9783C2.01249 3.03712 2.72405 2.19324 3.64772 2.03432C3.83712 2.00124 6.05872 2.00578 6.97787 2.00643C7.88727 2.00708 8.6624 2.33399 9.30454 2.97485C10.668 4.3357 12.0301 5.69785 13.3903 7.06132C14.1953 7.86759 14.2063 9.10519 13.4046 9.91405C12.2481 11.0816 11.0857 12.2433 9.9188 13.3999C9.1106 14.2009 7.873 14.1905 7.06607 13.3856C5.69029 12.0137 4.31452 10.6418 2.94459 9.26405C2.41465 8.73092 2.10201 8.08679 2.0326 7.33372C1.97681 6.73179 2.00925 4.49397 2.01055 3.9783Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                 <path fill-rule="evenodd" clip-rule="evenodd" d="M6.60475 5.54289C6.60215 6.12277 6.11761 6.59953 5.53189 6.59823C4.95006 6.59693 4.46552 6.11175 4.46877 5.53381C4.47266 4.93057 4.95006 4.46031 5.55719 4.4629C6.13318 4.46485 6.60734 4.95327 6.60475 5.54289Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+               </svg>
+               Tags 
+             </span>
+             <input 
+               type="text" 
+               id="note-tags" 
+               name="note-tags" 
+               class="note-details-tags-input editable" 
+               placeholder="Add tags separated by commas(e.g. Work, Planning)"
+             />
+           </div>
+           <div class="note-details-date">
+             <span class="note-details-date-label">
+               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 <path fill-rule="evenodd" clip-rule="evenodd" d="M8.16699 2.5C5.12919 2.5 2.66699 4.96219 2.66699 8C2.66699 11.0372 5.12923 13.5 8.16699 13.5C11.2048 13.5 13.667 11.0372 13.667 8C13.667 4.96219 11.2048 2.5 8.16699 2.5ZM1.66699 8C1.66699 4.40991 4.57691 1.5 8.16699 1.5C11.7571 1.5 14.667 4.40991 14.667 8C14.667 11.5894 11.7571 14.5 8.16699 14.5C4.57687 14.5 1.66699 11.5894 1.66699 8Z" fill="currentColor"/>
+                 <path fill-rule="evenodd" clip-rule="evenodd" d="M7.94824 5.21777C8.22438 5.21777 8.44824 5.44163 8.44824 5.71777V8.16619L10.3212 9.28553C10.5583 9.42719 10.6356 9.73419 10.494 9.97126C10.3523 10.2083 10.0453 10.2856 9.80824 10.1439L7.69171 8.87906C7.54071 8.78879 7.44824 8.62586 7.44824 8.44986V5.71777C7.44824 5.44163 7.67211 5.21777 7.94824 5.21777Z" fill="currentColor"/>
+               </svg>
+               Last Edited
+             </span>
+             <span class="note-details-date-value" id="note-last-edited">
+                <!-- ${formatDate(new Date())} -->
+                Not yet saved
+             </span>
+           </div>
+           <div class="form-group" id="location-group">
+             <button type="button" class="location-button" id="location-button">Add Location</button>
+           </div>
+         </div>
+         <textarea 
+           id="note-content" 
+           name="note-content" 
+           class="note-details-body editable" 
+           placeholder="Start typing your note here..." 
+           required
+         ></textarea>
+       </form>
+     `;
+
+    formWrapper.appendChild(formContentSection);
+    container.appendChild(formWrapper);
 
     // add location permission request button to form
     const locationButton = document.getElementById("location-button");
@@ -468,7 +597,7 @@ function showCreateNoteForm() {
     });
     }
 
-    // add event listener to create note button
+    // add event listener to create note button (desktop)
     const createNoteBtn = document.getElementById("create-note-btn");
     if(createNoteBtn) {
         createNoteBtn.addEventListener("click", (e) => {
@@ -477,14 +606,28 @@ function showCreateNoteForm() {
         });
     }
     
-    // add event listener to cancel button
+    // add event listener to cancel button (desktop)
     const cancelBtn = document.getElementById("create-cancel-btn");
     if(cancelBtn) {
         cancelBtn.addEventListener("click", (e) => {
             e.preventDefault();
-            container.innerHTML = "";
+            // Preserve tags menu when clearing
+            const tagsMenu = container.querySelector("#tags-menu-sm");
+            
+            const children = Array.from(container.children);
+            children.forEach(child => {
+                if(child.id !== "tags-menu-sm") {
+                    child.remove();
+                }
+            });
+            
+            if(tagsMenu) {
+                tagsMenu.style.display = "none";
+                tagsMenu.classList.remove("is-active");
+            }
         });
     }
+    
     // add event listener to form
     const form = document.getElementById("create-note-form");
     if(form) {
@@ -542,12 +685,6 @@ function showCreateNoteForm() {
     }
 
     setupFormValidation();
-
-    // clear draft on form submission
-    // form.addEventListener("submit", () => {
-    //     storage.clearDraft();
-    //     console.log("Draft cleared");
-    // });
 }
 
 // setup form validation listeners
