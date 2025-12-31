@@ -646,56 +646,114 @@ export const renderNoteDetails = (note) => {
   detailWrapper.appendChild(headerSection);
 
   //  back button (mobile, tablet)
-  const backButton = document.createElement("button");
-  backButton.classList.add("back-button", "mobile-tablet-only");
-  backButton.innerHTML = `
-    <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M6.31047 12.621L0 6.3105L6.31047 0L7.37097 1.0605L2.12097 6.3105L7.37097 11.5605L6.31047 12.621Z" fill="currentColor"/>
-    </svg>
-    <span class="back-button-label">Back</span>
-  `;
+  // const backButton = document.createElement("button");
+  // backButton.classList.add("back-button", "mobile-tablet-only");
+  // backButton.innerHTML = `
+  //   <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+  //     <path fill-rule="evenodd" clip-rule="evenodd" d="M6.31047 12.621L0 6.3105L6.31047 0L7.37097 1.0605L2.12097 6.3105L7.37097 11.5605L6.31047 12.621Z" fill="currentColor"/>
+  //   </svg>
+  //   <span class="back-button-label">Back</span>
+  // `;
 
-  headerSection.appendChild(backButton);
+  // headerSection.appendChild(backButton);
 
   // === mobile/tablet actions buttons ===
+  // === mobile/tablet header with actions row ===
   const mobileActionsRow = document.createElement("div");
   mobileActionsRow.classList.add("note-details-header-actions", "mobile-tablet-only");
+  
+  // Create all buttons in one innerHTML for better layout control
+  mobileActionsRow.innerHTML = `
+    <div class="note-details-left">
+    <button class="back-button mobile-tablet-only" data-action="back">
+      <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+       <path fill-rule="evenodd" clip-rule="evenodd" d="M6.31047 12.621L0 6.3105L6.31047 0L7.37097 1.0605L2.12097 6.3105L7.37097 11.5605L6.31047 12.621Z" fill="currentColor"/>
+      </svg>
 
-  // Delete button for mobile/tablet
-  const mobileDeleteButton = document.createElement("button");
-  mobileDeleteButton.classList.add("delete-button", "mobile-tablet-only");
-  mobileDeleteButton.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12.3769 3.10322L13.0587 4.53105H15.2582C15.9345 4.53105 16.4827 5.05735 16.4827 5.70658V6.57714C16.4827 7.02103 16.1079 7.38087 15.6455 7.38087H4.17071C3.70833 7.38087 3.3335 7.02103 3.3335 6.57714V5.70658C3.3335 5.05735 3.88173 4.53105 4.55802 4.53105H6.75754L7.43937 3.10322C7.64395 2.67474 8.08995 2.40002 8.58095 2.40002H11.2353C11.7263 2.40002 12.1722 2.67474 12.3769 3.10322Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M15.2 7.44061V14.3892C15.2 15.7209 14.0895 16.8004 12.7195 16.8004H7.09717C5.72725 16.8004 4.6167 15.7209 4.6167 14.3892V7.44061" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M8.49951 10.2531V13.8598M11.3165 10.2531V13.8598" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+      <span class="back-button-label">Go Back</span>
+    </button>
+    </div>
+    
+    <div class="note-details-right">
+    <button class="delete-button mobile-tablet-only" data-action="delete">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12.3769 3.10322L13.0587 4.53105H15.2582C15.9345 4.53105 16.4827 5.05735 16.4827 5.70658V6.57714C16.4827 7.02103 16.1079 7.38087 15.6455 7.38087H4.17071C3.70833 7.38087 3.3335 7.02103 3.3335 6.57714V5.70658C3.3335 5.05735 3.88173 4.53105 4.55802 4.53105H6.75754L7.43937 3.10322C7.64395 2.67474 8.08995 2.40002 8.58095 2.40002H11.2353C11.7263 2.40002 12.1722 2.67474 12.3769 3.10322Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M15.2 7.44061V14.3892C15.2 15.7209 14.0895 16.8004 12.7195 16.8004H7.09717C5.72725 16.8004 4.6167 15.7209 4.6167 14.3892V7.44061" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8.49951 10.2531V13.8598M11.3165 10.2531V13.8598" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    
+    <button class="archive-button mobile-tablet-only" data-action="archive">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+       <path d="M15.75 5.83656V12.1626C15.75 14.3737 14.1891 15.7499 11.9802 15.7499H6.01978C3.81089 15.7499 2.25 14.3737 2.25 12.1619V5.83656C2.25 3.62548 3.81089 2.24994 6.01978 2.24994H11.9802C14.1891 2.24994 15.75 3.63205 15.75 5.83656Z" stroke="currentColor" stroke-width="1.11818" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M11.25 10.4999L8.99865 12.7499L6.75 10.4999" stroke="currentColor" stroke-width="1.11818" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M8.99854 12.75V7.5" stroke="currentColor" stroke-width="1.11818" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M15.7002 5.25H2.29395" stroke="currentColor" stroke-width="1.11818" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+
+    </button>
+    
+    <button class="cancel-button mobile-tablet-only" data-action="cancel">Cancel</button>
+    
+    <button class="save-button mobile-tablet-only" data-action="save">Save Note</button>
+    </div>
   `;
+
+  // Attach event listeners using data-action attributes
+  const mobileBackButton = mobileActionsRow.querySelector('[data-action="back"]');
+  mobileBackButton.addEventListener("click", () => {
+    // Preserve tags menu when clearing
+    const tagsMenu = container.querySelector("#tags-menu-sm");
+    
+    // Clear container but preserve tags menu
+    const children = Array.from(container.children);
+    children.forEach(child => {
+      if(child.id !== "tags-menu-sm") {
+        child.remove();
+      }
+    });
+    
+    // Ensure tags menu is hidden
+    if(tagsMenu) {
+      tagsMenu.style.display = "none";
+      tagsMenu.classList.remove("is-active");
+    }
+
+    document.dispatchEvent(new CustomEvent("showAllNotes"));
+  });
+
+  const mobileDeleteButton = mobileActionsRow.querySelector('[data-action="delete"]');
   mobileDeleteButton.addEventListener("click", () => {
-    // display modal for confirmation
+    // Display modal for confirmation
     const modal = document.createElement("div");
     modal.classList.add("modal");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-labelledby", "modal-title");
+    modal.setAttribute("aria-modal", "true");
+    
     modal.innerHTML = `
       <div class="modal-content">
-       <span class="modal-icon">
-         <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="modal-content-top">
+        <span class="modal-icon">
+          <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M14.8521 3.87899L15.6702 5.66378H18.3097C19.1212 5.66378 19.7791 6.32166 19.7791 7.1332V8.2214C19.7791 8.77626 19.3293 9.22606 18.7745 9.22606H5.00466C4.4498 9.22606 4 8.77626 4 8.2214V7.1332C4 6.32166 4.65788 5.66378 5.46943 5.66378H8.10885L8.92705 3.87899C9.17255 3.34339 9.70775 3 10.2969 3H13.4821C14.0713 3 14.6065 3.34339 14.8521 3.87899Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M18.24 9.30078V17.9865C18.24 19.6511 16.9073 21.0005 15.2634 21.0005H8.51661C6.8727 21.0005 5.54004 19.6511 5.54004 17.9865V9.30078" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M10.1992 12.8164V17.3248M13.5796 12.8164V17.3248" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-       </span>
-       <div class="modal-label">
-          <h2>Delete Note</h2>
+        </span>
+        <div class="modal-label">
+          <h2 id="modal-title">Delete Note</h2>
           <p>Are you sure you want to delete this note? This action cannot be undone.</p>
-       </div>
-       <div class="modal-buttons">
+        </div>
+        </div>
+        <div class="modal-buttons">
           <button class="modal-cancel-button">Cancel</button>
           <button class="modal-delete-button">Delete Note</button>
-       </div>
+        </div>
       </div>
     `;
+    
     document.body.appendChild(modal);
-
     document.body.style.overflow = "hidden";
 
     setTimeout(() => {
@@ -703,12 +761,21 @@ export const renderNoteDetails = (note) => {
       modal.classList.add('modal-open');
     }, 10);
 
-    // close modal when clicking backdrop
+    // Close modal when clicking backdrop
     modal.addEventListener("click", (e) => {
       if(e.target.classList.contains("modal")) {
         closeModal();
       }
     });
+
+    // Escape key handler
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        closeModal();
+        document.removeEventListener("keydown", handleEscape);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
 
     const cancelBtn = modal.querySelector('.modal-cancel-button');
     cancelBtn.addEventListener('click', () => {
@@ -718,7 +785,7 @@ export const renderNoteDetails = (note) => {
     const deleteBtn = modal.querySelector('.modal-delete-button');
     deleteBtn.addEventListener('click', () => {
       const event = new CustomEvent('deleteNote', {
-        detail: { noteId: note.id},
+        detail: { noteId: note.id },
       });
       document.dispatchEvent(event);
       closeModal();
@@ -734,37 +801,88 @@ export const renderNoteDetails = (note) => {
     }
   });
 
-  // save button for mobile/tablet
-  const mobileSaveButton = document.createElement('button');
-  mobileSaveButton.classList.add('save-button', 'mobile-tablet-only');
-  mobileSaveButton.textContent = 'Save Note';
+  const mobileArchiveButton = mobileActionsRow.querySelector('[data-action="archive"]');
+  mobileArchiveButton.addEventListener("click", () => {
+    // Confirmation modal
+    const modal = document.createElement("div");
+    modal.classList.add("modal");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-labelledby", "modal-title");
+    modal.setAttribute("aria-modal", "true");
 
-  mobileSaveButton.addEventListener('click', () => {
-    const updatedTitle = title.value.trim();
-    const updatedContent = contentDisplay.value.trim();
+    modal.innerHTML = `
+      <div class="modal-content">
+      <div class="modal-content-top">
+        <span class="modal-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 7.78216V16.2169C21 19.165 18.9188 21 15.9736 21H8.02638C5.08119 21 3 19.165 3 16.2159V7.78216C3 4.83405 5.08119 3 8.02638 3H15.9736C18.9188 3 21 4.84281 21 7.78216Z" stroke="#0E121B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15 14L11.9982 17L9 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M11.998 17V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20.9336 7H3.05859" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
 
-    // parse tags
-    const updatedTags = tagsInput.value
-    .trim()
-    .split(',')
-    .map(tag => tag.trim())
-    .filter((tag) => tag.length > 0);
+        </span>
+        <div class="modal-label">
+          <h2 id="modal-title">Archive Note</h2>
+          <p>Are you sure you want to archive this note? This action cannot be undone.</p>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button class="modal-cancel-button">Cancel</button>
+          <button class="modal-archive-button">Archive Note</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = "hidden";
 
-    const event = new CustomEvent("saveNote", {
-      detail: {
-        noteId: note.id,
-        title: updatedTitle,
-        content: updatedContent,
-        tags: updatedTags,
-      },
+    setTimeout(() => {
+      modal.style.display = 'flex';
+      modal.classList.add('modal-open');
+    }, 10);
+
+    // Close modal when clicking backdrop
+    modal.addEventListener("click", (e) => {
+      if(e.target.classList.contains("modal")) {
+        closeModal();
+      }
     });
-    document.dispatchEvent(event);
+
+    // Escape key handler
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        closeModal();
+        document.removeEventListener("keydown", handleEscape);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+
+    const cancelBtn = modal.querySelector('.modal-cancel-button');
+    cancelBtn.addEventListener('click', () => {
+      closeModal();
+    });
+    
+    const archiveBtn = modal.querySelector('.modal-archive-button');
+    archiveBtn.addEventListener('click', () => {
+      const event = new CustomEvent('archiveNote', {
+        detail: { noteId: note.id, isArchived: !note.isArchived },
+      });
+      document.dispatchEvent(event);
+      closeModal();
+    });
+
+    function closeModal(){
+      modal.classList.remove('modal-open');
+      modal.classList.add('modal-close');
+      setTimeout(() => {
+        modal.remove();
+        document.body.style.overflow = "";
+      }, 300);
+    }
   });
 
-  // cancel button for mobile/tablet
-  const mobileCancelButton = document.createElement("button");
-  mobileCancelButton.classList.add('cancel-button', 'mobile-tablet-only');
-  mobileCancelButton.textContent = 'Cancel';
+  const mobileCancelButton = mobileActionsRow.querySelector('[data-action="cancel"]');
   mobileCancelButton.addEventListener('click', () => {
     // Clear container but preserve tags menu
     const children = Array.from(container.children);
@@ -780,126 +898,54 @@ export const renderNoteDetails = (note) => {
       tagsMenu.classList.remove("is-active");
     }
 
-     // remove 3-column layout
-     const appMainContainer = document.querySelector('.app-main-container');
-     if(appMainContainer){
-       appMainContainer.classList.remove('has-note-selected');
-     }
- 
-     // remove actions column
-     const actionsColumn = document.querySelector('.app-main-container-actions');
-     if(actionsColumn){
-       actionsColumn.remove();
-     }
+    // Remove 3-column layout
+    const appMainContainer = document.querySelector('.app-main-container');
+    if(appMainContainer){
+      appMainContainer.classList.remove('has-note-selected');
+    }
 
-    const event = new CustomEvent("cancelNote", {
-      detail: { noteId: note.id },
+    // Remove actions column
+    const actionsColumn = document.querySelector('.app-main-container-actions');
+    if(actionsColumn){
+      actionsColumn.remove();
+    }
+
+    document.dispatchEvent(new CustomEvent("showNotesList"));
+  });
+
+  const mobileSaveButton = mobileActionsRow.querySelector('[data-action="save"]');
+  mobileSaveButton.addEventListener('click', () => {
+    // Query for elements when event fires (they're created later in the function)
+    const titleInput = detailWrapper.querySelector('.note-details-title');
+    const contentTextarea = detailWrapper.querySelector('.note-details-body');
+    const tagsInput = detailWrapper.querySelector('.note-details-tags-input');
+    
+    if (!titleInput || !contentTextarea || !tagsInput) return;
+    
+    const updatedTitle = titleInput.value.trim();
+    const updatedContent = contentTextarea.value.trim();
+
+    // Parse tags
+    const updatedTags = tagsInput.value
+      .trim()
+      .split(',')
+      .map(tag => tag.trim())
+      .filter((tag) => tag.length > 0);
+
+    const event = new CustomEvent("saveNote", {
+      detail: {
+        noteId: note.id,
+        title: updatedTitle,
+        content: updatedContent,
+        tags: updatedTags,
+      },
     });
     document.dispatchEvent(event);
   });
 
-  const mobileArchiveButton = document.createElement("button");
-  mobileArchiveButton.classList.add('archive-button', 'mobile-tablet-only');
-  mobileArchiveButton.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M3.09026 6.16962C3.4082 6.03519 3.7749 6.18396 3.90932 6.50189L5.00629 9.09638L7.58326 8.0068C7.9012 7.87239 8.2679 8.02114 8.40233 8.33904C8.53675 8.65704 8.388 9.02371 8.07005 9.15813L4.91741 10.491C4.59948 10.6255 4.23278 10.4767 4.09836 10.1588L2.758 6.98867C2.62357 6.67074 2.77234 6.30404 3.09026 6.16962Z" fill="currentColor"/>
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M10.7624 4.71991C7.89009 4.71991 5.55539 7.008 5.4832 9.85328C5.47445 10.1983 5.18762 10.4709 4.84255 10.4622C4.49749 10.4534 4.22485 10.1666 4.2336 9.82153C4.32299 6.29821 7.21239 3.46991 10.7624 3.46991C14.366 3.46991 17.2915 6.39544 17.2915 9.99894C17.2915 13.6097 14.3655 16.528 10.7624 16.528C8.52867 16.528 6.56351 15.41 5.38176 13.708C5.18489 13.4244 5.25516 13.035 5.53869 12.8382C5.82223 12.6413 6.21167 12.7115 6.40854 12.9951C7.36759 14.3764 8.957 15.278 10.7624 15.278C13.6761 15.278 16.0415 12.9184 16.0415 9.99894C16.0415 7.0858 13.6756 4.71991 10.7624 4.71991Z" fill="currentColor"/>
-    </svg>
-    <span class="archive-button-label">Archive Note</span>
-  `;
-  mobileArchiveButton.addEventListener("click", () => {
-    // confirmation  modal
-    const modal = document.createElement("div");
-    modal.classList.add("modal");
-
-    modal.innerHTML = `
-      <div class="modal-content">
-       <span class="modal-icon">
-         <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14.8521 3.87899L15.6702 5.66378H18.3097C19.1212 5.66378 19.7791 6.32166 19.7791 7.1332V8.2214C19.7791 8.77626 19.3293 9.22606 18.7745 9.22606H5.00466C4.4498 9.22606 4 8.77626 4 8.2214V7.1332C4 6.32166 4.65788 5.66378 5.46943 5.66378H8.10885L8.92705 3.87899C9.17255 3.34339 9.70775 3 10.2969 3H13.4821C14.0713 3 14.6065 3.34339 14.8521 3.87899Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M18.24 9.30078V17.9865C18.24 19.6511 16.9073 21.0005 15.2634 21.0005H8.51661C6.8727 21.0005 5.54004 19.6511 5.54004 17.9865V9.30078" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.1992 12.8164V17.3248M13.5796 12.8164V17.3248" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-       </span>
-       <div class="modal-label">
-          <h2>Archive Note</h2>
-          <p>Are you sure you want to archive this note? This action cannot be undone.</p>
-       </div>
-       <div class="modal-buttons">
-          <button class="modal-cancel-button">Cancel</button>
-          <button class="modal-archive-button">Delete Note</button>
-       </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-
-    document.body.style.overflow = "hidden";
-
-    setTimeout(() => {
-      modal.style.display = 'flex';
-      modal.classList.add('modal-open');
-    }, 10);
-
-    // close modal when clicking backdrop
-    modal.addEventListener("click", (e) => {
-      if(e.target.classList.contains("modal")) {
-        closeModal();
-      }
-    });
-
-    const cancelBtn = modal.querySelector('.modal-cancel-button');
-    cancelBtn.addEventListener('click', () => {
-      closeModal();
-    });
-    
-    const archiveBtn = modal.querySelector('.modal-archive-button');
-    archiveBtn.addEventListener('click', () => {
-      const event = new CustomEvent('archiveNote', {
-        detail: { noteId: note.id, isArchived: true },
-      });
-      document.dispatchEvent(event);
-      closeModal();
-    });
-
-    function closeModal(){
-      modal.classList.remove('modal-open');
-      modal.classList.add('modal-close');
-      setTimeout(() => {
-        modal.remove();
-        document.body.style.overflow = "";
-      }, 300);
-    }
-  });
-
-  mobileActionsRow.appendChild(backButton);
-  mobileActionsRow.appendChild(mobileArchiveButton);
-  mobileActionsRow.appendChild(mobileCancelButton);
-  mobileActionsRow.appendChild(mobileSaveButton);
-
-
-
+  // Append mobile actions row to header
   headerSection.appendChild(mobileActionsRow);
 
-  backButton.addEventListener("click", () => {
-   // Preserve tags menu when clearing
-   const tagsMenu = container.querySelector("#tags-menu-sm");
-    
-   // Clear container but preserve tags menu
-   const children = Array.from(container.children);
-   children.forEach(child => {
-     if(child.id !== "tags-menu-sm") {
-       child.remove();
-     }
-   });
-   
-   // Ensure tags menu is hidden
-   if(tagsMenu) {
-     tagsMenu.style.display = "none";
-     tagsMenu.classList.remove("is-active");
-   }
-
-    document.dispatchEvent(new CustomEvent("showNotesList"));
-  });
 
   // actions buttons container (desktop, top right corner)
   let actionsColumn = document.querySelector(".app-main-container-actions");
@@ -932,20 +978,94 @@ export const renderNoteDetails = (note) => {
 
   archiveButton.innerHTML = `
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M3.09026 6.16962C3.4082 6.03519 3.7749 6.18396 3.90932 6.50189L5.00629 9.09638L7.58326 8.0068C7.9012 7.87239 8.2679 8.02114 8.40233 8.33904C8.53675 8.65704 8.388 9.02371 8.07005 9.15813L4.91741 10.491C4.59948 10.6255 4.23278 10.4767 4.09836 10.1588L2.758 6.98867C2.62357 6.67074 2.77234 6.30404 3.09026 6.16962Z" fill="currentColor"/>
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M10.7624 4.71991C7.89009 4.71991 5.55539 7.008 5.4832 9.85328C5.47445 10.1983 5.18762 10.4709 4.84255 10.4622C4.49749 10.4534 4.22485 10.1666 4.2336 9.82153C4.32299 6.29821 7.21239 3.46991 10.7624 3.46991C14.366 3.46991 17.2915 6.39544 17.2915 9.99894C17.2915 13.6097 14.3655 16.528 10.7624 16.528C8.52867 16.528 6.56351 15.41 5.38176 13.708C5.18489 13.4244 5.25516 13.035 5.53869 12.8382C5.82223 12.6413 6.21167 12.7115 6.40854 12.9951C7.36759 14.3764 8.957 15.278 10.7624 15.278C13.6761 15.278 16.0415 12.9184 16.0415 9.99894C16.0415 7.0858 13.6756 4.71991 10.7624 4.71991Z" fill="currentColor"/>
+      <path d="M17.5 6.48513V13.5141C17.5 15.9708 15.7657 17.5 13.3113 17.5H6.68865C4.23432 17.5 2.5 15.9708 2.5 13.5133V6.48513C2.5 4.02837 4.23432 2.5 6.68865 2.5H13.3113C15.7657 2.5 17.5 4.03567 17.5 6.48513Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12.5 11.6667L9.9985 14.1667L7.5 11.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M9.99832 14.1666V8.33331" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M17.4447 5.83331H2.54883" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
+
     <span class="archive-button-label">${
       isArchived ? "Restore Note" : "Archive Note"
     }</span>
   `;
   archiveButton.addEventListener("click", () => {
-    // Toggle archive status - will be handled in main.js
-    // This will dispatch a custom event or call a callback
-    const event = new CustomEvent("archiveNote", {
-      detail: { noteId: note.id, isArchived: !isArchived },
+    // Confirmation modal
+    const modal = document.createElement("div");
+    modal.classList.add("modal");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-labelledby", "modal-title");
+    modal.setAttribute("aria-modal", "true");
+
+    modal.innerHTML = `
+      <div class="modal-content">
+      <div class="modal-content-top">
+        <span class="modal-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 7.78216V16.2169C21 19.165 18.9188 21 15.9736 21H8.02638C5.08119 21 3 19.165 3 16.2159V7.78216C3 4.83405 5.08119 3 8.02638 3H15.9736C18.9188 3 21 4.84281 21 7.78216Z" stroke="#0E121B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15 14L11.9982 17L9 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M11.998 17V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20.9336 7H3.05859" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+
+        </span>
+        <div class="modal-label">
+          <h2 id="modal-title">Archive Note</h2>
+          <p>Are you sure you want to archive this note? This action cannot be undone.</p>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button class="modal-cancel-button">Cancel</button>
+          <button class="modal-archive-button">Archive Note</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => {
+      modal.style.display = 'flex';
+      modal.classList.add('modal-open');
+    }, 10);
+
+    // Close modal when clicking backdrop
+    modal.addEventListener("click", (e) => {
+      if(e.target.classList.contains("modal")) {
+        closeModal();
+      }
     });
-    document.dispatchEvent(event);
+
+    // Escape key handler
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        closeModal();
+        document.removeEventListener("keydown", handleEscape);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+
+    const cancelBtn = modal.querySelector('.modal-cancel-button');
+    cancelBtn.addEventListener('click', () => {
+      closeModal();
+    });
+    
+    const archiveBtn = modal.querySelector('.modal-archive-button');
+    archiveBtn.addEventListener('click', () => {
+      const event = new CustomEvent('archiveNote', {
+        detail: { noteId: note.id, isArchived: !note.isArchived },
+      });
+      document.dispatchEvent(event);
+      closeModal();
+    });
+
+    function closeModal(){
+      modal.classList.remove('modal-open');
+      modal.classList.add('modal-close');
+      setTimeout(() => {
+        modal.remove();
+        document.body.style.overflow = "";
+      }, 300);
+    }
   });
 
   //  delete button
@@ -961,22 +1081,83 @@ export const renderNoteDetails = (note) => {
     <span class="delete-button-label">Delete Note</span>
   `;
   deleteButton.addEventListener("click", () => {
-    // Confirm deletion
-    if (
-      confirm(
-        "Are you sure you want to delete this note? This action cannot be undone."
-      )
-    ) {
-      // Dispatch event to delete note
-      const event = new CustomEvent("deleteNote", {
+    // Display modal for confirmation
+    const modal = document.createElement("div");
+    modal.classList.add("modal");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-labelledby", "modal-title");
+    modal.setAttribute("aria-modal", "true");
+    
+    modal.innerHTML = `
+      <div class="modal-content">
+      <div class="modal-content-top">
+        <span class="modal-icon">
+          <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.8521 3.87899L15.6702 5.66378H18.3097C19.1212 5.66378 19.7791 6.32166 19.7791 7.1332V8.2214C19.7791 8.77626 19.3293 9.22606 18.7745 9.22606H5.00466C4.4498 9.22606 4 8.77626 4 8.2214V7.1332C4 6.32166 4.65788 5.66378 5.46943 5.66378H8.10885L8.92705 3.87899C9.17255 3.34339 9.70775 3 10.2969 3H13.4821C14.0713 3 14.6065 3.34339 14.8521 3.87899Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18.24 9.30078V17.9865C18.24 19.6511 16.9073 21.0005 15.2634 21.0005H8.51661C6.8727 21.0005 5.54004 19.6511 5.54004 17.9865V9.30078" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10.1992 12.8164V17.3248M13.5796 12.8164V17.3248" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <div class="modal-label">
+          <h2 id="modal-title">Delete Note</h2>
+          <p>Are you sure you want to delete this note? This action cannot be undone.</p>
+        </div>
+        </div>
+        <div class="modal-buttons">
+          <button class="modal-cancel-button">Cancel</button>
+          <button class="modal-delete-button">Delete Note</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => {
+      modal.style.display = 'flex';
+      modal.classList.add('modal-open');
+    }, 10);
+
+    // Close modal when clicking backdrop
+    modal.addEventListener("click", (e) => {
+      if(e.target.classList.contains("modal")) {
+        closeModal();
+      }
+    });
+
+    // Escape key handler
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        closeModal();
+        document.removeEventListener("keydown", handleEscape);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+
+    const cancelBtn = modal.querySelector('.modal-cancel-button');
+    cancelBtn.addEventListener('click', () => {
+      closeModal();
+    });
+    
+    const deleteBtn = modal.querySelector('.modal-delete-button');
+    deleteBtn.addEventListener('click', () => {
+      const event = new CustomEvent('deleteNote', {
         detail: { noteId: note.id },
       });
       document.dispatchEvent(event);
+      closeModal();
+    });
+
+    function closeModal(){
+      modal.classList.remove('modal-open');
+      modal.classList.add('modal-close');
+      setTimeout(() => {
+        modal.remove();
+        document.body.style.overflow = "";
+      }, 300);
     }
   });
 
-  // actionButtons.appendChild(archiveButton);
-  // actionButtons.appendChild(deleteButton);
   actionsColumn.appendChild(archiveButton);
   actionsColumn.appendChild(deleteButton);
 
@@ -1077,6 +1258,11 @@ export const renderNoteDetails = (note) => {
       }
     }
   });
+
+  const headerTitle = document.querySelector(".app-main-container-header h2");
+  if(headerTitle){
+    headerTitle.textContent = "";
+  }
 
   // footer section (desktopo only, bottom right corner)
   const footerSection = document.createElement("div");

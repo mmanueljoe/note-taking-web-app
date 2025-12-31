@@ -603,20 +603,198 @@ button {
 }
 
 /* mobile/tablet note details styling starts here */
-.note-details-header-actions {
+.note-details-header-actions{
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.note-details-left{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.note-details-header{
+.note-details-left > button{
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border-primary);
-  background-color: var(--background-secondary);
+  gap: 0.5rem;
 }
+
+.note-details-left > button > .back-button-label{
+  font-size: var(--sans-serif-preset-5-size);
+  font-weight: var(--sans-serif-preset-5-letter-weight);
+  line-height: var(--sans-serif-preset-5-line-height);
+  letter-spacing: var(--sans-serif-preset-5-letter-spacing);
+  color: var(--text-tertiary);
+}
+
+.note-details-left > button > svg{
+  color: var(--text-tertiary);
+}
+
+
+.note-details-right{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.note-details-right > button{
+  background-color: transparent;
+  font-size: var(--sans-serif-preset-5-size);
+  font-weight: var(--sans-serif-preset-5-letter-weight);
+  line-height: var(--sans-serif-preset-5-line-height);
+  letter-spacing: var(--sans-serif-preset-5-letter-spacing);
+  color: var(--text-tertiary);
+  border: none;
+}
+
+.note-details-right > button > svg{
+  color: var(--text-tertiary);
+}
+
+/* modal styles starts here */
+.modal{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.modal.modal-open{
+  opacity: 1;
+}
+
+.modal.modal-close{
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.modal-content{
+  background-color: var(--background-secondary);
+  border-radius: var(--radius-8);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transform: scale(0.9);
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  transition: transform 0.3s ease-in-out;
+}
+
+.modal.modal-open .modal-content{
+  transform: scale(1);
+}
+
+.modal.modal-close .modal-content{
+  transform: scale(0.9);
+}
+
+.modal-icon{
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background-primary);
+  border-radius: var(--radius-8);
+  flex-shrink: 0;
+}
+
+.modal-content-top{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: var(--spacing-250);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.modal-label h2{
+  font-size: var(--sans-serif-preset-3-size);
+  font-weight: var(--sans-serif-preset-3-letter-weight);
+  line-height: var(--sans-serif-preset-3-line-height);
+  letter-spacing: var(--sans-serif-preset-3-letter-spacing);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-050);
+}
+
+.modal-label p{
+  font-size: var(--sans-serif-preset-5-size);
+  font-weight: var(--sans-serif-preset-5-letter-weight);
+  line-height: var(--sans-serif-preset-5-line-height);
+  letter-spacing: var(--sans-serif-preset-5-letter-spacing);
+  color: var(--text-secondary);
+}
+
+.modal-buttons{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--spacing-200) var(--spacing-250);
+}
+
+
+.modal-buttons .modal-cancel-button, .modal-delete-button, .modal-archive-button{
+  padding: var(--spacing-150) var(--spacing-200);
+  border: none;
+  border-radius: var(--radius-8);
+}
+
+.modal-buttons .modal-cancel-button{
+  background-color: var(--background-primary);
+  font-size: var(--sans-serif-preset-4-size);
+  font-weight: var(--sans-serif-preset-4-letter-weight);
+  line-height: var(--sans-serif-preset-4-line-height);
+  letter-spacing: var(--sans-serif-preset-4-letter-spacing);
+  color: var(--text-tertiary);
+}
+
+.modal-buttons .modal-delete-button{
+  background-color: var(--red-500);
+  font-size: var(--sans-serif-preset-4-size);
+  font-weight: var(--sans-serif-preset-4-letter-weight);
+  line-height: var(--sans-serif-preset-4-line-height);
+  letter-spacing: var(--sans-serif-preset-4-letter-spacing);
+  color: var(--btn-textWhite);
+}
+
+.modal-buttons .modal-archive-button{
+  background-color: var(--blue-500);
+  font-size: var(--sans-serif-preset-4-size);
+  font-weight: var(--sans-serif-preset-4-letter-weight);
+  line-height: var(--sans-serif-preset-4-line-height);
+  letter-spacing: var(--sans-serif-preset-4-letter-spacing);
+  color: var(--btn-textWhite);
+}
+/* modal styles ends here */
+
+
 
 /* app main container styling ends here */
 .dark {
@@ -624,6 +802,7 @@ button {
   --background-secondary: var(--neutral-950);
 
   --text-primary: var(--neutral-0);
+  
   --text-tertiary: var(--neutral-600);
   --btn-textWhite: var(--neutral-0);
 
@@ -739,9 +918,23 @@ button {
   .app-main-container-actions .archive-button,
   .app-main-container-actions .delete-button {
     width: 100%;
+    display: flex;
+    flex-direction: row;
     justify-content: flex-start;
-    padding: 0.75rem 1rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: var(--spacing-150) var(--spacing-200);
+    background-color: var(--background-secondary);
+    border-radius: var(--radius-8);
+    cursor: pointer;
+    font-size: var(--sans-serif-preset-4-size);
+    font-weight: var(--sans-serif-preset-4-letter-weight);
+    line-height: var(--sans-serif-preset-4-line-height);
+    letter-spacing: var(--sans-serif-preset-4-letter-spacing);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
   }
+
 
   .app-main-container-header {
     grid-column: 1 / span 2;
@@ -1025,4 +1218,61 @@ button {
   .note-details-header.mobile-tablet-only {
     display: none;
   }
+
+  /* note details content styling starts here */
+  .note-details-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: var(--spacing-100);
+    background-color: var(--background-secondary);
+    border: none;
+  }
+
+  .note-details-footer.desktop-only {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    padding: var(--spacing-100);
+    background-color: var(--background-secondary);
+  }
+
+  /* Show desktop-only buttons inside the footer */
+  .note-details-footer .save-button.desktop-only,
+  .note-details-footer .cancel-button.desktop-only {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-8);
+    font-size: var(--sans-serif-preset-4-size);
+    font-weight: var(--sans-serif-preset-4-letter-weight);
+    cursor: pointer;
+    border: 1px solid var(--border-primary);
+    transition: all 0.2s;
+  }
+
+  .note-details-footer .save-button.desktop-only {
+    background-color: var(--blue-500);
+    color: var(--btn-textWhite);
+    border-color: var(--blue-500);
+  }
+
+  .note-details-footer .save-button.desktop-only:hover {
+    background-color: var(--blue-600);
+    border-color: var(--blue-600);
+  }
+
+  .note-details-footer .cancel-button.desktop-only {
+    background-color: var(--background-secondary);
+    color: var(--text-primary);
+  }
+
+  .note-details-footer .cancel-button.desktop-only:hover {
+    background-color: var(--background-tertiary);
+  }
+
 }
