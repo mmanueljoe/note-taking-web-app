@@ -121,3 +121,64 @@ export const clearDraft = () => {
     return {success: false, error: 'unknown', message: 'Failed to clear draft. Please try again.'};
   }
 };
+
+// save auth to localStorage
+export const saveAuth = (auth) => {
+  try{
+    localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(auth));
+    return {success: true, error: null};
+  }catch(error){
+    console.error("Error saving auth:", error);
+    return {
+      success: false,
+      error: 'unknown',
+      message: 'Failed to save auth. Please try again.'
+    }
+
+  }
+};
+
+// load auth from localStorage
+export const loadAuth = () => {
+  try{
+    const storedAuth = localStorage.getItem(STORAGE_KEYS.AUTH);
+    return storedAuth ? JSON.parse(storedAuth) : [];
+  }catch(error){
+    console.error("Error loading auth:", error);
+    return [];
+  }
+};
+
+// clear auth from localStorage
+export const clearAuth = () => {
+  try{
+    localStorage.removeItem(STORAGE_KEYS.AUTH);
+    return {success: true, error: null};
+  }catch(error){
+    console.error("Error clearing auth:", error);
+    return {success: false, error: 'unknown', message: 'Failed to clear auth. Please try again.'};
+  }
+};
+
+// save users to localStorage
+export const saveUsers = (users) => {
+  try{
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    return {success: true, error: null};
+  }catch(error){
+    console.error("Error saving users:", error);
+    return {success: false, error: 'unknown', message: 'Failed to save users. Please try again.'};
+  }
+};
+
+// load users from localStorage
+export const loadUsers = () => {
+  try{
+    const storedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
+    console.log(storedUsers);
+    return storedUsers ? JSON.parse(storedUsers) : [];
+  }catch(error){
+    console.error("Error loading users:", error);
+    return [];
+  }
+};

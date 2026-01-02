@@ -1038,6 +1038,9 @@ button {
 
   --border-primary: var(--neutral-600);
   --border-secondary: var(--neutral-800);
+  --border-error: var(--red-500);
+  --border-error-focus: var(--red-500);
+
 
   --icon-borderColor: var(--neutral-400);
 }
@@ -1045,19 +1048,26 @@ button {
 .light {
   --background-primary: var(--neutral-100);
   --background-secondary: var(--neutral-0);
+  --background-tertiary: var(--neutral-50);
 
   --text-primary: var(--neutral-950);
   --text-secondary: var(--neutral-700);
   --text-tertiary: var(--neutral-600);
   --text-disabled: var(--neutral-400);
+  --text-error: var(--red-500);
   --btn-textWhite: var(--neutral-0);
 
   --btn-textColor: var(--neutral-0);
 
   --border-primary: var(--neutral-700);
-  --border-secondary: var(--neutral-200);
+  --border-secondary: var(--neutral-300);
+  --border-tertiary: var(--neutral-200);
+  --border-error: var(--red-500);
+  --border-error-focus: var(--red-500);
 
   --outline-primary: var(--neutral-950);
+  --outline-secondary: var(--neutral-500);
+
 
   --icon-bordercolorPrimary: var(--neutral-600);
   --icon-bordercolorSecondary: var(--neutral-500);

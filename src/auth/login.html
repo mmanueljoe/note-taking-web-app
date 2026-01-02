@@ -26,18 +26,35 @@
             <p>Please log in to continue</p>
           </div>
   
-          <form class="auth-form" aria-label="Sign up form">
+          <form class="auth-form" aria-label="Sign up form" novalidate>
   
             <div class="auth-form-group">
               <label for="email">Email Address</label>
-              <input type="email" id="email" name="email" placeholder="email@example.com" required>
-              <!-- <p class="auth-form-group-error">Please enter a valid email address</p> -->
+              <input type="email" id="email" name="email" placeholder="email@example.com">
             </div>
   
             <div class="auth-form-group">
+              <div class="auth-form-group-header">
               <label for="password">Password</label>
-              <input type="password" id="password" name="password" required>
-  
+              <a href="forgot-password.html" class="auth-form-forgot-link">Forgot</a>
+            </div>
+            <div class="auth-form-group-input">
+              <input type="password" id="password" name="password">
+              <button type="button" class="auth-form-group-toggle" id="password-toggle" aria-label="Toggle password visibility">
+                <svg class="auth-form-group-toggle-icon auth-form-group-toggle-icon-hide" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5.34935 14.7749C3.49102 13.5582 2.29102 11.7249 2.29102 10.1165C2.29102 7.3832 5.74102 4.0332 9.99935 4.0332C11.741 4.0332 13.3577 4.59154 14.6577 5.4582" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M16.542 7.1748C17.2845 8.11647 17.717 9.15811 17.717 10.1164C17.717 12.8498 14.2586 16.1998 10.0003 16.1998C9.24197 16.1998 8.50114 16.0914 7.80859 15.8998" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M8.13804 11.9724C7.6422 11.4815 7.3647 10.8124 7.3672 10.1149C7.36387 8.66071 8.54052 7.47907 9.99552 7.47657C10.6955 7.4749 11.3672 7.7524 11.8622 8.2474" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M12.5907 10.583C12.3957 11.6597 11.5532 12.5038 10.4766 12.7013" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M16.5767 3.54199L3.43164 16.687" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  
+                <svg class="auth-form-group-toggle-icon auth-form-group-toggle-icon-show" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0022 8.42852C8.89226 8.42852 7.99219 9.29204 7.99219 10.3581C7.99219 11.4236 8.89235 12.2877 10.0022 12.2877C11.112 12.2877 12.0122 11.4236 12.0122 10.3581C12.0122 9.29204 11.1122 8.42852 10.0022 8.42852ZM6.74219 10.3581C6.74219 8.629 8.20214 7.22852 10.0022 7.22852C11.8023 7.22852 13.2622 8.629 13.2622 10.3581C13.2622 12.0863 11.8023 13.4877 10.0022 13.4877C8.20201 13.4877 6.74219 12.0863 6.74219 10.3581Z" fill="currentColor"/>
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M4.14562 5.9956C5.64096 4.78194 7.7083 3.91699 10.001 3.91699C12.2932 3.91699 14.3606 4.78126 15.856 5.99463C17.3352 7.1948 18.336 8.8082 18.336 10.3586C18.336 11.909 17.3352 13.5224 15.856 14.7225C14.3606 15.936 12.2932 16.8002 10.001 16.8002C7.7083 16.8002 5.64096 15.9352 4.14562 14.7216C2.66664 13.5212 1.66602 11.9078 1.66602 10.3586C1.66602 8.8094 2.66664 7.196 4.14562 5.9956ZM4.95267 6.91198C3.64123 7.97638 2.91602 9.2838 2.91602 10.3586C2.91602 11.4334 3.64123 12.7408 4.95267 13.8052C6.24775 14.8564 8.03541 15.6002 10.001 15.6002C11.9663 15.6002 13.754 14.8568 15.0491 13.806C16.3606 12.742 17.086 11.4346 17.086 10.3586C17.086 9.2826 16.3606 7.97518 15.0491 6.91114C13.754 5.86032 11.9663 5.11699 10.001 5.11699C8.03541 5.11699 6.24775 5.86085 4.95267 6.91198Z" fill="currentColor"/>
+                  </svg>                                                      
+              </button>
+            </div>
               <!-- password visibility toggle -->
                <!-- <button type="button" class="auth-form-group-toggle">
                 <p class="auth-form-group-toggle-icon">
@@ -53,27 +70,36 @@
               </span> -->
             </div>
   
-            <button type="submit" class="auth-form-submit">  Login</button>
+            <button type="submit" class="auth-form-submit">Login</button>
           </form>
           
           <div class="auth-form-footer">
             <p>Or log in with:</p>
-            <button type="button" class="auth-form-google">
+            <button type="button" class="auth-form-google" disabled>
               <img src="../assets/images/icon-google.svg" alt="Google" class="auth-form-google-icon">
               Google
             </button>
           </div>
   
   
-          <p class="auth-form-footer-link">No account yet? <a href="./signup.html">Sign Up</a></p>
+          <p class="auth-form-footer-link">No account yet? <a href="signup.html">Sign Up</a></p>
   
         </div>
     </main>
   
     <!-- <button id="toggle-theme">Toogle theme</button> -->
     
-    <script src="../js/scripts.js">
+    <script src="../js/main.js" type="module">
+    </script>
+    <script type="module">
+        import { handleLogin } from '../js/auth-handlers.js';
   
+        // Initialize login handler when DOM is ready
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', handleLogin);
+        } else {
+          handleLogin();
+        }
     </script>
     </div>
   </body>

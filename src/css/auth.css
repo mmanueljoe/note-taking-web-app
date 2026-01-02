@@ -16,7 +16,7 @@
     width: 100%;
     background-color: var(--secondary-bg);
     border-radius: var(--radius-12);
-    border: 1px solid var(--border-secondary);
+    border: 1px solid var(--border-tertiary);
     box-shadow: var(--shadow-lg);
 }
 
@@ -76,6 +76,119 @@
     color: var(--text-primary);
 }
 
+.auth-form-group-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.auth-form-forgot-link{
+    font-size: var(--sans-serif-preset-6-size);
+    color: var(--text-tertiary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.auth-form-forgot-link:hover{
+    color: var(--blue-500);
+    transition: all 0.3s ease;
+}
+
+
+.auth-form-group input,
+.auth-form-group-input input{
+    border: 1px solid var(--border-tertiary);
+}
+/* password input with toggle button */
+.auth-form-group-input{
+    position: relative;
+    width: 100%;
+}
+
+.auth-form-group-input input{
+    padding-right: 3rem;
+}
+
+/* password visibility toggle button */
+.auth-form-group-toggle{
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.auth-form-group-toggle > svg{
+    color: var(--icon-bordercolorSecondary);
+}
+
+/* .auth-form-group-toggle:hover{
+    background-color: var(--background-color);
+} */
+
+/* input focus states */
+.auth-form-group input:focus,
+.auth-form-group-input input:focus{
+    outline: 2px  solid var(--outline-secondary);
+    outline-offset: 2px;
+    border-color: var(--border-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.auth-form-group input:hover, 
+.auth-form-group-input input:hover{
+    cursor: pointer;
+    background-color: var(--background-tertiary);
+}
+
+.auth-form-input-error{
+    border-color: var(--border-error) !important;
+    outline: none !important;
+}
+
+.auth-form-input-error-password{
+    border-color: var(--border-error) !important;
+    outline: none !important;
+}
+
+/* error states */
+.auth-form-group-error{
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.auth-form-group-error > span{
+    color: var(--text-error);
+}
+
+.auth-form-group-error-password > span{
+    color: var(--text-error);
+}
+
+.auth-form-group-error-icon{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+
+.auth-form-group-toggle-icon{
+    width: 20px;
+    height: auto;
+    background-color: var(--secondary-bg);
+}
+
 .auth-form-submit{
     padding: 0.75rem 1rem;
     border-radius: var(--radius-8);
@@ -86,13 +199,19 @@
     font-weight: var(--sans-serif-preset-3-letter-weight);
 }
 
+.auth-form-submit:hover{
+    background-color: var(--blue-700);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
 .auth-form-footer{
     display: flex;
     flex-direction: column;
     gap: 1rem;
     text-align: center;
-    border-top: 1px solid var(--border-primary);
-    border-bottom: 1px solid var(--border-primary);
+    border-top: 1px solid var(--border-tertiary);
+    border-bottom: 1px solid var(--border-tertiary);
     padding: 1.5rem 0;
 }
 
@@ -105,9 +224,15 @@
     font-weight: 500;
     padding: 0.75rem 1rem;
     border-radius: var(--radius-8);
-    border: 1px solid var(--border-primary);
+    border: 1px solid var(--border-tertiary);
     background-color: var(--secondary-bg);
     color: var(--text-primary);   
+}
+
+.auth-form-footer button:hover{
+    background-color: var(--background-tertiary);
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .auth-form-footer-link{
@@ -116,16 +241,17 @@
     line-height: var(--sans-serif-preset-5-line-height);
     letter-spacing: var(--sans-serif-preset-5-letter-spacing);
     text-align: center;
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
 }
 
 .auth-form-footer-link a{
     text-decoration: none;
-    color: var(--text-primary);
+    color: var(--text-tertiary);
 }
 
 .auth-form-footer-link a:hover{
-    text-decoration: underline;
+    color: var(--blue-500);
+    transition: all 0.3s ease;
 }
 
 

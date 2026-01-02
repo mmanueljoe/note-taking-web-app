@@ -1,6 +1,7 @@
 import { getElementByType } from "./utils.js";
 import { applyTheme, applyFont } from "./theme.js";
 import { savePreferences, loadPreferences } from "./storage.js";
+import {logout, changePassword} from "./auth.js";
 
 const initializeSettings = () => {
   // 1. get all elements
@@ -152,23 +153,310 @@ const initializeSettings = () => {
     }
   };
 
+  // handle logout
+  const handleLogout = (e) => {
+    e.preventDefault();
+
+    // create logout confirmation dialog
+    const modal = document.createElement("div");
+    modal.classList.add("modal");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-labelledby", "modal-title");
+    modal.setAttribute("aria-modal", "true");
+
+    modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-content-top">
+        <span class="modal-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.5006 9.99875H7.45508M17.5006 9.99875L15.0577 7.55371M17.5006 9.99875L15.0577 12.4448" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12.1296 6.88872V6.04237C12.1296 4.7427 11.1957 3.63316 9.92083 3.41799L5.58531 2.53739C3.97092 2.26493 2.5 3.5161 2.5 5.16177V14.8383C2.5 16.4839 3.97091 17.7351 5.5853 17.4626L9.92083 16.582C11.1957 16.3668 12.1296 15.2573 12.1296 13.9577V13.1122" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <div class="modal-label">
+          <h2 id="modal-title">Logout</h2>
+          <p>Are you sure you want to logout? You'll need to login again to access your notes.</p>
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button class="modal-cancel-button">Cancel</button>
+        <button class="modal-archive-button">Logout</button>
+      </div>
+    </div>`;
+
+    document.body.appendChild(modal);
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => {
+      modal.style.display = "flex";
+      modal.classList.add("modal-open");
+    }, 10);
+    
+    // Close modal when clicking backdrop
+    modal.addEventListener("click", (e) => {
+      if (e.target.classList.contains("modal")) {
+        closeModal();
+      }
+    });
+    
+    
+    // Escape key handler
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        closeModal();
+        document.removeEventListener("keydown", handleEscape);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+
+    const cancelBtn = modal.querySelector(".modal-cancel-button");
+    cancelBtn.addEventListener("click", () => {
+      closeModal();
+    });
+
+    const logoutBtn = modal.querySelector(".modal-delete-button");
+    logoutBtn.addEventListener("click", () => {
+      const result = logout();
+      if(result.success){
+        window.location.href = './auth/login.html';
+      }else{
+       
+        closeModal();
+      }
+    });
+
+    function closeModal() {
+      modal.classList.remove("modal-open");
+      modal.classList.add("modal-close");
+      setTimeout(() => {
+        modal.remove();
+        document.body.style.overflow = "";
+      }, 300);
+    }
+  };
+
+
   // handle change password
   const handleChangePassword = (e) => {
     e.preventDefault();
 
-    const currentPassword = document.getElementById("current-password").value;
-    const newPassword = document.getElementById("new-password").value;
-    const confirmPassword = document.getElementById("confirm-password").value;
+    const currentPasswordInput = document.getElementById("current-password");
+    const newPasswordInput = document.getElementById("new-password");
+    const confirmPasswordInput = document.getElementById("confirm-password");
+    const submitButton = document.getElementById("change-password-btn");
 
-    if (
-      currentPassword === "" ||
-      newPassword === "" ||
-      confirmPassword === ""
-    ) {
+    if(!currentPasswordInput || !newPasswordInput || !confirmPasswordInput || !submitButton) return;
+
+    const currentPassword = currentPasswordInput.value.trim();
+    const newPassword = newPasswordInput.value.trim();
+    const confirmPassword = confirmPasswordInput.value.trim();
+
+    // clear previous error messages
+    clearPasswordErrors();
+
+    // validate fields
+    let hasErrors = false;
+
+    if(!currentPassword){
+      showPasswordError('current-password', 'Current password is required');
+      hasErrors = true;
+    }
+
+    if(!newPassword){
+      showPasswordError('new-password', 'New password is required');
+      hasErrors = true;
+    }else if(newPassword.length < 8){
+      showPasswordError('new-password', 'New password must be at least 8 characters long');
+      hasErrors = true;
+    }
+
+    if(!confirmPassword){
+      showPasswordError('confirm-password', 'Confirm password is required');
+      hasErrors = true;
+    }else if(confirmPassword !== newPassword){
+      showPasswordError('confirm-password', 'Passwords do not match');
+      hasErrors = true;
+    }
+
+    if(hasErrors){
       return;
     }
-  };
 
+    // disable button during processing
+    submitButton.disabled = true;
+    submitButton.textContent = 'Changing password...';
+
+    // attempt change password
+    const result = changePassword(currentPassword, newPassword);
+    if(result.success){
+     
+      showPasswordSuccess("Password changed successfully!");
+
+      // clear form
+      currentPasswordInput.value = '';
+      newPasswordInput.value = '';
+      confirmPasswordInput.value = '';
+
+
+      // reset button
+      submitButton.disabled = false;
+      submitButton.textContent = 'Save Password';
+    }else{
+      // show error message
+      if(result.message.toLowerCase().includes('current password')){
+        showPasswordError('current-password', result.message);
+      } else {
+        showPasswordError('new-password', result.message);
+      }
+
+      submitButton.disabled = false;
+      submitButton.textContent = 'Save Password';
+    }
+  }
+
+  
+  
+  // helper functions
+  function showPasswordError(field, message){
+    const input = document.getElementById(field);
+    if(!input) return;
+    
+    
+    // remove existing error message
+    clearPasswordFieldError(field);
+    
+    // add error class
+    input.classList.add('form-input-error');
+    
+    // create error element
+    const errorElement = document.createElement('p');
+    errorElement.classList.add('form-group-error');
+    
+
+    // icon element
+    const iconElement = document.createElement('span');
+    iconElement.classList.add('form-group-error-icon');
+    iconElement.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+         <path d="M2 8C2 11.3133 4.68605 14 8 14C11.3139 14 14 11.3133 14 8C14 4.68605 11.3139 2 8 2C4.68605 2 2 4.68605 2 8Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+         <path d="M8.0038 10.4621V7.59573V10.4621ZM8 5.5695V5.52734V5.5695Z" fill="currentColor"/>
+         <path d="M8.0038 10.4621V7.59573M8 5.5695V5.52734" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+         </svg>`;
+         
+    // text element
+    const textSpan = document.createElement('span');
+    textSpan.textContent = message;
+
+    // insert error after input wrapper
+    const formGroup = input.closest('.form-group');
+    if(formGroup){
+        const inputWrapper = formGroup.querySelector('.form-group-input');
+        if(inputWrapper){
+            formGroup.insertBefore(errorElement, inputWrapper.nextSibling);
+          } else {
+            formGroup.appendChild(errorElement);
+          }
+        }
+  }
+
+  // clear error to clear password field errors
+  function clearPasswordFieldError(field){
+    const input = document.getElementById(field);
+
+    if(!input) return;
+
+    input.classList.remove('form-input-error');
+
+    const formGroup = input.closest('.form-group');
+    if(formGroup){
+      const errorElements = formGroup.querySelectorAll('.form-group-error');
+      errorElements.forEach(errorElement => {
+            errorElement.remove();
+          });
+    }
+  }
+
+  // clear all password errors
+  function clearPasswordErrors(){
+    clearPasswordFieldError('current-password');
+    clearPasswordFieldError('new-password');
+    clearPasswordFieldError('confirm-password');
+  }
+  
+  // show success message
+  function showPasswordSuccess(message){
+    //  remove existing success message
+    const existingSuccess = document.querySelector('.password-success-message');
+    if(existingSuccess){
+      existingSuccess.remove();
+    }
+
+    // create success element
+    const successElement = document.createElement('p');
+    successElement.classList.add('password-success-message');
+    successElement.textContent = message;
+    
+    // insert before submit button
+    const form = document.querySelector('.change-passwd-form');
+    const buttonWrapper = form.querySelector('.change-password-btn-wrapper');
+    if(form && buttonWrapper){
+      form.insertBefore(successElement, buttonWrapper.previousSibling);
+
+      setTimeout(() => {
+        successElement.remove();
+      }, 3000);
+    }
+  }
+
+  // setup password visibility toggles
+  const setupPasswordToggles = () => {
+    const toggles = document.querySelectorAll('.show-password-toggle');
+
+    toggles.forEach(toggle => {
+      // icon references
+      const iconShow = toggle.querySelector('.show-password-toggle-icon-show');
+      const iconHide = toggle.querySelector('.show-password-toggle-icon-hide');
+
+      const inputWrapper = toggle.closest('.form-group-input');
+      const input = inputWrapper.querySelector('input[type="password"]');
+
+      if(!input) return;
+
+      // initialize icon visibility
+      const updateIconVisibility = () => {
+        const isPassword = input.type === 'password';
+        if(iconShow && iconHide){
+          if(isPassword){
+            iconShow.style.display = 'block';
+            iconHide.style.display = 'none';
+          }else{
+            iconShow.style.display = 'none';
+            iconHide.style.display = 'block';
+          }
+        }
+      };
+
+
+      // initial icon visibility
+      updateIconVisibility();
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+          // toggle input type
+          input.type = input.type === 'password' ? 'text' : 'password';
+
+          // update icon visibility
+          updateIconVisibility();
+
+          // refocus input to prevent blur validation
+          input.focus();
+        });
+      });
+  }
+  
+  // password visibility toggles
+  setupPasswordToggles();
   // ---------------------------------
 
   // 4. === event listeners ===
@@ -202,6 +490,12 @@ const initializeSettings = () => {
       setActiveSection(sectionId);
     });
   });
+
+  // handle logout link
+  const logoutLink = document.querySelector("a[href='./auth/logout.html']");
+  if(logoutLink){
+    logoutLink.addEventListener("click", handleLogout);
+  }
 
   // handle viewport change
   let resizeTimer;

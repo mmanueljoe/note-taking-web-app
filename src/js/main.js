@@ -9,9 +9,15 @@ import { isAuthenticated } from './auth.js';
 
 // check if user is authenticated
 function checkAuth(){
+    // Don't check auth on login/signup pages
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/auth/')) {
+        return true; // Skip auth check on auth pages
+    }
+    
     if(!isAuthenticated()){
         // redirect to login page
-        window.location.href = '../auth/login.html';
+        window.location.href = './auth/login.html';
         return false;
     }
     return true;
@@ -100,6 +106,78 @@ function refreshNotes() {
     ui.renderTagLinks(uniqueTags);
 }
 
+
+// Track previous viewport state
+// Note: Tablet (< 1024px) is treated the same as mobile - both use content area for notes
+// Desktop (>= 1024px) uses nav sidebar for notes
+let previousViewport = window.innerWidth >= 1024 ? 'desktop' : 'mobile-tablet';
+
+// Handle viewport changes (mobile/tablet < 1024px, desktop >= 1024px)
+function handleViewportChange() {
+    // Breakpoint: < 1024px = mobile/tablet (same behavior), >= 1024px = desktop
+    const currentViewport = window.innerWidth >= 1024 ? 'desktop' : 'mobile-tablet';
+    
+    // Only handle if viewport actually changed
+    if (currentViewport !== previousViewport) {
+        const isDesktop = currentViewport === 'desktop';
+        const contentContainer = document.querySelector('.app-main-container-content');
+        
+        if (isDesktop) {
+            // Switched to desktop: clear content area and re-render notes in nav
+            // (Mobile and tablet both use content area, desktop uses nav sidebar)
+            if (contentContainer) {
+                // Preserve tags menu and note details wrapper
+                const tagsMenu = contentContainer.querySelector('#tags-menu-sm');
+                const noteDetails = contentContainer.querySelector('.note-details-wrapper');
+                const children = Array.from(contentContainer.children);
+                children.forEach((child) => {
+                    // Only remove notes list, not tags menu or note details
+                    if (child.id !== 'tags-menu-sm' && !child.classList.contains('note-details-wrapper')) {
+                        child.remove();
+                    }
+                });
+            }
+            
+            // Re-render notes in the correct location (nav container for desktop)
+            const currentViewType = document.querySelector('.archived-notes-link.is-active') ? 'archived' : 'all';
+            const archivedNotes = noteManager.getArchivedNotes();
+            const unarchivedNotes = noteManager.getUnarchivedNotes();
+            
+            if (currentViewType === 'archived') {
+                ui.renderAllNotes(archivedNotes, null, 'archived');
+            } else {
+                ui.renderAllNotes(unarchivedNotes, null, 'all');
+            }
+            
+            // Remove has-note-selected class if no note is selected
+            const appMainContainer = document.querySelector('.app-main-container');
+            const selectedNote = document.querySelector('.note-card.is-selected');
+            const noteDetails = document.querySelector('.note-details-wrapper');
+            if (!selectedNote && !noteDetails && appMainContainer) {
+                appMainContainer.classList.remove('has-note-selected');
+                const actionsColumn = document.querySelector('.app-main-container-actions');
+                if (actionsColumn) {
+                    actionsColumn.remove();
+                }
+            }
+        } else {
+            // Switched to mobile/tablet: ensure notes are in content area
+            // (Both mobile and tablet use the same layout - content area for notes)
+            const currentViewType = document.querySelector('.archived-notes-link.is-active') ? 'archived' : 'all';
+            const archivedNotes = noteManager.getArchivedNotes();
+            const unarchivedNotes = noteManager.getUnarchivedNotes();
+            
+            if (currentViewType === 'archived') {
+                ui.renderAllNotes(archivedNotes, null, 'archived');
+            } else {
+                ui.renderAllNotes(unarchivedNotes, null, 'all');
+            }
+        }
+        
+        previousViewport = currentViewport;
+    }
+}
+
 // Initialize app, set up event listeners, and load data
 const initializeApp = () => {
     // check if user is authenticated
@@ -109,7 +187,6 @@ const initializeApp = () => {
 
     // get all notes
     const allNotes = noteManager.getAllNotes();
-    console.log(allNotes);
 
     // render all notes
     ui.renderAllNotes(allNotes);
@@ -117,7 +194,6 @@ const initializeApp = () => {
 
     //  get unique tags
     const uniqueTags = ui.getAllUniqueTags();
-    console.log(uniqueTags);
 
     // render tags links (desktop)
     ui.renderTagLinks(uniqueTags);
@@ -315,7 +391,6 @@ function setupEventListeners() {
     //     });
     // }
     document.addEventListener('click', (e) => {
-        e.preventDefault();
 
         const noteCard = e.target.closest('.note-card');
         if(!noteCard) return;
@@ -376,6 +451,16 @@ function setupEventListeners() {
             }
         });
     }
+
+
+    // Handle viewport resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            handleViewportChange();
+        }, 150); // Debounce resize events
+    });
 }
 
 

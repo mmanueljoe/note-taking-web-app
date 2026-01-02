@@ -334,7 +334,7 @@ export const renderTagLinks = (tags) => {
 
   // find "archived notes" link
   const archivedNotesLink = Array.from(menuList.children).find((child) => {
-    console.log(child);
+    
     const isArchivedLink = child.querySelector(".archived-notes-link");
     return (
       (isArchivedLink &&
@@ -395,7 +395,6 @@ export const initializeTagsMenu = () => {
   if (!tagsLinkItem) return;
 
   const tagsLink = tagsLinkItem.querySelector("a");
-  console.log(tagsLink);
   if (!tagsLink) return;
 
   // get content container
