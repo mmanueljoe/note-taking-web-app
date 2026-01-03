@@ -99,9 +99,18 @@ function updateSubmitButtonState(){
 
 // helper function to refresh everything
 function refreshNotes() {
-    const allNotes = noteManager.getAllNotes();
-    ui.renderAllNotes(allNotes);
+    // check what view the user is currently on
+    const isArchivedView = document.querySelector('.archived-notes-link.is-active');
 
+    if(isArchivedView){
+        const archivedNotes = noteManager.getArchivedNotes();
+        ui.renderAllNotes(archivedNotes, null, 'archived');
+    } else {
+        const unarchivedNotes = noteManager.getUnarchivedNotes();
+        ui.renderAllNotes(unarchivedNotes, null, 'all');
+    }
+
+    // render tags links
     const uniqueTags = ui.getAllUniqueTags();
     ui.renderTagLinks(uniqueTags);
 }
@@ -191,6 +200,9 @@ const initializeApp = () => {
     // render all notes
     ui.renderAllNotes(allNotes);
 
+    // Set initial active state for "All Notes" link
+    ui.setMenuLinkActive('.all-notes-link');
+
 
     //  get unique tags
     const uniqueTags = ui.getAllUniqueTags();
@@ -277,6 +289,29 @@ function setupEventListeners() {
     if(allNotesLink) {
         allNotesLink.addEventListener("click", (e) => {
             e.preventDefault();
+
+            // clear content area
+            const contentContainer = document.querySelector('.app-main-container-content');
+            if(contentContainer){
+                const formWrapper = contentContainer.querySelector('.note-details-wrapper');
+                if(formWrapper){
+                    formWrapper.remove();
+                }
+            }
+
+            //clear the has-note-selected class if it exists
+            const appMainContainer = document.querySelector('.app-main-container');
+            if(appMainContainer){
+                appMainContainer.classList.remove('has-note-selected');
+            }
+
+            // clear the actions column
+            const actionsColumn = document.querySelector('.app-main-container-actions');
+            if(actionsColumn){
+                actionsColumn.remove();
+            }
+            
+            // render the notes
             const unarchivedNotes = noteManager.getUnarchivedNotes();
             ui.renderAllNotes(unarchivedNotes, null, "all");
 
@@ -289,6 +324,29 @@ function setupEventListeners() {
     if(archiveNoteLink) {
         archiveNoteLink.addEventListener("click", (e) => {
             e.preventDefault();
+
+            //clear the content area
+            const contentContainer = document.querySelector('.app-main-container-content');
+            if(contentContainer){
+                const formWrapper = contentContainer.querySelector('.note-details-wrapper');
+                if(formWrapper){
+                    formWrapper.remove();
+                }
+            }
+
+            // remove has-note-selected class if it exists
+            const appMainContainer = document.querySelector('.app-main-container');
+            if(appMainContainer){
+                appMainContainer.classList.remove('has-note-selected');
+            }
+
+            // clear the actions column
+            const actionsColumn = document.querySelector('.app-main-container-actions');
+            if(actionsColumn){
+                actionsColumn.remove();
+            }
+
+            // render the notes
             const archivedNotes = noteManager.getArchivedNotes();
             ui.renderAllNotes(archivedNotes, null, 'archived');
 
@@ -306,6 +364,11 @@ function setupEventListeners() {
 
     // show all notes (backbutton)
     document.addEventListener("showAllNotes", () => {
+        // Clear all active states and set all notes link as active
+        ui.clearMenuActiveStates();
+        const allNotesLink = document.querySelector(".all-notes-link");
+        if (allNotesLink) allNotesLink.classList.add("is-active");
+
         const allNotes = noteManager.getAllNotes();
         ui.renderAllNotes(allNotes, null, 'all');
     });
@@ -320,12 +383,34 @@ function setupEventListeners() {
     // archive note
     document.addEventListener("archiveNote", (e) => {
         const { noteId, isArchived } = e.detail;
-        const newArchivedState = !isArchived;
-        noteManager.updateNote(noteId, {isArchived: newArchivedState});
+
+        noteManager.updateNote(noteId, {isArchived: isArchived});
+
+        // close note details view if it was open
+        const contentContainer = document.querySelector('.app-main-container-content');
+        if(contentContainer){
+            const noteDetails = contentContainer.querySelector('.note-details-wrapper');
+            if(noteDetails){
+                noteDetails.remove();
+            }
+        }
+
+        // remove has-note-selected class if it exists
+        const appMainContainer = document.querySelector('.app-main-container');
+        if(appMainContainer){
+            appMainContainer.classList.remove('has-note-selected');
+        }
+
+        // clear the actions column
+        const actionsColumn = document.querySelector('.app-main-container-actions');
+        if(actionsColumn){
+            actionsColumn.remove();
+        }
+
         refreshNotes();
         
         // show toast notification
-        ui.showToastArchived(newArchivedState);
+        ui.showToastArchived(isArchived);
     });
 
     // show archived notes (from toast link)
@@ -368,6 +453,28 @@ function setupEventListeners() {
   
         });
     }
+
+    // search link (mobile/tablet only)
+    const searchLink = document.querySelector(".search-link.mobile-tablet-only");
+    if(searchLink){
+        searchLink.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            // clear active states and set search
+            ui.clearMenuActiveStates();
+            searchLink.classList.add('is-active');
+
+
+            ui.renderSearchView();
+        });
+    }
+
+    // Handle mobile/tablet search
+    document.addEventListener("searchNotesMobile", (e) => {
+        const { query } = e.detail;
+        const results = noteManager.searchNotes(query);
+        ui.renderSearchResults(query, results);
+    });
 
 
     // === note click event delegation ===
@@ -521,6 +628,9 @@ function showCreateNoteForm() {
       // Hide on mobile/tablet
       headerTitle.textContent = "";
     //   headerTitle.style.display = "none";
+    }else {
+        headerTitle.textContent = "Create New Note";
+        headerTitle.style.display = "block";
     }
   }
 
@@ -662,6 +772,56 @@ function showCreateNoteForm() {
      `;
 
     formWrapper.appendChild(formContentSection);
+
+    // footer section (desktop only)
+    const footerSection = document.createElement("div");
+    footerSection.classList.add("note-details-footer", "desktop-only");
+
+    footerSection.innerHTML = `
+        <button class="save-button desktop-only">Save Note</button>
+        <button class="cancel-button desktop-only">Cancel</button>
+    `;
+
+    const saveDesktopButton = footerSection.querySelector(".save-button");
+    const cancelDesktopButton = footerSection.querySelector(".cancel-button");
+
+    saveDesktopButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        handleCreateNote();
+    });
+
+    cancelDesktopButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        // Preserve tags menu when clearing
+        const tagsMenu = container.querySelector("#tags-menu-sm");
+        
+        const children = Array.from(container.children);
+        children.forEach(child => {
+            if(child.id !== "tags-menu-sm") {
+                child.remove();
+            }
+        });
+        
+        if(tagsMenu) {
+            tagsMenu.style.display = "none";
+            tagsMenu.classList.remove("is-active");
+        }
+
+        // remove has-note-selected class if it exists
+        const appMainContainer = document.querySelector('.app-main-container');
+        if(appMainContainer){
+            appMainContainer.classList.remove('has-note-selected');
+        }
+
+        // clear the actions column
+        const actionsColumn = document.querySelector('.app-main-container-actions');
+        if(actionsColumn){
+            actionsColumn.remove();
+        }
+        document.dispatchEvent(new CustomEvent("showAllNotes"));
+    });
+
+    formWrapper.appendChild(footerSection);
     container.appendChild(formWrapper);
 
     // add location permission request button to form
@@ -675,6 +835,14 @@ function showCreateNoteForm() {
             locationButton.textContent = 'Location Added';
         }catch(error){
             console.error("Error requesting location:", error);
+
+            ui.showToast('error',error.message, {duration: 4000});
+
+            locationButton.textContent = 'Location Failed';
+
+            setTimeout(() => {
+                locationButton.textContent = 'Add Location';
+            }, 3000);
 
             // show error message to user through ui
             ui.showValidationError('location', error.message);

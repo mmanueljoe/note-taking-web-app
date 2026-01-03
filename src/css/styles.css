@@ -396,6 +396,13 @@ button {
   color: var(--icon-bordercolorPrimary);
   cursor: pointer;
   text-align: center;
+  padding: 0.25rem 0.5rem;
+}
+
+.menu-item > a.is-active {
+  background-color: var(--blue-50);
+  color: var(--blue-500);
+  border-radius: var(--radius-4);
 }
 
 /* aside styling ends here */
@@ -622,6 +629,12 @@ button {
   display: block;
   border-radius: var(--radius-4);
   padding: 0.2rem;
+}
+
+.note-card.is-selected{
+  background-color: var(--neutral-100);
+  border-radius: var(--radius-6);
+  border: none;
 }
 
 /* mobile/tablet note details styling starts here */
@@ -1323,9 +1336,15 @@ button {
     color: var(--text-primary);
   }
 
-  .menu-item .menu-item-arrow.desktop-only {
-    display: flex;
+   /* Hide arrow by default, show only when link is active */
+   .menu-item .menu-item-arrow.desktop-only {
+    display: none;
     color: var(--text-primary);
+  }
+
+  /* Show arrow when parent link is active */
+  .menu-item > a.is-active .menu-item-arrow.desktop-only {
+    display: flex;
   }
 
   .menu-list {
@@ -1344,6 +1363,7 @@ button {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
     gap: 0.5rem;
     padding: 0.625rem var(--spacing-075);
@@ -1354,7 +1374,7 @@ button {
     border-radius: var(--radius-8);
   }
 
-  .add-notes-link.is-active > div svg {
+  .all-notes-link.is-active > div svg, .archived-notes-link.is-active > div svg {
     color: var(--blue-500);
   }
 
@@ -1362,7 +1382,7 @@ button {
     justify-content: space-between;
   }
 
-  .add-notes-link-content {
+  .all-notes-link-content, .archived-notes-link-content {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -1390,7 +1410,7 @@ button {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 0.5rem 0;
+    padding: 1rem 0.5rem;
     justify-content: flex-start;
     border-bottom: 1px solid var(--border-primary);
   }
@@ -1427,6 +1447,10 @@ button {
     display: block;
     border-radius: var(--radius-4);
     padding: 0.2rem;
+  }
+
+  .note-card.is-selected{
+    border: none;
   }
 
   /* menu styling ends here */

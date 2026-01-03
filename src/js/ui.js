@@ -1,5 +1,5 @@
 import { formatDate, escapeHtml } from "./utils.js";
-import { getAllNotes } from "./noteManager.js";
+import { getAllNotes, getArchivedNotes,filterByTag } from "./noteManager.js";
 
 export const renderNote = (note) => {
   const noteElement = document.createElement("div");
@@ -125,6 +125,16 @@ export const renderAllNotes = (notes, filterTag = null, viewType = "all") => {
     // add data attribute with node id for identification
     noteCard.setAttribute("data-note-id", note.id);
     noteList.appendChild(noteCard);
+
+    // auto-select first note card in desktop mode
+    const isDesktop = window.innerWidth >= 1024;
+    if(isDesktop && notes.length > 0){
+      // select the first note card
+      noteCard.classList.add('is-selected');
+
+      // show note details
+      renderNoteDetails(note);
+    }
   });
 
   // append note list to content container
@@ -504,6 +514,10 @@ export const toggleArchiveView = (showArchived = false) => {
   if (headerTitle) {
     headerTitle.textContent = showArchived ? "Archived Notes" : "All Notes";
   }
+  
+
+  // clear all active states first
+  clearMenuActiveStates();
 
   // Update active state of navigation links
   const allNotesLink = document.querySelector(".all-notes-link");
@@ -522,6 +536,146 @@ export const toggleArchiveView = (showArchived = false) => {
   // Return the state for use in other functions
   return showArchived;
 };
+
+// clear all links active states
+export const clearMenuActiveStates = () => {
+  const allLinks = document.querySelectorAll('.menu-item > a');
+  allLinks.forEach((link) => link.classList.remove('is-active'));
+};
+
+// set active state for a specific link
+export const setMenuLinkActive = (linkSelector) => {
+  clearMenuActiveStates();
+
+  const link = document.querySelector(linkSelector);
+  if(link){
+    link.classList.add('is-active');
+  }
+}
+
+// render search view (mobile/tablet only)
+export const renderSearchView = () => {
+  const container = document.querySelector('.app-main-container-content');
+  if(!container) return;
+
+  // change header title to search
+  const headerTitle = document.querySelector('.app-main-container-header h2');
+  if(headerTitle){
+    headerTitle.textContent = 'Search';
+  }
+
+  // preserve tags menu when clearing
+  const tagsMenu = container.querySelector('#tags-menu-sm');
+
+  // Clear container but preserve tags menu
+  const children = Array.from(container.children);
+  children.forEach((child) => {
+    if (child.id !== "tags-menu-sm") {
+      child.remove();
+    }
+  });
+
+  if (tagsMenu) {
+    tagsMenu.style.display = "none";
+    tagsMenu.classList.remove("is-active");
+  }
+
+  // create search container
+  const searchWrapper = document.createElement('div');
+  searchWrapper.classList.add('search-view-wrapper', 'mobile-tablet-only');
+
+  searchWrapper.innerHTML = `
+   <div class="search-container mobile-tablet-only">
+      <input 
+        type="text" 
+        class="search-input" 
+        id="mobile-search-input"
+        placeholder="Search by title, content or tags..." 
+        aria-label="Search Input"
+      />
+    </div>
+
+    <div class="search-message" style="display: none;"></div>
+    
+    <div class="search-results-container"></div>
+  `;
+
+  container.appendChild(searchWrapper);
+
+  // add event listeners
+  const searchInput = searchWrapper.querySelector('#mobile-search-input');
+  if(searchInput){
+    // debounce search
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+
+      const query = e.target.value.trim();
+
+      searchTimeout = setTimeout(() => {
+        if(query.length === 0){
+          const messageContainer = searchWrapper.querySelector('.search-message');
+          const resultsContainer = searchWrapper.querySelector('.search-results-container');
+          if(messageContainer) messageContainer.style.display = 'none';
+          if(resultsContainer) resultsContainer.innerHTML = '';
+          return;
+        }
+
+
+        // dispatch search event
+        document.dispatchEvent(new CustomEvent('searchNotesMobile', {detail : {query}}))
+      }, 500);
+    });
+
+    searchInput.focus();
+  }
+}
+
+// render search results (mobile/tablet only)
+export const renderSearchResults = (query, results) => {
+  const container = document.querySelector(".app-main-container-content");
+  if(!container) return;
+
+  const searchWrapper = container.querySelector(".search-view-wrapper");
+  if (!searchWrapper) return;
+
+  const messageContainer = searchWrapper.querySelector(".search-message");
+  const resultsContainer = searchWrapper.querySelector(".search-results-container");
+
+  if (!messageContainer || !resultsContainer) return;
+
+  
+  
+  // Clear previous results
+  resultsContainer.innerHTML = "";
+  
+  if (!results || results.length === 0) {
+    resultsContainer.innerHTML = `
+    <div class="empty-state-sm">
+    <div class="empty-state-content-sm">
+    <p class="empty-state-submessage-sm">No notes found matching "${query}".</p>
+    </div>
+    </div>
+    `;
+    return;
+  }
+
+  // Show message
+  messageContainer.style.display = "flex";
+  messageContainer.textContent = `All notes matching "${query}" are displayed below.`;
+  
+  // Create note list
+  const noteList = document.createElement("div");
+  noteList.classList.add("notes-list");
+
+  results.forEach((note) => {
+    const noteCard = renderNote(note);
+    noteCard.setAttribute("data-note-id", note.id);
+    noteList.appendChild(noteCard);
+  });
+
+  resultsContainer.appendChild(noteList);
+}
 
 // Clear note form (for creating/editing notes)
 export const clearNoteForm = () => {
@@ -625,6 +779,17 @@ export const renderEmptyState = (viewType = "all") => {
 
 // render note details
 export const renderNoteDetails = (note) => {
+
+  // remove is-selected class from all note cards
+  const allNoteCards = document.querySelectorAll('.note-card');
+  allNoteCards.forEach(card => card.classList.remove('is-selected'));
+
+  // add is-selected class to the selected note card
+  const noteCard = document.querySelector(`.note-card[data-note-id="${note.id}"]`);
+  if(noteCard){
+    noteCard.classList.add('is-selected');
+  }
+
   const container = document.querySelector(".app-main-container-content");
 
   // Preserve tags menu when clearing
@@ -719,7 +884,29 @@ export const renderNoteDetails = (note) => {
       tagsMenu.classList.remove("is-active");
     }
 
-    document.dispatchEvent(new CustomEvent("showAllNotes"));
+    // Check what view the user was on before opening note details
+    const isArchivedView = document.querySelector('.archived-notes-link.is-active');
+    const isSearchView = container.querySelector('.search-view-wrapper');
+    const headerTitle = document.querySelector(".app-main-container-header h2");
+    const isTagFilter = headerTitle && headerTitle.textContent.includes("Tag:");
+
+    if (isArchivedView) {
+      // User was viewing archived notes
+      const archivedNotes = noteManager.getArchivedNotes();
+      ui.renderAllNotes(archivedNotes, null, 'archived');
+      ui.toggleArchiveView(true);
+    } else if (isSearchView) {
+      // User was in search view - restore search view
+      ui.renderSearchView();
+    } else if (isTagFilter) {
+      // User was filtering by tag - extract tag name and restore
+      const tagName = headerTitle.textContent.replace("Tag: ", "");
+      const filteredNotes = noteManager.filterByTag(tagName);
+      ui.renderAllNotes(filteredNotes, tagName, "all");
+    } else {
+      // Default: show all notes
+      document.dispatchEvent(new CustomEvent("showAllNotes"));
+    }
   });
 
   const mobileDeleteButton = mobileActionsRow.querySelector(
@@ -827,8 +1014,8 @@ export const renderNoteDetails = (note) => {
 
         </span>
         <div class="modal-label">
-          <h2 id="modal-title">Archive Note</h2>
-          <p>Are you sure you want to archive this note? This action cannot be undone.</p>
+          <h2 id="modal-title">${isArchived ? "Restore Note" : "Archive Note"}</h2>
+          <p>Are you sure you want to ${isArchived ? "restore this note" : "archive this note"}? This action cannot be undone.</p>
           </div>
         </div>
         <div class="modal-buttons">
@@ -984,17 +1171,25 @@ export const renderNoteDetails = (note) => {
   const isArchived = note.isArchived || false;
 
   archiveButton.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17.5 6.48513V13.5141C17.5 15.9708 15.7657 17.5 13.3113 17.5H6.68865C4.23432 17.5 2.5 15.9708 2.5 13.5133V6.48513C2.5 4.02837 4.23432 2.5 6.68865 2.5H13.3113C15.7657 2.5 17.5 4.03567 17.5 6.48513Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M12.5 11.6667L9.9985 14.1667L7.5 11.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M9.99832 14.1666V8.33331" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M17.4447 5.83331H2.54883" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-
+  ${isArchived ? `
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M3.09026 6.16962C3.4082 6.03519 3.7749 6.18396 3.90932 6.50189L5.00629 9.09638L7.58326 8.0068C7.9012 7.87239 8.2679 8.02114 8.40233 8.33904C8.53675 8.65704 8.388 9.02371 8.07005 9.15813L4.91741 10.491C4.59948 10.6255 4.23278 10.4767 4.09836 10.1588L2.758 6.98867C2.62357 6.67074 2.77234 6.30404 3.09026 6.16962Z" fill="#0E121B"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M10.7624 4.71991C7.89009 4.71991 5.55539 7.008 5.4832 9.85328C5.47445 10.1983 5.18762 10.4709 4.84255 10.4622C4.49749 10.4534 4.22485 10.1666 4.2336 9.82153C4.32299 6.29821 7.21239 3.46991 10.7624 3.46991C14.366 3.46991 17.2915 6.39544 17.2915 9.99894C17.2915 13.6097 14.3655 16.528 10.7624 16.528C8.52867 16.528 6.56351 15.41 5.38176 13.708C5.18489 13.4244 5.25516 13.035 5.53869 12.8382C5.82223 12.6413 6.21167 12.7115 6.40854 12.9951C7.36759 14.3764 8.957 15.278 10.7624 15.278C13.6761 15.278 16.0415 12.9184 16.0415 9.99894C16.0415 7.0858 13.6756 4.71991 10.7624 4.71991Z" fill="#0E121B"/>
+  </svg>
+  
+  ` : `
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.5 6.48513V13.5141C17.5 15.9708 15.7657 17.5 13.3113 17.5H6.68865C4.23432 17.5 2.5 15.9708 2.5 13.5133V6.48513C2.5 4.02837 4.23432 2.5 6.68865 2.5H13.3113C15.7657 2.5 17.5 4.03567 17.5 6.48513Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12.5 11.6667L9.9985 14.1667L7.5 11.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9.99832 14.1666V8.33331" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M17.4447 5.83331H2.54883" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  `}
     <span class="archive-button-label">${
       isArchived ? "Restore Note" : "Archive Note"
-    }</span>
-  `;
+    }</span>`
+
+
   archiveButton.addEventListener("click", () => {
     // Confirmation modal
     const modal = document.createElement("div");
@@ -1016,8 +1211,8 @@ export const renderNoteDetails = (note) => {
 
         </span>
         <div class="modal-label">
-          <h2 id="modal-title">Archive Note</h2>
-          <p>Are you sure you want to archive this note? This action cannot be undone.</p>
+          <h2 id="modal-title">${isArchived ? "Restore Note" : "Archive Note"}</h2>
+          <p>Are you sure you want to ${isArchived ? "restore this note" : "archive this note"}? This action cannot be undone.</p>
           </div>
         </div>
         <div class="modal-buttons">
