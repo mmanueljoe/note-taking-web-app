@@ -189,6 +189,11 @@ function handleViewportChange() {
 
 // Initialize app, set up event listeners, and load data
 const initializeApp = () => {
+    // Don't initialize on settings page
+    if(document.querySelector('.settings-section')){
+        return;
+    }
+    
     // check if user is authenticated
     if(!checkAuth()){
         return;
@@ -441,8 +446,51 @@ function setupEventListeners() {
                     refreshNotes();
                     return;
                 } else {
-                    const results = noteManager.searchNotes(query);
-                    ui.renderAllNotes(results);
+
+                    // Check what view the user is currently on
+                    const isArchivedView = document.querySelector('.archived-notes-link.is-active');
+                    
+                    // Get all notes first
+                    let notesToSearch;
+                    if (isArchivedView) {
+                        // Search only in archived notes
+                        notesToSearch = noteManager.getArchivedNotes();
+                    } else {
+                        // Search only in unarchived notes
+                        notesToSearch = noteManager.getUnarchivedNotes();
+                    }
+
+                    // Filter the notes by search query
+                    const results = notesToSearch.filter(
+                        (note) =>
+                            note.title.toLowerCase().includes(query.toLowerCase()) ||
+                            note.content.toLowerCase().includes(query.toLowerCase()) ||
+                            note.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase()))
+                    );
+                    
+                    // Clear note details area when searching
+                    const contentContainer = document.querySelector('.app-main-container-content');
+                    if(contentContainer){
+                        const noteDetails = contentContainer.querySelector('.note-details-wrapper');
+                        if(noteDetails){
+                            noteDetails.remove();
+                        }
+                    }
+                    
+                    // Remove has-note-selected class
+                    const appMainContainer = document.querySelector('.app-main-container');
+                    if(appMainContainer){
+                        appMainContainer.classList.remove('has-note-selected');
+                    }
+
+                    // Clear actions column
+                    const actionsColumn = document.querySelector('.app-main-container-actions');
+                    if(actionsColumn){
+                        actionsColumn.remove();
+                    }
+                    
+                    // Render results in nav (without auto-selecting)
+                    ui.renderAllNotes(results, null, isArchivedView ? 'archived' : 'all', false, query);
 
                     const headerTitle = document.querySelector(".app-main-container-header h2");
                     if(headerTitle){
@@ -539,7 +587,64 @@ function setupEventListeners() {
  
         }
 
-        // arrow keys for note list navigation (implement later)
+        // arrow keys for note list navigation
+        // Only work when not typing in input/textarea and note list is visible
+        if((e.key === 'ArrowUp' || e.key === 'ArrowDown') && 
+           !e.target.matches('input, textarea') && 
+           !e.target.isContentEditable &&
+           !document.querySelector('.modal')) { // Don't navigate when modal is open
+            
+            const noteList = document.querySelector('.notes-list');
+            if(!noteList) return;
+            
+            const noteCards = Array.from(noteList.querySelectorAll('.note-card'));
+            if(noteCards.length === 0) return;
+            
+            // Find currently focused/selected note card
+            let currentIndex = -1;
+            const focusedCard = document.activeElement;
+            const selectedCard = noteList.querySelector('.note-card.is-selected');
+            
+            if(focusedCard && focusedCard.classList.contains('note-card')) {
+                currentIndex = noteCards.indexOf(focusedCard);
+            } else if(selectedCard) {
+                currentIndex = noteCards.indexOf(selectedCard);
+            }
+            
+            // Determine next index
+            let nextIndex;
+            if(e.key === 'ArrowDown') {
+                nextIndex = currentIndex < noteCards.length - 1 ? currentIndex + 1 : 0;
+            } else { // ArrowUp
+                nextIndex = currentIndex > 0 ? currentIndex - 1 : noteCards.length - 1;
+            }
+            
+            // Remove selection from all cards
+            noteCards.forEach(card => {
+                card.classList.remove('is-selected');
+            });
+            
+            // Focus and select the next card
+            const nextCard = noteCards[nextIndex];
+            nextCard.classList.add('is-selected');
+            nextCard.focus();
+            
+            // Scroll into view if needed
+            nextCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // On desktop, also show note details
+            if(window.innerWidth >= 1024) {
+                const noteId = nextCard.getAttribute('data-note-id');
+                if(noteId) {
+                    const note = noteManager.getNoteById(noteId);
+                    if(note) {
+                        ui.renderNoteDetails(note);
+                    }
+                }
+            }
+            
+            e.preventDefault();
+        }
     });
 
     // keyboard navigation for note cards
@@ -1079,5 +1184,8 @@ function handleCreateNote() {
 }
 // initialize app
 document.addEventListener("DOMContentLoaded", () => {
+    if(document.querySelector('.settings-section')){
+        return;
+    }
     initializeApp()
 });

@@ -189,11 +189,28 @@ textarea,ul, li, a {
   font-family: 'Inter', sans-serif;
 }
 
-/* input:focus,
-button:focus,
-textarea:focus,ul:focus, li:focus, a:focus {
-  outline: var(--outline-primary);
-} */
+/* Accessibility: Visible focus indicators for keyboard navigation */
+/* Use :focus-visible to show focus only for keyboard users, not mouse clicks */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+.note-card:focus-visible,
+.menu-item > a:focus-visible,
+.add-note-btn:focus-visible,
+.addNote-btn:focus-visible {
+  outline: 2px solid var(--outline-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Ensure focus is visible even when element has border */
+button:focus-visible,
+a:focus-visible {
+  position: relative;
+  z-index: 1;
+}
 
 button {
   font-size: var(--sans-serif-preset-3-size);
@@ -611,6 +628,25 @@ button {
   line-height: var(--sans-serif-preset-6-line-height);
   letter-spacing: var(--sans-serif-preset-6-letter-spacing);
   color: var(--text-secondary);
+}
+
+/* Search highlighting styles */
+mark {
+  background-color: var(--highlight-background, rgba(255, 255, 0, 0.3));
+  color: var(--highlight-text, inherit);
+  padding: 0.1em 0.2em;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+[data-theme="dark"] mark,
+.dark mark {
+  background-color: var(--highlight-background, rgba(255, 255, 0, 0.4));
+}
+
+[data-theme="light"] mark,
+.light mark {
+  background-color: var(--highlight-background, rgba(255, 255, 0, 0.3));
 }
 
 .app-main-container-content .notes-list .note-card .note-tags {
@@ -1582,5 +1618,45 @@ button {
   .note-details-footer .cancel-button.desktop-only {
     background-color: var(--background-secondary);
     color: var(--text-primary);
+  }
+}
+
+/* Touch-friendly button sizes (WCAG 2.5.5 - minimum 44x44px) */
+button,
+.note-card,
+.menu-item > a,
+.add-note-btn,
+.addNote-btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Landscape orientation optimizations for mobile/tablet */
+@media (orientation: landscape) and (max-width: 1023px) {
+  .app-main-container {
+    /* Optimize layout for landscape mode */
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+  
+  .app-main-container-nav {
+    /* Ensure nav doesn't take too much vertical space in landscape */
+    max-height: calc(100vh - 3.375rem);
+    overflow-y: auto;
+  }
+  
+  .app-main-container-content {
+    /* Optimize content area for landscape */
+    max-height: calc(100vh - 3.375rem);
+    overflow-y: auto;
+  }
+  
+  /* Adjust header for landscape */
+  .app-main-container-header {
+    position: sticky;
+    top: 0;
+    background-color: var(--background-primary);
+    z-index: 10;
+    padding: var(--spacing-100) var(--spacing-200);
   }
 }

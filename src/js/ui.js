@@ -1,19 +1,31 @@
-import { formatDate, escapeHtml } from "./utils.js";
+import { formatDate, escapeHtml, highlightSearchTerms, trapFocus, restoreFocus } from "./utils.js";
 import { getAllNotes, getArchivedNotes,filterByTag } from "./noteManager.js";
 
-export const renderNote = (note) => {
+export const renderNote = (note, searchQuery = null) => {
   const noteElement = document.createElement("div");
   noteElement.classList.add("note-card");
   noteElement.setAttribute("data-note-id", note.id);
   noteElement.setAttribute("tabindex", "0");
   noteElement.setAttribute("role", "button");
 
+  // Highlight search terms if search query is provided
+  const titleHtml = searchQuery 
+    ? highlightSearchTerms(note.title, searchQuery)
+    : escapeHtml(note.title);
+  
+  const tagsHtml = note.tags
+    .map((tag) => {
+      const tagHtml = searchQuery 
+        ? highlightSearchTerms(tag, searchQuery)
+        : escapeHtml(tag);
+      return `<span class="note-tag">${tagHtml}</span>`;
+    })
+    .join("");
+
   noteElement.innerHTML = `
-    <h3 class="note-title">${escapeHtml(note.title)}</h3>
+    <h3 class="note-title">${titleHtml}</h3>
       <div class="note-tags">
-      ${note.tags
-        .map((tag) => `<span class="note-tag">${escapeHtml(tag)}</span>`)
-        .join("")}
+      ${tagsHtml}
     </div>
     <span class="note-date">${formatDate(note.lastEdited)}</span>
   `;
@@ -24,7 +36,7 @@ export const renderNote = (note) => {
   return noteElement;
 };
 
-export const renderAllNotes = (notes, filterTag = null, viewType = "all") => {
+export const renderAllNotes = (notes, filterTag = null, viewType = "all", autoSelectFirst = true, searchQuery = null) => {
   // select container
   const isDesktop = window.innerWidth >= 1024;
 
@@ -120,7 +132,7 @@ export const renderAllNotes = (notes, filterTag = null, viewType = "all") => {
 
   //  render note cards
   notes.forEach((note) => {
-    const noteCard = renderNote(note);
+    const noteCard = renderNote(note, searchQuery);
 
     // add data attribute with node id for identification
     noteCard.setAttribute("data-note-id", note.id);
@@ -128,7 +140,7 @@ export const renderAllNotes = (notes, filterTag = null, viewType = "all") => {
 
     // auto-select first note card in desktop mode
     const isDesktop = window.innerWidth >= 1024;
-    if(isDesktop && notes.length > 0){
+    if(isDesktop && notes.length > 0 && autoSelectFirst){
       // select the first note card
       noteCard.classList.add('is-selected');
 
@@ -669,7 +681,7 @@ export const renderSearchResults = (query, results) => {
   noteList.classList.add("notes-list");
 
   results.forEach((note) => {
-    const noteCard = renderNote(note);
+    const noteCard = renderNote(note, query);
     noteCard.setAttribute("data-note-id", note.id);
     noteList.appendChild(noteCard);
   });
@@ -945,9 +957,14 @@ export const renderNoteDetails = (note) => {
     document.body.appendChild(modal);
     document.body.style.overflow = "hidden";
 
+    // Trap focus within modal for accessibility
+    let cleanupFocusTrap = null;
+
     setTimeout(() => {
       modal.style.display = "flex";
       modal.classList.add("modal-open");
+      // Trap focus after modal is visible
+      cleanupFocusTrap = trapFocus(modal);
     }, 10);
 
     // Close modal when clicking backdrop
@@ -967,11 +984,13 @@ export const renderNoteDetails = (note) => {
     document.addEventListener("keydown", handleEscape);
 
     const cancelBtn = modal.querySelector(".modal-cancel-button");
+    cancelBtn.setAttribute("aria-label", "Cancel deletion");
     cancelBtn.addEventListener("click", () => {
       closeModal();
     });
 
     const deleteBtn = modal.querySelector(".modal-delete-button");
+    deleteBtn.setAttribute("aria-label", "Confirm deletion");
     deleteBtn.addEventListener("click", () => {
       const event = new CustomEvent("deleteNote", {
         detail: { noteId: note.id },
@@ -981,11 +1000,19 @@ export const renderNoteDetails = (note) => {
     });
 
     function closeModal() {
+      // Clean up focus trap
+      if (cleanupFocusTrap) {
+        cleanupFocusTrap();
+        cleanupFocusTrap = null;
+      }
+      
       modal.classList.remove("modal-open");
       modal.classList.add("modal-close");
       setTimeout(() => {
         modal.remove();
         document.body.style.overflow = "";
+        // Restore focus to the element that opened the modal
+        restoreFocus();
       }, 300);
     }
   });
@@ -1028,9 +1055,14 @@ export const renderNoteDetails = (note) => {
     document.body.appendChild(modal);
     document.body.style.overflow = "hidden";
 
+    // Trap focus within modal for accessibility
+    let cleanupFocusTrap = null;
+
     setTimeout(() => {
       modal.style.display = "flex";
       modal.classList.add("modal-open");
+      // Trap focus after modal is visible
+      cleanupFocusTrap = trapFocus(modal);
     }, 10);
 
     // Close modal when clicking backdrop
@@ -1050,11 +1082,13 @@ export const renderNoteDetails = (note) => {
     document.addEventListener("keydown", handleEscape);
 
     const cancelBtn = modal.querySelector(".modal-cancel-button");
+    cancelBtn.setAttribute("aria-label", `Cancel ${isArchived ? 'restore' : 'archive'} action`);
     cancelBtn.addEventListener("click", () => {
       closeModal();
     });
 
     const archiveBtn = modal.querySelector(".modal-archive-button");
+    archiveBtn.setAttribute("aria-label", `Confirm ${isArchived ? 'restore' : 'archive'} action`);
     archiveBtn.addEventListener("click", () => {
       const event = new CustomEvent("archiveNote", {
         detail: { noteId: note.id, isArchived: !note.isArchived },
@@ -1064,11 +1098,19 @@ export const renderNoteDetails = (note) => {
     });
 
     function closeModal() {
+      // Clean up focus trap
+      if (cleanupFocusTrap) {
+        cleanupFocusTrap();
+        cleanupFocusTrap = null;
+      }
+      
       modal.classList.remove("modal-open");
       modal.classList.add("modal-close");
       setTimeout(() => {
         modal.remove();
         document.body.style.overflow = "";
+        // Restore focus to the element that opened the modal
+        restoreFocus();
       }, 300);
     }
   });
@@ -1315,9 +1357,14 @@ export const renderNoteDetails = (note) => {
     document.body.appendChild(modal);
     document.body.style.overflow = "hidden";
 
+    // Trap focus within modal for accessibility
+    let cleanupFocusTrap = null;
+
     setTimeout(() => {
       modal.style.display = "flex";
       modal.classList.add("modal-open");
+      // Trap focus after modal is visible
+      cleanupFocusTrap = trapFocus(modal);
     }, 10);
 
     // Close modal when clicking backdrop
@@ -1337,11 +1384,13 @@ export const renderNoteDetails = (note) => {
     document.addEventListener("keydown", handleEscape);
 
     const cancelBtn = modal.querySelector(".modal-cancel-button");
+    cancelBtn.setAttribute("aria-label", "Cancel deletion");
     cancelBtn.addEventListener("click", () => {
       closeModal();
     });
 
     const deleteBtn = modal.querySelector(".modal-delete-button");
+    deleteBtn.setAttribute("aria-label", "Confirm deletion");
     deleteBtn.addEventListener("click", () => {
       const event = new CustomEvent("deleteNote", {
         detail: { noteId: note.id },
@@ -1351,11 +1400,19 @@ export const renderNoteDetails = (note) => {
     });
 
     function closeModal() {
+      // Clean up focus trap
+      if (cleanupFocusTrap) {
+        cleanupFocusTrap();
+        cleanupFocusTrap = null;
+      }
+      
       modal.classList.remove("modal-open");
       modal.classList.add("modal-close");
       setTimeout(() => {
         modal.remove();
         document.body.style.overflow = "";
+        // Restore focus to the element that opened the modal
+        restoreFocus();
       }, 300);
     }
   });

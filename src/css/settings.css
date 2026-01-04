@@ -284,20 +284,41 @@
     background-color: var(--background-primary);
 }
 
+
+/* show nav on mobile/tablet only */
+.app-main-container-nav{
+    display: flex !important;
+    flex-direction: column;
+}
+
+/* hide nav when settings section is open */
 .app-main-container.settings-section-open .app-main-container-nav{
-    display: none;
+    display: none !important;
 }
 
 .app-main-container.settings-section-open .app-main-container-content {
-    display: grid;
+    display: flex !important;
+    flex-direction: column;
+    width: 100%;
 }
 
+/* sections section hidden by default */
+.settings-section{
+    display: none !important;
+}
+
+/* sections section shown when active */
+.settings-section.is-active{
+    display: flex !important;
+    flex-direction: column;
+    width: 100%;
+}
 
 /* media queries */
 @media only screen and (min-width: 768px) {
 }
 
-@media only screen and (min-width: 1024px) {
+@media only screen and (min-width: 1024px) {    
     .settings-section{
         display: none;
     }
@@ -309,7 +330,9 @@
     }
     
     .app-main-container.settings-section-open .app-main-container-nav{
-        display: grid;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
     }
 
     .settings-section .back-btn.mobile-tablet-only{

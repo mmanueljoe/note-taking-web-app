@@ -38,3 +38,9 @@ npm-debug.log*
 *.pem
 .DS_Store
 Thumbs.db
+
+
+# some md files
+ACCESSIBILITY_AND_RESPONSIVE_IMPLEMENTATION.md
+CHANGES_SUMMARY.md
+IMPLEMENTATION_STATUS.md

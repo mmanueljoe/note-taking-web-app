@@ -1,9 +1,13 @@
 import { getElementByType } from "./utils.js";
-import { applyTheme, applyFont } from "./theme.js";
+import { applyTheme, applyFont, initThemeFromStorage } from "./theme.js";
 import { savePreferences, loadPreferences } from "./storage.js";
 import {logout, changePassword} from "./auth.js";
 
 const initializeSettings = () => {
+  // Clear all active states from menu links first (we're on settings page)
+  const allMenuLinks = document.querySelectorAll('.menu-item > a');
+  allMenuLinks.forEach(link => link.classList.remove('is-active'));
+  
   // 1. get all elements
   const elements = {
     settingsSection: getElementByType("class", "settings-section"),
@@ -187,9 +191,14 @@ const initializeSettings = () => {
     document.body.appendChild(modal);
     document.body.style.overflow = "hidden";
 
+    // Trap focus within modal for accessibility
+    let cleanupFocusTrap = null;
+
     setTimeout(() => {
       modal.style.display = "flex";
       modal.classList.add("modal-open");
+      // Trap focus after modal is visible
+      cleanupFocusTrap = trapFocus(modal);
     }, 10);
     
     // Close modal when clicking backdrop
@@ -210,11 +219,13 @@ const initializeSettings = () => {
     document.addEventListener("keydown", handleEscape);
 
     const cancelBtn = modal.querySelector(".modal-cancel-button");
+    cancelBtn.setAttribute("aria-label", "Cancel logout");
     cancelBtn.addEventListener("click", () => {
       closeModal();
     });
 
-    const logoutBtn = modal.querySelector(".modal-delete-button");
+    const logoutBtn = modal.querySelector(".modal-archive-button");
+    logoutBtn.setAttribute("aria-label", "Confirm logout");
     logoutBtn.addEventListener("click", () => {
       const result = logout();
       if(result.success){
@@ -226,11 +237,19 @@ const initializeSettings = () => {
     });
 
     function closeModal() {
+      // Clean up focus trap
+      if (cleanupFocusTrap) {
+        cleanupFocusTrap();
+        cleanupFocusTrap = null;
+      }
+      
       modal.classList.remove("modal-open");
       modal.classList.add("modal-close");
       setTimeout(() => {
         modal.remove();
         document.body.style.overflow = "";
+        // Restore focus to the element that opened the modal
+        restoreFocus();
       }, 300);
     }
   };
@@ -464,6 +483,7 @@ const initializeSettings = () => {
   elements.backBtn.forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
+      e.stopPropagation();
 
       // remove active class from all sections
       elements.settingsSection.forEach((section) => {
@@ -477,7 +497,13 @@ const initializeSettings = () => {
 
       elements.appMainContainer[0].classList.remove("settings-section-open");
 
-      handleViewportChange();
+      // Don't call handleViewportChange() - it might interfere
+    // Just ensure nav is visible
+     const nav = document.querySelector('.app-main-container-nav');
+     if (nav && window.innerWidth < 1024) {
+      nav.style.display = 'flex';
+     }
+      // handleViewportChange();
     });
   });
 
@@ -495,6 +521,25 @@ const initializeSettings = () => {
   const logoutLink = document.querySelector("a[href='./auth/logout.html']");
   if(logoutLink){
     logoutLink.addEventListener("click", handleLogout);
+  }
+
+  // handle sidebar navigation links (All Notes, Archived Notes, etc.)
+  // These should navigate to index.html
+  const allNotesLink = document.querySelector(".all-notes-link");
+  if (allNotesLink) {
+    allNotesLink.addEventListener("click", (e) => {
+      // Let the link navigate naturally to index.html
+      // No preventDefault needed since href is set
+    });
+  }
+
+  const archivedNotesLink = document.querySelector(".archived-notes-link");
+  if (archivedNotesLink) {
+    archivedNotesLink.addEventListener("click", (e) => {
+      // Update href to navigate to index.html
+      archivedNotesLink.href = "./index.html";
+      // Let the link navigate naturally
+    });
   }
 
   // handle viewport change
@@ -547,10 +592,26 @@ const initializeSettings = () => {
 
   // set initial active section
   setActiveSection("color-theme-settings");
+  
+  // Note: Settings link only exists on index.html, not on settings.html itself
+  // Active states are cleared at the start of this function
+
+  // initialize theme from storage
+  initThemeFromStorage();
+
+
   restoreThemeSelection();
   handleViewportChange();
 };
 
-if (document.querySelector(".settings-section")) {
-  initializeSettings();
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', () =>{
+    if(document.querySelector(".settings-section")){
+      initializeSettings();
+    }
+  });
+} else {
+  if (document.querySelector(".settings-section")) {
+    initializeSettings();
+  }
 }
