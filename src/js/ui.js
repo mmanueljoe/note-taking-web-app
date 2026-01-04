@@ -1,5 +1,12 @@
-import { formatDate, escapeHtml, highlightSearchTerms, trapFocus, restoreFocus } from "./utils.js";
-import { getAllNotes, getArchivedNotes,filterByTag } from "./noteManager.js";
+import {
+  formatDate,
+  escapeHtml,
+  highlightSearchTerms,
+  trapFocus,
+  restoreFocus,
+} from "./utils.js";
+import { getAllNotes, getArchivedNotes, filterByTag } from "./noteManager.js";
+import * as ui from "./ui.js";
 
 export const renderNote = (note, searchQuery = null) => {
   const noteElement = document.createElement("div");
@@ -9,13 +16,13 @@ export const renderNote = (note, searchQuery = null) => {
   noteElement.setAttribute("role", "button");
 
   // Highlight search terms if search query is provided
-  const titleHtml = searchQuery 
+  const titleHtml = searchQuery
     ? highlightSearchTerms(note.title, searchQuery)
     : escapeHtml(note.title);
-  
+
   const tagsHtml = note.tags
     .map((tag) => {
-      const tagHtml = searchQuery 
+      const tagHtml = searchQuery
         ? highlightSearchTerms(tag, searchQuery)
         : escapeHtml(tag);
       return `<span class="note-tag">${tagHtml}</span>`;
@@ -36,9 +43,19 @@ export const renderNote = (note, searchQuery = null) => {
   return noteElement;
 };
 
-export const renderAllNotes = (notes, filterTag = null, viewType = "all", autoSelectFirst = true, searchQuery = null) => {
+export const renderAllNotes = (
+  notes,
+  filterTag = null,
+  viewType = "all",
+  autoSelectFirst = true,
+  searchQuery = null
+) => {
   // select container
   const isDesktop = window.innerWidth >= 1024;
+
+  // clear is-selected class from all note cards
+  const allNoteCards = document.querySelectorAll(".note-card");
+  allNoteCards.forEach((card) => card.classList.remove("is-selected"));
 
   let targetContainer;
   if (isDesktop) {
@@ -78,15 +95,23 @@ export const renderAllNotes = (notes, filterTag = null, viewType = "all", autoSe
   // update header title
   updateHeader(filterTag, viewType);
 
-  // If filtered by tag, add back button (mobile/tablet only) and update header
+  // If filtered by tag, add back button (mobile/tablet only)
   if (filterTag && !isDesktop) {
-    // Update header to show tag name
-    const headerTitle = document.querySelector(".app-main-container-header h2");
-    if (headerTitle) {
-      headerTitle.textContent = `Tag: ${filterTag}`;
+    const header = document.querySelector(".app-main-container-header");
+    const headerTitle = header?.querySelector("h2");
+
+    // Store the filter tag in data attribute
+    if (header) {
+      header.setAttribute("data-current-filter-tag", filterTag);
     }
 
-    // Add back button in notes list area (mobile/tablet only)
+    // Remove any existing filter back button first
+    const existingBackBtn = header?.querySelector(".filter-back-button");
+    if (existingBackBtn) {
+      existingBackBtn.remove();
+    }
+
+    // Add back button in HEADER before the title (mobile/tablet only)
     const backButton = document.createElement("button");
     backButton.classList.add(
       "back-button",
@@ -95,28 +120,76 @@ export const renderAllNotes = (notes, filterTag = null, viewType = "all", autoSe
     );
 
     backButton.innerHTML = `
-      <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M6.31047 12.621L0 6.3105L6.31047 0L7.37097 1.0605L2.12097 6.3105L7.37097 11.5605L6.31047 12.621Z" fill="currentColor"/>
-      </svg>
-      <span class="back-button-label">Back to All Notes</span>
-    `;
+    <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M6.31047 12.621L0 6.3105L6.31047 0L7.37097 1.0605L2.12097 6.3105L7.37097 11.5605L6.31047 12.621Z" fill="currentColor"/>
+    </svg>
+    <span class="back-button-label">Go Back</span>
+  `;
+
     backButton.addEventListener("click", () => {
-      // Update header back to "All Notes"
-      const headerTitle = document.querySelector(
-        ".app-main-container-header h2"
-      );
-      if (headerTitle) {
-        headerTitle.textContent = "All Notes";
+      // Remove the back button
+      backButton.remove();
+      // Clear the filter tag data attribute
+      if (header) {
+        header.removeAttribute("data-current-filter-tag");
       }
-      // Dispatch event to show all notes
-      document.dispatchEvent(new CustomEvent("showAllNotes"));
+
+      // Go back to tags menu instead of all notes
+      const contentContainer = document.querySelector(
+        ".app-main-container-content"
+      );
+      const tagsMenu = contentContainer?.querySelector("#tags-menu-sm");
+      const tagsLink = document.querySelector(".tags-link.mobile-tablet-only");
+
+      if (tagsMenu && contentContainer) {
+        // Hide the notes list
+        const notesList = contentContainer.querySelector(".notes-list");
+        if (notesList) {
+          notesList.style.display = "none";
+        }
+        // show the tags menu
+        const otherElements = contentContainer.querySelectorAll(
+          ".app-main-container-content > *:not(#tags-menu-sm)"
+        );
+        otherElements.forEach((element) => (element.style.display = "none"));
+        tagsMenu.style.display = "flex";
+        tagsMenu.classList.add("is-active");
+        contentContainer.classList.add("tags-section-open");
+
+        // update header to "tags"
+        const headerTitle = header?.querySelector("h2");
+        if (headerTitle) {
+          headerTitle.textContent = "Tags";
+        }
+
+        // set tags link as active
+        if (tagsLink) {
+          const allLinks = document.querySelectorAll(".menu-item > a");
+          allLinks.forEach((link) => link.classList.remove("is-active"));
+          tagsLink.classList.add("is-active");
+        }
+      } else {
+        // Dispatch event to show all notes (this will update the header via updateHeader)
+        document.dispatchEvent(new CustomEvent("showAllNotes"));
+      }
     });
-    targetContainer.appendChild(backButton);
-  } else {
-    // If not filtered, ensure header shows "All Notes"
-    const headerTitle = document.querySelector(".app-main-container-header h2");
-    if (headerTitle && !headerTitle.textContent.includes("Archived")) {
-      headerTitle.textContent = "All Notes";
+
+    // Insert back button BEFORE the h2 title in the header
+    if (header && headerTitle) {
+      header.insertBefore(backButton, headerTitle);
+    }
+  } else if (!filterTag) {
+    // Only clear filter-related stuff if we're NOT filtering
+    // (Don't touch header title - let updateHeader handle it)
+    const header = document.querySelector(".app-main-container-header");
+    const existingBackBtn = header?.querySelector(".filter-back-button");
+    if (existingBackBtn) {
+      existingBackBtn.remove();
+    }
+
+    // Clear the filter tag data attribute when not filtering
+    if (header) {
+      header.removeAttribute("data-current-filter-tag");
     }
   }
 
@@ -131,6 +204,7 @@ export const renderAllNotes = (notes, filterTag = null, viewType = "all", autoSe
   noteList.setAttribute("data-notes-list", "true");
 
   //  render note cards
+  let isFirstNote = true; // Track if this is the first note
   notes.forEach((note) => {
     const noteCard = renderNote(note, searchQuery);
 
@@ -138,14 +212,20 @@ export const renderAllNotes = (notes, filterTag = null, viewType = "all", autoSe
     noteCard.setAttribute("data-note-id", note.id);
     noteList.appendChild(noteCard);
 
-    // auto-select first note card in desktop mode
+    // auto-select first note card in desktop mode (ONLY the first one)
     const isDesktop = window.innerWidth >= 1024;
-    if(isDesktop && notes.length > 0 && autoSelectFirst){
-      // select the first note card
-      noteCard.classList.add('is-selected');
+    if (isDesktop && notes.length > 0 && autoSelectFirst && isFirstNote) {
+      // select ONLY the first note card
+      noteCard.classList.add("is-selected");
 
       // show note details
       renderNoteDetails(note);
+
+      // Set flag to false so subsequent notes don't get selected
+      isFirstNote = false;
+    } else {
+      // For all other notes, ensure they don't have is-selected
+      noteCard.classList.remove("is-selected");
     }
   });
 
@@ -356,7 +436,6 @@ export const renderTagLinks = (tags) => {
 
   // find "archived notes" link
   const archivedNotesLink = Array.from(menuList.children).find((child) => {
-    
     const isArchivedLink = child.querySelector(".archived-notes-link");
     return (
       (isArchivedLink &&
@@ -526,7 +605,6 @@ export const toggleArchiveView = (showArchived = false) => {
   if (headerTitle) {
     headerTitle.textContent = showArchived ? "Archived Notes" : "All Notes";
   }
-  
 
   // clear all active states first
   clearMenuActiveStates();
@@ -551,8 +629,8 @@ export const toggleArchiveView = (showArchived = false) => {
 
 // clear all links active states
 export const clearMenuActiveStates = () => {
-  const allLinks = document.querySelectorAll('.menu-item > a');
-  allLinks.forEach((link) => link.classList.remove('is-active'));
+  const allLinks = document.querySelectorAll(".menu-item > a");
+  allLinks.forEach((link) => link.classList.remove("is-active"));
 };
 
 // set active state for a specific link
@@ -560,24 +638,24 @@ export const setMenuLinkActive = (linkSelector) => {
   clearMenuActiveStates();
 
   const link = document.querySelector(linkSelector);
-  if(link){
-    link.classList.add('is-active');
+  if (link) {
+    link.classList.add("is-active");
   }
-}
+};
 
 // render search view (mobile/tablet only)
 export const renderSearchView = () => {
-  const container = document.querySelector('.app-main-container-content');
-  if(!container) return;
+  const container = document.querySelector(".app-main-container-content");
+  if (!container) return;
 
   // change header title to search
-  const headerTitle = document.querySelector('.app-main-container-header h2');
-  if(headerTitle){
-    headerTitle.textContent = 'Search';
+  const headerTitle = document.querySelector(".app-main-container-header h2");
+  if (headerTitle) {
+    headerTitle.textContent = "Search";
   }
 
   // preserve tags menu when clearing
-  const tagsMenu = container.querySelector('#tags-menu-sm');
+  const tagsMenu = container.querySelector("#tags-menu-sm");
 
   // Clear container but preserve tags menu
   const children = Array.from(container.children);
@@ -593,8 +671,8 @@ export const renderSearchView = () => {
   }
 
   // create search container
-  const searchWrapper = document.createElement('div');
-  searchWrapper.classList.add('search-view-wrapper', 'mobile-tablet-only');
+  const searchWrapper = document.createElement("div");
+  searchWrapper.classList.add("search-view-wrapper", "mobile-tablet-only");
 
   searchWrapper.innerHTML = `
    <div class="search-container mobile-tablet-only">
@@ -615,52 +693,56 @@ export const renderSearchView = () => {
   container.appendChild(searchWrapper);
 
   // add event listeners
-  const searchInput = searchWrapper.querySelector('#mobile-search-input');
-  if(searchInput){
+  const searchInput = searchWrapper.querySelector("#mobile-search-input");
+  if (searchInput) {
     // debounce search
     let searchTimeout;
-    searchInput.addEventListener('input', (e) => {
+    searchInput.addEventListener("input", (e) => {
       clearTimeout(searchTimeout);
 
       const query = e.target.value.trim();
 
       searchTimeout = setTimeout(() => {
-        if(query.length === 0){
-          const messageContainer = searchWrapper.querySelector('.search-message');
-          const resultsContainer = searchWrapper.querySelector('.search-results-container');
-          if(messageContainer) messageContainer.style.display = 'none';
-          if(resultsContainer) resultsContainer.innerHTML = '';
+        if (query.length === 0) {
+          const messageContainer =
+            searchWrapper.querySelector(".search-message");
+          const resultsContainer = searchWrapper.querySelector(
+            ".search-results-container"
+          );
+          if (messageContainer) messageContainer.style.display = "none";
+          if (resultsContainer) resultsContainer.innerHTML = "";
           return;
         }
 
-
         // dispatch search event
-        document.dispatchEvent(new CustomEvent('searchNotesMobile', {detail : {query}}))
+        document.dispatchEvent(
+          new CustomEvent("searchNotesMobile", { detail: { query } })
+        );
       }, 500);
     });
 
     searchInput.focus();
   }
-}
+};
 
 // render search results (mobile/tablet only)
 export const renderSearchResults = (query, results) => {
   const container = document.querySelector(".app-main-container-content");
-  if(!container) return;
+  if (!container) return;
 
   const searchWrapper = container.querySelector(".search-view-wrapper");
   if (!searchWrapper) return;
 
   const messageContainer = searchWrapper.querySelector(".search-message");
-  const resultsContainer = searchWrapper.querySelector(".search-results-container");
+  const resultsContainer = searchWrapper.querySelector(
+    ".search-results-container"
+  );
 
   if (!messageContainer || !resultsContainer) return;
 
-  
-  
   // Clear previous results
   resultsContainer.innerHTML = "";
-  
+
   if (!results || results.length === 0) {
     resultsContainer.innerHTML = `
     <div class="empty-state-sm">
@@ -675,7 +757,7 @@ export const renderSearchResults = (query, results) => {
   // Show message
   messageContainer.style.display = "flex";
   messageContainer.textContent = `All notes matching "${query}" are displayed below.`;
-  
+
   // Create note list
   const noteList = document.createElement("div");
   noteList.classList.add("notes-list");
@@ -687,7 +769,7 @@ export const renderSearchResults = (query, results) => {
   });
 
   resultsContainer.appendChild(noteList);
-}
+};
 
 // Clear note form (for creating/editing notes)
 export const clearNoteForm = () => {
@@ -791,18 +873,26 @@ export const renderEmptyState = (viewType = "all") => {
 
 // render note details
 export const renderNoteDetails = (note) => {
-
   // remove is-selected class from all note cards
-  const allNoteCards = document.querySelectorAll('.note-card');
-  allNoteCards.forEach(card => card.classList.remove('is-selected'));
+  const allNoteCards = document.querySelectorAll(".note-card");
+  allNoteCards.forEach((card) => card.classList.remove("is-selected"));
 
   // add is-selected class to the selected note card
-  const noteCard = document.querySelector(`.note-card[data-note-id="${note.id}"]`);
-  if(noteCard){
-    noteCard.classList.add('is-selected');
+  const noteCard = document.querySelector(
+    `.note-card[data-note-id="${note.id}"]`
+  );
+  if (noteCard) {
+    noteCard.classList.add("is-selected");
   }
 
   const container = document.querySelector(".app-main-container-content");
+
+  // Remove the filter back button from header when showing note details
+  const header = document.querySelector(".app-main-container-header");
+  const filterBackBtn = header?.querySelector(".filter-back-button");
+  if (filterBackBtn) {
+    filterBackBtn.remove();
+  }
 
   // Preserve tags menu when clearing
   const tagsMenu = container.querySelector("#tags-menu-sm");
@@ -897,24 +987,31 @@ export const renderNoteDetails = (note) => {
     }
 
     // Check what view the user was on before opening note details
-    const isArchivedView = document.querySelector('.archived-notes-link.is-active');
-    const isSearchView = container.querySelector('.search-view-wrapper');
+    const isArchivedView = document.querySelector(
+      ".archived-notes-link.is-active"
+    );
+    const isSearchView = container.querySelector(".search-view-wrapper");
     const headerTitle = document.querySelector(".app-main-container-header h2");
-    const isTagFilter = headerTitle && headerTitle.textContent.includes("Tag:");
+    const header = document.querySelector(".app-main-container-header");
+    const currentFilterTag = header?.getAttribute("data-current-filter-tag");
+
+    // restore header title display
+    if (headerTitle) {
+      headerTitle.style.display = "block";
+    }
 
     if (isArchivedView) {
       // User was viewing archived notes
       const archivedNotes = noteManager.getArchivedNotes();
-      ui.renderAllNotes(archivedNotes, null, 'archived');
+      ui.renderAllNotes(archivedNotes, null, "archived");
       ui.toggleArchiveView(true);
     } else if (isSearchView) {
       // User was in search view - restore search view
       ui.renderSearchView();
-    } else if (isTagFilter) {
-      // User was filtering by tag - extract tag name and restore
-      const tagName = headerTitle.textContent.replace("Tag: ", "");
-      const filteredNotes = noteManager.filterByTag(tagName);
-      ui.renderAllNotes(filteredNotes, tagName, "all");
+    } else if (currentFilterTag) {
+      // User was filtering by tag - restore using stored tag
+      const filteredNotes = filterByTag(currentFilterTag);
+      ui.renderAllNotes(filteredNotes, currentFilterTag, "all");
     } else {
       // Default: show all notes
       document.dispatchEvent(new CustomEvent("showAllNotes"));
@@ -1005,7 +1102,7 @@ export const renderNoteDetails = (note) => {
         cleanupFocusTrap();
         cleanupFocusTrap = null;
       }
-      
+
       modal.classList.remove("modal-open");
       modal.classList.add("modal-close");
       setTimeout(() => {
@@ -1041,8 +1138,12 @@ export const renderNoteDetails = (note) => {
 
         </span>
         <div class="modal-label">
-          <h2 id="modal-title">${isArchived ? "Restore Note" : "Archive Note"}</h2>
-          <p>Are you sure you want to ${isArchived ? "restore this note" : "archive this note"}? This action cannot be undone.</p>
+          <h2 id="modal-title">${
+            isArchived ? "Restore Note" : "Archive Note"
+          }</h2>
+          <p>Are you sure you want to ${
+            isArchived ? "restore this note" : "archive this note"
+          }? This action cannot be undone.</p>
           </div>
         </div>
         <div class="modal-buttons">
@@ -1082,13 +1183,19 @@ export const renderNoteDetails = (note) => {
     document.addEventListener("keydown", handleEscape);
 
     const cancelBtn = modal.querySelector(".modal-cancel-button");
-    cancelBtn.setAttribute("aria-label", `Cancel ${isArchived ? 'restore' : 'archive'} action`);
+    cancelBtn.setAttribute(
+      "aria-label",
+      `Cancel ${isArchived ? "restore" : "archive"} action`
+    );
     cancelBtn.addEventListener("click", () => {
       closeModal();
     });
 
     const archiveBtn = modal.querySelector(".modal-archive-button");
-    archiveBtn.setAttribute("aria-label", `Confirm ${isArchived ? 'restore' : 'archive'} action`);
+    archiveBtn.setAttribute(
+      "aria-label",
+      `Confirm ${isArchived ? "restore" : "archive"} action`
+    );
     archiveBtn.addEventListener("click", () => {
       const event = new CustomEvent("archiveNote", {
         detail: { noteId: note.id, isArchived: !note.isArchived },
@@ -1103,7 +1210,7 @@ export const renderNoteDetails = (note) => {
         cleanupFocusTrap();
         cleanupFocusTrap = null;
       }
-      
+
       modal.classList.remove("modal-open");
       modal.classList.add("modal-close");
       setTimeout(() => {
@@ -1213,24 +1320,27 @@ export const renderNoteDetails = (note) => {
   const isArchived = note.isArchived || false;
 
   archiveButton.innerHTML = `
-  ${isArchived ? `
+  ${
+    isArchived
+      ? `
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path fill-rule="evenodd" clip-rule="evenodd" d="M3.09026 6.16962C3.4082 6.03519 3.7749 6.18396 3.90932 6.50189L5.00629 9.09638L7.58326 8.0068C7.9012 7.87239 8.2679 8.02114 8.40233 8.33904C8.53675 8.65704 8.388 9.02371 8.07005 9.15813L4.91741 10.491C4.59948 10.6255 4.23278 10.4767 4.09836 10.1588L2.758 6.98867C2.62357 6.67074 2.77234 6.30404 3.09026 6.16962Z" fill="#0E121B"/>
   <path fill-rule="evenodd" clip-rule="evenodd" d="M10.7624 4.71991C7.89009 4.71991 5.55539 7.008 5.4832 9.85328C5.47445 10.1983 5.18762 10.4709 4.84255 10.4622C4.49749 10.4534 4.22485 10.1666 4.2336 9.82153C4.32299 6.29821 7.21239 3.46991 10.7624 3.46991C14.366 3.46991 17.2915 6.39544 17.2915 9.99894C17.2915 13.6097 14.3655 16.528 10.7624 16.528C8.52867 16.528 6.56351 15.41 5.38176 13.708C5.18489 13.4244 5.25516 13.035 5.53869 12.8382C5.82223 12.6413 6.21167 12.7115 6.40854 12.9951C7.36759 14.3764 8.957 15.278 10.7624 15.278C13.6761 15.278 16.0415 12.9184 16.0415 9.99894C16.0415 7.0858 13.6756 4.71991 10.7624 4.71991Z" fill="#0E121B"/>
   </svg>
   
-  ` : `
+  `
+      : `
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M17.5 6.48513V13.5141C17.5 15.9708 15.7657 17.5 13.3113 17.5H6.68865C4.23432 17.5 2.5 15.9708 2.5 13.5133V6.48513C2.5 4.02837 4.23432 2.5 6.68865 2.5H13.3113C15.7657 2.5 17.5 4.03567 17.5 6.48513Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M12.5 11.6667L9.9985 14.1667L7.5 11.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M9.99832 14.1666V8.33331" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M17.4447 5.83331H2.54883" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
-  `}
+  `
+  }
     <span class="archive-button-label">${
       isArchived ? "Restore Note" : "Archive Note"
-    }</span>`
-
+    }</span>`;
 
   archiveButton.addEventListener("click", () => {
     // Confirmation modal
@@ -1253,8 +1363,12 @@ export const renderNoteDetails = (note) => {
 
         </span>
         <div class="modal-label">
-          <h2 id="modal-title">${isArchived ? "Restore Note" : "Archive Note"}</h2>
-          <p>Are you sure you want to ${isArchived ? "restore this note" : "archive this note"}? This action cannot be undone.</p>
+          <h2 id="modal-title">${
+            isArchived ? "Restore Note" : "Archive Note"
+          }</h2>
+          <p>Are you sure you want to ${
+            isArchived ? "restore this note" : "archive this note"
+          }? This action cannot be undone.</p>
           </div>
         </div>
         <div class="modal-buttons">
@@ -1405,7 +1519,7 @@ export const renderNoteDetails = (note) => {
         cleanupFocusTrap();
         cleanupFocusTrap = null;
       }
-      
+
       modal.classList.remove("modal-open");
       modal.classList.add("modal-close");
       setTimeout(() => {
@@ -1515,8 +1629,10 @@ export const renderNoteDetails = (note) => {
     const isMobileOrTablet = window.innerWidth < 1024;
     if (isMobileOrTablet) {
       // Hide on mobile/tablet
-      headerTitle.textContent = "";
+      // headerTitle.textContent = "";
       headerTitle.style.display = "none";
+    } else {
+      headerTitle.style.display = "block";
     }
   }
 
@@ -1618,7 +1734,7 @@ function updateHeader(filterTag = null, view) {
   if (!headerTitle) return;
 
   if (filterTag) {
-    headerTitle.textContent = `Tag: ${filterTag}`;
+    headerTitle.innerHTML = `<span class="filter-tag-label">Notes Tagged:</span> <span class="filter-tag-name">${filterTag}</span>`;
   } else if (view === "archived") {
     headerTitle.textContent = "Archived Notes";
   } else {
