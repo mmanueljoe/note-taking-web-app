@@ -1,4 +1,4 @@
-import {getAllNotes} from './storage.js';
+import { getAllNotes } from './noteManager.js';
 
 /**
  * Exports all notes as a JSON file
@@ -23,8 +23,11 @@ export async function exportNotes(){
             notes: notes
         };
 
+        // Convert to JSON string with pretty formatting
+        const jsonString = JSON.stringify(exportData, null, 2);
+
         // create blob and download link
-        const blob = new Blob([jsonString], {type: 'application.json'});
+        const blob = new Blob([jsonString], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
 
         // create filename with timestamp
@@ -70,7 +73,7 @@ export async function exportNotes(){
  * @returns {Function} Cleanup function
 */
 
-export function setUpExportButton(button, onSuccess, onError){
+export function setupExportButton(button, onSuccess, onError){
     const buttonElement = typeof button === 'string' ? document.querySelector(button) : button;
 
     if(!buttonElement){
@@ -84,10 +87,10 @@ export function setUpExportButton(button, onSuccess, onError){
         if(result.success){
             if(onSuccess){
                 onSuccess(result);
-            } else {
-                if(onError){
-                    onError(result);
-                }
+            }
+        } else {
+            if(onError){
+                onError(result);
             }
         }
     };

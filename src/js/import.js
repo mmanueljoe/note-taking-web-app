@@ -246,7 +246,7 @@ export async function importNotes(file, options = {}) {
  * @returns {Function} Cleanup function
  */
 
-export function setUpImportFileInput(fileInput, options = {}){
+export function setupImportFileInput(fileInput, options = {}){
     const {
         skipDuplicates = true,
         mergeStrategy = 'skip',
