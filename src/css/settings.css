@@ -34,7 +34,7 @@
 }
 
 .nav-divider{
-    border: 1px solid var(--border-secondary);
+    border: 1px solid var(--border-tertiary);
 }
 
 .nav-item-arrow{
@@ -103,7 +103,7 @@
     gap: var(--spacing-200);
     padding: var(--spacing-200);
     border-radius: var(--radius-12);
-    border: 1px solid var(--border-secondary);
+    border: 1px solid var(--border-tertiary);
 }
 
 .color-theme-content, .font-theme-content{
@@ -152,7 +152,7 @@
     width: var(--spacing-200);
     height: var(--spacing-200);
     border-radius: var(--radius-12);
-    border: 1px solid var(--border-secondary);
+    border: 2px solid var(--border-secondary);
     box-shadow: var(--shadow-lg);
     cursor: pointer;
     background: var(--background-secondary);
@@ -279,7 +279,7 @@
 }
 
 .color-theme-item.is-active, .font-theme-item.is-active{
-    border: 1px solid var(--border-primary);
+    border: 1px solid var(--border-tertiary);
     box-shadow: var(--shadow-lg);
     background-color: var(--background-primary);
 }

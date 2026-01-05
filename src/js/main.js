@@ -136,8 +136,8 @@ function handleViewportChange() {
             // (Mobile and tablet both use content area, desktop uses nav sidebar)
             if (contentContainer) {
                 // Preserve tags menu and note details wrapper
-                const tagsMenu = contentContainer.querySelector('#tags-menu-sm');
-                const noteDetails = contentContainer.querySelector('.note-details-wrapper');
+                // const tagsMenu = contentContainer.querySelector('#tags-menu-sm');
+                // const noteDetails = contentContainer.querySelector('.note-details-wrapper');
                 const children = Array.from(contentContainer.children);
                 children.forEach((child) => {
                     // Only remove notes list, not tags menu or note details

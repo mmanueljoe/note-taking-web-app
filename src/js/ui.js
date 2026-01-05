@@ -5,7 +5,7 @@ import {
   trapFocus,
   restoreFocus,
 } from "./utils.js";
-import { getAllNotes, getArchivedNotes, filterByTag } from "./noteManager.js";
+import { getAllNotes, filterByTag, getArchivedNotes } from "./noteManager.js";
 import * as ui from "./ui.js";
 
 export const renderNote = (note, searchQuery = null) => {
@@ -1002,7 +1002,7 @@ export const renderNoteDetails = (note) => {
 
     if (isArchivedView) {
       // User was viewing archived notes
-      const archivedNotes = noteManager.getArchivedNotes();
+      const archivedNotes = getArchivedNotes();
       ui.renderAllNotes(archivedNotes, null, "archived");
       ui.toggleArchiveView(true);
     } else if (isSearchView) {
