@@ -7,6 +7,7 @@ import {
 } from "./utils.js";
 import { getAllNotes, filterByTag, getArchivedNotes } from "./noteManager.js";
 import * as ui from "./ui.js";
+import { initRichTextEditor } from "./richText.js";
 
 export const renderNote = (note, searchQuery = null) => {
   const noteElement = document.createElement("div");
@@ -872,6 +873,8 @@ export const renderEmptyState = (viewType = "all") => {
 };
 
 // render note details
+let detailRte;
+
 export const renderNoteDetails = (note) => {
   // remove is-selected class from all note cards
   const allNoteCards = document.querySelectorAll(".note-card");
@@ -1602,26 +1605,28 @@ export const renderNoteDetails = (note) => {
         </div>
         ${locationHtml}
       </div>
-      <textarea 
-        class="note-details-body editable"
-      >${escapeHtml(note.content || "")}</textarea>
+      <div 
+        class="note-details-body-wrapper editable"
+      ></div>
     `;
 
   // Get references to elements after innerHTML
   const title = contentSection.querySelector(".note-details-title");
   const tagsInput = contentSection.querySelector(".note-details-tags-input");
-  const contentDisplay = contentSection.querySelector(".note-details-body");
+  const contentWrapper = contentSection.querySelector(".note-details-body-wrapper");
+  detailRte = initRichTextEditor(contentWrapper, { placeholder: 'Edit note...' });
+  detailRte.setHTML(note.content || '');
 
   // Add event listener for Enter key on textarea
-  contentDisplay.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      const saveButton = document.querySelector(".save-button");
-      if (saveButton) {
-        saveButton.click();
-      }
-    }
-  });
+  // contentDisplay.addEventListener("keydown", (e) => {
+  //   if (e.key === "Enter" && !e.shiftKey) {
+  //     e.preventDefault();
+  //     const saveButton = document.querySelector(".save-button");
+  //     if (saveButton) {
+  //       saveButton.click();
+  //     }
+  //   }
+  // });
 
   // Update header title based on screen size
   const headerTitle = document.querySelector(".app-main-container-header h2");
@@ -1653,7 +1658,6 @@ export const renderNoteDetails = (note) => {
   saveButton.addEventListener("click", () => {
     // Get updated values from the detail view
     const updatedTitle = title.value.trim();
-    const updatedContent = contentDisplay.value.trim();
 
     // parse tags
     const updatedTags = tagsInput.value
@@ -1662,12 +1666,14 @@ export const renderNoteDetails = (note) => {
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
+    const updatedContentHtml = detailRte?.getHtml() || '';
+
     // Dispatch event to save note
     const event = new CustomEvent("saveNote", {
       detail: {
         noteId: note.id,
         title: updatedTitle,
-        content: updatedContent,
+        content: updatedContentHtml,
         tags: updatedTags,
       },
     });
