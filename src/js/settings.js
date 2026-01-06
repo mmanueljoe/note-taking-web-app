@@ -2,6 +2,9 @@ import { getElementByType } from "./utils.js";
 import { applyTheme, applyFont, initThemeFromStorage } from "./theme.js";
 import { savePreferences, loadPreferences } from "./storage.js";
 import {logout, changePassword} from "./auth.js";
+import {exportNotes, setupExportButton} from "./export.js";
+import {setupImportFileInput, setupImportButton} from "./import.js";
+import { showToast } from "./ui.js";
 
 const initializeSettings = () => {
   // Clear all active states from menu links first (we're on settings page)
@@ -596,8 +599,64 @@ const initializeSettings = () => {
   // Note: Settings link only exists on index.html, not on settings.html itself
   // Active states are cleared at the start of this function
 
+  // Setup export button
+const exportBtn = document.getElementById('export-notes-btn');
+if (exportBtn) {
+  setupExportButton(exportBtn, 
+    (result) => {
+      showToast('saved', `Successfully exported ${result.noteCount} note${result.noteCount !== 1 ? 's' : ''}`, {
+        duration: 4000
+      });
+    },
+    (error) => {
+      showToast('error', error.error || 'Failed to export notes', {
+        duration: 4000
+      });
+    }
+  );
+}
+
+// Setup import functionality
+const fileInput = document.getElementById('import-notes-input');
+const importBtn = document.getElementById('import-notes-btn');
+
+if (fileInput) {
+  setupImportFileInput(fileInput, {
+    skipDuplicates: true,
+    mergeStrategy: 'skip',
+    onSuccess: (result) => {
+      let message = `Successfully imported ${result.imported} note${result.imported !== 1 ? 's' : ''}`;
+      if (result.skipped > 0) {
+        message += `, skipped ${result.skipped} duplicate${result.skipped !== 1 ? 's' : ''}`;
+      }
+      showToast('saved', message, {
+        duration: 5000
+      });
+      // Refresh the page to show new notes
+      window.location.reload();
+    },
+    onError: (error) => {
+      const errorMessage = error.errors?.[0] || error.error || 'Failed to import notes';
+      showToast('error', errorMessage, {
+        duration: 5000
+      });
+    }
+  });
+}
+
+if (importBtn && fileInput) {
+  setupImportButton(importBtn, fileInput);
+}
+
+// Listen for import completion
+document.addEventListener('notesImported', (e) => {
+  const { imported, skipped } = e.detail;
+  console.log(`Imported: ${imported}, Skipped: ${skipped}`);
+});
+
   // initialize theme from storage
   initThemeFromStorage();
+
 
 
   restoreThemeSelection();

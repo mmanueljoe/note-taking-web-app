@@ -5,6 +5,7 @@ import * as theme from './theme.js';
 import * as geolocation from './geolocation.js';
 import { formatDate } from './utils.js';
 import { isAuthenticated } from './auth.js';
+import { initRichTextEditor } from './richText.js';
 
 
 // check if user is authenticated
@@ -705,6 +706,9 @@ function setupEventListeners() {
 
 // show create note form
 // show create note form
+
+let createRte;
+
 function showCreateNoteForm() {
     const container = document.querySelector('.app-main-container-content');
     if(!container) return false;
@@ -866,15 +870,13 @@ function showCreateNoteForm() {
              <button type="button" class="location-button" id="location-button">Add Location</button>
            </div>
          </div>
-         <textarea 
-           id="note-content" 
-           name="note-content" 
-           class="note-details-body editable" 
-           placeholder="Start typing your note here..." 
-           required
-         ></textarea>
+         <div id="note-content-wrapper" 
+         ></div>
        </form>
      `;
+
+    const contentWrapper = formContentSection.querySelector('#note-content-wrapper');
+    createRte = initRichTextEditor(contentWrapper, { placeholder: 'Start typing your note here...' });
 
     formWrapper.appendChild(formContentSection);
 
@@ -1095,7 +1097,7 @@ function setupFormValidation(){
 // handle create note submission
 function handleCreateNote() {
     const titleInput = document.getElementById("note-title").value;
-    const contentInput = document.getElementById("note-content").value;
+    const contentHtml =createRte?.getHtml() || '';
     const tagsInput = document.getElementById("note-tags").value;
     const locationButton = document.querySelector(".location-button");
 
@@ -1105,7 +1107,7 @@ function handleCreateNote() {
     }
 
     const title = titleInput.trim();
-    const content = contentInput.trim();
+    const content = contentHtml.trim();
 
     // validate inputs with dynamic DOM errors
     const titleValidation = validateField('title', title);
@@ -1127,7 +1129,7 @@ function handleCreateNote() {
         if(!titleValidation.isValid){
             titleInput.focus();
         } else if(!contentValidation.isValid){
-            contentInput.focus();
+            createRte?.editor?.focus();
         }
         return;
     }
@@ -1142,7 +1144,15 @@ function handleCreateNote() {
 
     try{
         // create note object
-    const newNote = noteManager.createNote(title, content, tags);
+    const plain = createRte?.getPlainText() || '';
+    if(plain.length < 10){
+        ui.showValidationError('#note-content', 'Content must be at least 10 characters long');
+        return;
+    } else {
+        ui.clearValidationError('#note-content');
+    }
+
+    const newNote = noteManager.createNote(title, contentHtml, tags);
     newNote.location = location;
 
     // save note to storage
