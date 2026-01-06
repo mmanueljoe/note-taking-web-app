@@ -297,6 +297,23 @@
                     </span>
                   </a>
                 </li>
+                <!-- export/import link -->
+                <li class="nav-item" aria-label="Settings Navigation Item">
+                  <a href="#export-import-settings" class="nav-item-link" aria-label="Settings Navigation Item Link">
+                    <span class="nav-item-content" aria-label="Settings Navigation Item Content">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 12.5V2.5M10 2.5L7 5.5M10 2.5L13 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 15.5V16.5C2 17.3284 2.67157 18 3.5 18H16.5C17.3284 18 18 17.3284 18 16.5V15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span class="nav-item-label">Export/Import</span>
+                    </span>
+                    <span class="nav-item-arrow" aria-label="Settings Navigation Item Arrow">
+                      <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.75 0.75L4.75 4.75L0.75 8.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </a>
+                </li>
                 <hr class="nav-divider" />
                 <!-- logout -->
                 <li class="nav-item" aria-label="Settings Navigation Item">
@@ -811,6 +828,61 @@
                   </button>
                 </div>
               </form>
+            </section>
+
+            <!-- Export/Import Notes -->
+            <section class="settings-section" id="export-import-settings">
+              <a href="#" class="back-btn mobile-tablet-only">
+                <svg width="9" height="15" viewBox="0 0 9 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.01163 14.0233L0 7.01167L7.01163 0L8.18997 1.17833L2.35663 7.01167L8.18997 12.845L7.01163 14.0233Z" fill="#525866"/>
+                </svg>
+                <span class="back-btn-label">Settings</span>
+              </a>
+
+              <!-- section header -->
+              <header class="section-header">
+                <h2>Export/Import Notes</h2>
+                <p>Backup your notes or import from a file</p>
+              </header>
+
+              <div class="export-import-container">
+                <!-- Export Button -->
+                <div class="export-import-item">
+                  <div class="export-import-content">
+                    <div class="export-import-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 15V3M12 3L8 7M12 3L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L2 18C2 19.1046 2.89543 20 4 20L20 20C21.1046 20 22 19.1046 22 18L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div class="export-import-label">
+                      <h3>Export Notes</h3>
+                      <span class="export-import-text">Download all your notes as a JSON file</span>
+                    </div>
+                  </div>
+                  <button id="export-notes-btn" class="export-import-button">Export</button>
+                </div>
+
+                <!-- Import Button -->
+                <div class="export-import-item">
+                  <div class="export-import-content">
+                    <div class="export-import-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 9V21M12 9L8 13M12 9L16 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L2 18C2 19.1046 2.89543 20 4 20L20 20C21.1046 20 22 19.1046 22 18L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div class="export-import-label">
+                      <h3>Import Notes</h3>
+                      <span class="export-import-text">Import notes from a JSON file</span>
+                    </div>
+                  </div>
+                  <div class="import-controls">
+                    <input type="file" id="import-notes-input" accept=".json,application/json" style="display: none;"/>
+                    <button id="import-notes-btn" class="export-import-button">Import</button>
+                  </div>
+                </div>
+              </div>
             </section>
           </section>
         </section>
