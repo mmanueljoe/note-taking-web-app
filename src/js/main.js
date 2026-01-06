@@ -5,6 +5,10 @@ import * as theme from './theme.js';
 import * as geolocation from './geolocation.js';
 import { formatDate } from './utils.js';
 import { isAuthenticated } from './auth.js';
+import {createCategory, updateCategory, deleteCategory, getCategoriesWithCounts} from './categoryManager.js';
+import {renderCategoryLinks, renderCategoryModal ,renderCategorySelector} from './categoryUI.js';
+import {filterByCategory, assignCategoryToNote} from './noteManager.js';
+import { showToast } from './ui.js';
 
 
 // check if user is authenticated
@@ -277,10 +281,16 @@ function setupEventListeners() {
 
     // === save note (from detail view) ===
     document.addEventListener("saveNote", (e) => {
-        const {noteId, title, content, tags} = e.detail;
+        const {noteId, title, content, tags, categoryId} = e.detail;
 
         // update the note
         noteManager.updateNote(noteId, {title, content, tags});
+
+        // assign category if provided
+        if(categoryId !== undefined){
+            assignCategoryToNote(noteId, categoryId);
+            showToast('saved', 'Category assigned to note', { duration: 3000 });
+        }
 
         // refresh the display
         refreshNotes();
@@ -664,6 +674,61 @@ function setupEventListeners() {
         });
     }
 
+    // Filter notes by category
+document.addEventListener('filterNotesByCategory', (e) => {
+    const { categoryId } = e.detail;
+    const filteredNotes = filterByCategory(categoryId);
+    ui.renderAllNotes(filteredNotes, null, 'all');
+    
+    // Update header
+    const headerTitle = document.querySelector('.app-main-container-header h2');
+    if (headerTitle) {
+      if (categoryId) {
+        const category = getCategoryById(categoryId);
+        headerTitle.textContent = category ? `Category: ${category.name}` : 'All Notes';
+      } else {
+        headerTitle.textContent = 'All Notes';
+      }
+    }
+  });
+  
+  // Create category
+document.addEventListener('createCategory', async (e) => {
+    const { name, color } = e.detail;
+    const result = createCategory(name, color);
+    
+    if (result.success) {
+      showToast('saved', `Category "${name}" created successfully`, { duration: 3000 });
+      const categories = getCategoriesWithCounts();
+      renderCategoryLinks(categories);
+      
+      // Refresh category selector in the form if it exists
+      const categorySelector = document.getElementById('note-category-select');
+      if (categorySelector) {
+        const selectedValue = categorySelector.value;
+        renderCategorySelector(selectedValue, 'category-selector-container');
+      }
+    } else {
+      showToast('error', result.error || 'Failed to create category', { duration: 4000 });
+    }
+  });
+  
+  // Update category
+  document.addEventListener('updateCategory', async (e) => {
+    const { categoryId, name, color } = e.detail;
+    const result = updateCategory(categoryId, { name, color });
+    
+    if (result.success) {
+      showToast('saved', `Category updated successfully`, { duration: 3000 });
+      const categories = getCategoriesWithCounts();
+      renderCategoryLinks(categories);
+      refreshNotes(); // Refresh to show updated category names
+    } else {
+      showToast('error', result.error || 'Failed to update category', { duration: 4000 });
+    }
+  });
+  
+
 
     // Handle viewport resize
     let resizeTimer;
@@ -849,6 +914,31 @@ function showCreateNoteForm() {
                placeholder="Add tags separated by commas(e.g. Work, Planning)"
              />
            </div>
+           <div class="note-details-category">
+            <span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M3.5 2.5C2.67157 2.5 2 3.17157 2 4V12.5C2 13.3284 2.67157 14 3.5 14H12.5C13.3284 14 14 13.3284 14 12.5V4C14 3.17157 13.3284 2.5 12.5 2.5H3.5ZM3.5 4H12.5V12.5H3.5V4ZM5 6.5C5 6.22386 5.22386 6 5.5 6H10.5C10.7761 6 11 6.22386 11 6.5C11 6.77614 10.7761 7 10.5 7H5.5C5.22386 7 5 6.77614 5 6.5ZM5.5 8.5H10.5C10.7761 8.5 11 8.72386 11 9C11 9.27614 10.7761 9.5 10.5 9.5H5.5C5.22386 9.5 5 9.27614 5 9C5 8.72386 5.22386 8.5 5.5 8.5Z" fill="currentColor"/>
+                </svg>
+                Category
+            </span>
+            <div class="category-selector-wrapper">
+                <div class="category-selector-container" id="category-selector-container"></div>
+                <button type="button" class="create-category-btn" id="create-category-btn" title="Create new category">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                </button>
+            </div>
+            </div>
+            <div class="note-details-category">
+            <span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M3.5 2.5C2.67157 2.5 2 3.17157 2 4V12.5C2 13.3284 2.67157 14 3.5 14H12.5C13.3284 14 14 13.3284 14 12.5V4C14 3.17157 13.3284 2.5 12.5 2.5H3.5ZM3.5 4H12.5V12.5H3.5V4ZM5 6.5C5 6.22386 5.22386 6 5.5 6H10.5C10.7761 6 11 6.22386 11 6.5C11 6.77614 10.7761 7 10.5 7H5.5C5.22386 7 5 6.77614 5 6.5ZM5.5 8.5H10.5C10.7761 8.5 11 8.72386 11 9C11 9.27614 10.7761 9.5 10.5 9.5H5.5C5.22386 9.5 5 9.27614 5 9C5 8.72386 5.22386 8.5 5.5 8.5Z" fill="currentColor"/>
+                </svg>
+                Category
+            </span>
+            <div class="category-selector-container" id="category-selector-container"></div>
+            </div>
            <div class="note-details-date">
              <span class="note-details-date-label">
                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -876,7 +966,26 @@ function showCreateNoteForm() {
        </form>
      `;
 
+     // Add create category button handler
+    const createCategoryBtn = formContentSection.querySelector('#create-category-btn');
+    if (createCategoryBtn) {
+    createCategoryBtn.addEventListener('click', () => {
+        renderCategoryModal();
+    });
+    }
+
+
     formWrapper.appendChild(formContentSection);
+
+    // NOW render category selector AFTER form is in DOM
+    setTimeout(() => {
+        const categoryContainer = document.getElementById('category-selector-container');
+        if (categoryContainer) {
+        renderCategorySelector(null, 'category-selector-container');
+        } else {
+        console.error('Category container not found in DOM');
+        }
+    }, 0);
 
     // footer section (desktop only)
     const footerSection = document.createElement("div");
