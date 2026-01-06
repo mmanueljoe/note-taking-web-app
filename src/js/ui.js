@@ -7,6 +7,7 @@ import {
 } from "./utils.js";
 import { getAllNotes, filterByTag, getArchivedNotes } from "./noteManager.js";
 import * as ui from "./ui.js";
+import { renderCategoryBadge } from "./categoryUI.js";
 
 export const renderNote = (note, searchQuery = null) => {
   const noteElement = document.createElement("div");
@@ -29,9 +30,10 @@ export const renderNote = (note, searchQuery = null) => {
     })
     .join("");
 
-  noteElement.innerHTML = `
+    noteElement.innerHTML = `
     <h3 class="note-title">${titleHtml}</h3>
-      <div class="note-tags">
+    <div class="note-tags">
+      ${renderCategoryBadge(note.categoryId)}
       ${tagsHtml}
     </div>
     <span class="note-date">${formatDate(note.lastEdited)}</span>

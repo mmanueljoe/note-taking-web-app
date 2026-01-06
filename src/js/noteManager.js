@@ -11,6 +11,7 @@ export class Note {
     this.lastEdited = new Date();
     this.isArchived = false;
     this.location = null;
+    this.categoryId = null; // Add category support
   }
 
   archive() {
@@ -36,6 +37,7 @@ export class Note {
       lastEdited: this.lastEdited,
       isArchived: this.isArchived,
       location: this.location,
+      categoryId: this.categoryId,
     };
   }
 
@@ -47,6 +49,7 @@ export class Note {
     note.lastEdited = json.lastEdited ? new Date(json.lastEdited) : new Date();
     note.isArchived = json.isArchived;
     note.location = json.location;
+    note.categoryId = json.categoryId || null;
     return note;
   }
 }
@@ -122,4 +125,46 @@ export const getUnarchivedNotes = () => {
 export const getNoteById = (id) => {
   const notes = loadNotes();
   return notes.find((note) => note.id === id);
+};
+
+
+
+/**
+ * Filter notes by category
+ */
+export const filterByCategory = (categoryId) => {
+  const notes = loadNotes();
+  if (!categoryId) return notes;
+  return notes.filter((note) => note.categoryId === categoryId);
+};
+
+/**
+ * Assign category to note
+ */
+export const assignCategoryToNote = (noteId, categoryId) => {
+  const notes = loadNotes();
+  const note = notes.find((note) => note.id === noteId);
+  
+  if (!note) return false;
+  
+  note.categoryId = categoryId;
+  note.lastEdited = new Date();
+  saveNotes(notes);
+  
+  // Update category note count
+  if (categoryId) {
+    import('./categoryManager.js').then(({ updateCategoryNoteCount }) => {
+      updateCategoryNoteCount(categoryId);
+    });
+  }
+  
+  return note;
+};
+
+/**
+ * Get notes by category
+ */
+export const getNotesByCategory = (categoryId) => {
+  const notes = loadNotes();
+  return notes.filter((note) => note.categoryId === categoryId);
 };
