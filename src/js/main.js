@@ -6,6 +6,7 @@ import * as geolocation from './geolocation.js';
 import { formatDate } from './utils.js';
 import { isAuthenticated } from './auth.js';
 import { initRichTextEditor } from './richText.js';
+import { getSharedNoteFromUrl } from './share.js';
 
 
 // check if user is authenticated
@@ -1195,6 +1196,17 @@ function handleCreateNote() {
 // initialize app
 document.addEventListener("DOMContentLoaded", () => {
     if(document.querySelector('.settings-section')){
+        return;
+    }
+
+    if(!checkAuth){
+        return;
+    }
+
+    const sharedNote = getSharedNoteFromUrl();
+    if(sharedNote){
+        // skip normal list view and show read-only view of shared note
+        ui.renderSharedNoteReadOnly(sharedNote);
         return;
     }
     initializeApp()

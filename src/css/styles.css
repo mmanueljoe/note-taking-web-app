@@ -1289,6 +1289,49 @@ mark {
 .rte-editor i, .rte-editor em { font-style: italic; }
 .rte-editor u { text-decoration: underline; }
 
+
+.shared-note-view .note-details-title {
+  border: none;
+  cursor: default;
+}
+
+.shared-note-view .read-only-body {
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--background-secondary);
+  line-height: 1.6;
+}
+
+.shared-note-view .shared-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #335cff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.share-button:hover {
+  background: #eef2ff;
+  border-color: #c7cff5;
+  color: #335cff;
+}
+
 .dark {
   --background-primary: var(--neutral-700);
   --background-secondary: var(--neutral-950);
@@ -1344,17 +1387,20 @@ mark {
 @media (prefers-color-scheme: dark) {
   :root {
     --background-primary: var(--neutral-700);
-    --background-primary-light: var(--neutral-600);
-    --background-secondary: var(--neutral-950);
+  --background-secondary: var(--neutral-950);
 
-    --text-primary: var(--neutral-0);
-    --text-tertiary: var(--neutral-600);
-    --btn-textWhite: var(--neutral-0);
+  --text-primary: var(--neutral-0);
+  --text-primary-light: var(--neutral-100);
+  --text-secondary: var(--neutral-300);
+  --text-tertiary: var(--neutral-600);
 
-    --border-primary: var(--neutral-600);
-    --border-secondary: var(--neutral-800);
+  --btn-textWhite: var(--neutral-0);
 
-    --icon-borderColor: var(--neutral-400);
+  --border-primary: var(--neutral-600);
+  --border-secondary: var(--neutral-500);
+  --border-tertiary: var(--neutral-800);
+  --border-error: var(--red-500);
+  --border-error-focus: var(--red-500);
   }
 }
 
