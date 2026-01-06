@@ -795,21 +795,34 @@ function showCreateNoteForm() {
 
     // Cancel button handler
     const cancelButton = mobileActionsRow.querySelector('[data-action="cancel"]');
-    cancelButton.addEventListener("click", () => {
-        // Preserve tags menu when clearing
-        const tagsMenu = container.querySelector("#tags-menu-sm");
+cancelButton.addEventListener("click", () => {
+  // Preserve tags menu when clearing
+  const tagsMenu = container.querySelector("#tags-menu-sm");
         
-        const children = Array.from(container.children);
-        children.forEach(child => {
-            if(child.id !== "tags-menu-sm") {
-                child.remove();
-            }
-        });
+  const children = Array.from(container.children);
+  children.forEach(child => {
+    if (child.id !== "tags-menu-sm") {
+      child.remove();
+    }
+  });
         
-        if(tagsMenu) {
-            tagsMenu.style.display = "none";
-            tagsMenu.classList.remove("is-active");
-        }
+  if (tagsMenu) {
+    tagsMenu.style.display = "none";
+    tagsMenu.classList.remove("is-active");
+  }
+
+  // Make sure layout is reset (optional but safe)
+    const appMainContainer = document.querySelector('.app-main-container');
+    if (appMainContainer) {
+        appMainContainer.classList.remove('has-note-selected');
+    }
+    const actionsColumn = document.querySelector('.app-main-container-actions');
+    if (actionsColumn) {
+        actionsColumn.remove();
+    }
+
+    // Re-render notes list (same idea as desktop cancel/back)
+    document.dispatchEvent(new CustomEvent("showAllNotes"));
     });
 
     // Create Note button handler
@@ -1097,9 +1110,9 @@ function setupFormValidation(){
 
 // handle create note submission
 function handleCreateNote() {
-    const titleInput = document.getElementById("note-title").value;
-    const contentHtml =createRte?.getHtml() || '';
-    const tagsInput = document.getElementById("note-tags").value;
+    const titleInputEl = document.getElementById("note-title");
+    const contentHtml = createRte?.getHTML() || '';
+    const tagsInputEl = document.getElementById("note-tags");
     const locationButton = document.querySelector(".location-button");
 
     let location = null;
@@ -1107,7 +1120,7 @@ function handleCreateNote() {
         location = JSON.parse(locationButton.getAttribute('data-location'));
     }
 
-    const title = titleInput.trim();
+    const title = titleInputEl.value.trim();
     const content = contentHtml.trim();
 
     // validate inputs with dynamic DOM errors
@@ -1125,17 +1138,16 @@ function handleCreateNote() {
         hasErrors = true;
     }
 
-    if(hasErrors){
-        // focus first invalid
-        if(!titleValidation.isValid){
-            titleInput.focus();
-        } else if(!contentValidation.isValid){
-            createRte?.editor?.focus();
+    if (hasErrors) {
+        if (!titleValidation.isValid) {
+          titleInputEl.focus();
+        } else if (!contentValidation.isValid) {
+          createRte?.editor?.focus();
         }
         return;
-    }
+      }
     // parse tags into array
-    const tags = tagsInput.trim().split(",").map(tag => tag.trim());
+    const tags = tagsInputEl.trim().split(",").map(tag => tag.trim());
 
     // validate inputs
     if(!title || !content) {

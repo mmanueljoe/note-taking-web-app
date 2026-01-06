@@ -336,6 +336,7 @@ button {
   flex-direction: column;
   justify-content: center;
   gap: 0.5rem;
+  padding: 0.5rem;
   /* padding: var(--spacing-100); */
 }
 
@@ -681,7 +682,7 @@ mark {
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
   border-bottom: 1px solid var(--border-secondary);
 }
 
@@ -729,6 +730,11 @@ mark {
   line-height: var(--sans-serif-preset-5-line-height);
   letter-spacing: var(--sans-serif-preset-5-letter-spacing);
   color: var(--text-tertiary);
+  border: none;
+}
+
+.note-details-right > .save-button.mobile-tablet-only{
+  color: var(--blue-500);
   border: none;
 }
 
@@ -1696,6 +1702,15 @@ mark {
     gap: 0.5rem;
   }
 
+  .empty-state-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0;
+    /* padding: var(--spacing-100); */
+  }
+  
   .content {
     /* padding: var(--spacing-100); */
     max-width: 100%;
