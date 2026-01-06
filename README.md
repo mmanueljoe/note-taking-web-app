@@ -44,16 +44,15 @@ Users should be able to:
 
 ### Screenshots
 
-> Replace these with your own screenshots.
 
 - Main app – desktop  
-  `./preview.jpg` (or another screenshot path)
+
 
 - Mobile layout – notes list and detail view  
-  `./screenshots/mobile-notes.png`
+
 
 - Auth screens (login / signup)  
-  `./screenshots/auth.png`
+
 
 ### Links
 
