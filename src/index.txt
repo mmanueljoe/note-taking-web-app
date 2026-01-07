@@ -1,117 +1,50 @@
-// theme.js
-import { loadSettings, saveSettings } from './storage.js';
-
-// Apply color theme
-export const applyTheme = (themeName) => {
-    const body = document.body;
-    const html = document.documentElement;
-    
-    // Remove existing theme classes
-    body.classList.remove('light', 'dark', 'system-theme');
-    html.classList.remove('light', 'dark', 'system-theme');
-    
-    if (themeName === 'system') {
-        // System theme: use prefers-color-scheme
-        body.classList.add('system-theme');
-        applySystemTheme();
-    } else if (themeName === 'dark') {
-        body.classList.add('dark');
-        html.classList.add('dark');
-    } else {
-        // Default to light
-        body.classList.add('light');
-        html.classList.add('light');
-    }
-    
-    // Save to storage
-    saveSettings({ colorTheme: themeName });
-    
-    return themeName;
-};
-
-// Apply system theme based on user's OS preference
-const applySystemTheme = () => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const body = document.body;
-    const html = document.documentElement;
-    
-    if (prefersDark) {
-        body.classList.add('dark');
-        html.classList.add('dark');
-    } else {
-        body.classList.remove('dark');
-        html.classList.remove('dark');
-    }
-};
-
-// Listen for system theme changes (if system theme is active)
-const systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-systemThemeMediaQuery.addEventListener('change', () => {
-    if (document.body.classList.contains('system-theme')) {
-        applySystemTheme();
-    }
-});
-
-// Apply font theme
-export const applyFont = (fontName) => {
-    const body = document.body;
-    const html = document.documentElement;
-    
-    // Remove existing font classes
-    body.classList.remove('font-sans-serif', 'font-serif', 'font-monospace');
-    html.classList.remove('font-sans-serif', 'font-serif', 'font-monospace');
-    
-    // Add new font class
-    const fontClass = `font-${fontName}`;
-    body.classList.add(fontClass);
-    html.classList.add(fontClass);
-    
-    // Save to storage
-    saveSettings({ fontTheme: fontName });
-    
-    return fontName;
-};
-
-// Initialize theme from storage on page load
-export const initThemeFromStorage = () => {
-    const settings = loadSettings();
-    
-    // Apply color theme
-    if (settings.colorTheme) {
-        applyTheme(settings.colorTheme);
-    } else {
-        // Default to light if no preference saved
-        applyTheme('light');
-    }
-    
-    // Apply font theme
-    if (settings.fontTheme) {
-        applyFont(settings.fontTheme);
-    } else {
-        // Default to sans-serif if no preference saved
-        applyFont('sans-serif');
-    }
-};
-
-
-
-/* Font theme classes */
-.font-sans-serif {
-  font-family: "Inter", sans-serif;
-}
-
-.font-serif {
-  font-family: "Georgia", "Times New Roman", serif;
-}
-
-.font-monospace {
-  font-family: "Courier New", "Monaco", monospace;
-}
-
-
-// main.js
-import { initThemeFromStorage } from './theme.js';
-
-document.addEventListener('DOMContentLoaded', () => {
-    initThemeFromStorage(); // Apply saved theme on page load
-});
+App Overview
+Purpose: Note-taking web app with theming, auth, and settings; data stored in localStorage.
+Tech: Vanilla JS + HTML/CSS; no backend. Runs entirely in browser (works on Vercel/static hosting).
+State/storage: Preferences, auth state, notes, and user records kept in localStorage.
+Key Modules
+src/js/main.js: App bootstrap, note list rendering, interactions (create/edit/archive/search).
+src/js/noteManager.js: CRUD helpers for notes and archives using localStorage.
+src/js/auth.js: Local auth (signup/login/logout/change password), password hashing/checking (client-side).
+src/js/auth-handlers.js: Wire auth forms to auth.js, handle validation/messages.
+src/js/settings.js: Settings page (theme, font, change password, logout modal with focus trap).
+src/js/theme.js: Apply color theme and font, persist to storage.
+src/js/utils.js: Helpers (DOM queries, debounce, focus management: trapFocus, restoreFocus).
+src/js/ui.js: Shared UI behaviors (modals, toasts, etc.).
+CSS: src/css/styles.css (global), plus feature-specific styles (auth, settings).
+Core Flows (implemented)
+Signup/Login (localStorage): Stores user record (email + hashed password). Login checks hash; sets session flag in storage.
+Logout: Clears session; settings page includes an accessible confirmation modal with focus trap.
+Change Password: Validates inputs, updates stored hash; shows inline errors/success.
+Notes: Create, edit, delete, archive; filter/search; uses localStorage for persistence.
+Theming: Color + font selection; persisted; applied on load.
+Accessibility touches: Focus trap for modals (trapFocus), aria labels on buttons; toasts/messages.
+Constraints & Security Notes
+No backend: All logic and data live client-side; suitable for demo/lab, not for production security.
+localStorage: Origin-scoped; persists per browser/profile; not secure for secrets; size ~5–10 MB.
+Planned/Not Yet Merged Additions (localStorage-only, simulated)
+Forgot/Reset Password (simulated):
+“Forgot password?” link opens a form to enter email.
+On submit: if a user exists, generate a short-lived reset token in localStorage (resetToken, resetTokenExpiry) and display a “reset link” on screen (simulated email). If not, show the same generic message.
+Reset page reads token from URL or input, validates against stored token + expiry, then lets user set a new password (with confirm/strength checks), clears the token, and returns to login with success message.
+UI copy clarifies it’s a demo/no real email.
+Mock Google Login (simulated):
+“Continue with Google (demo)” button opens a fake account picker modal.
+On selection: create/find a localStorage user flagged as google and set session. No external OAuth or real Google sign-in.
+UI copy states it’s a mock/demo flow.
+How to Explain It Verbally
+Architecture: “Everything is client-side—HTML/CSS/JS. State and user data live in localStorage. No network or backend calls.”
+Auth: “Signup/login store hashed passwords locally; sessions are tracked in localStorage. Logout and change password are handled in the settings page.”
+Notes: “Notes CRUD + archive are managed via localStorage; UI updates the list from that store.”
+Settings/Themes: “Users pick color/font themes; choices persist and apply on load.”
+Accessibility: “Modals trap focus (trapFocus in utils.js); buttons have aria-labels.”
+Limitations: “LocalStorage isn’t secure; ‘forgot password’ and ‘Google login’ are mock flows for demo purposes—no emails, no real OAuth.”
+If Asked About Vercel
+“Works fine—localStorage is browser-side. Each domain/preview has its own storage; data won’t carry between them.”
+Quick Demo Script
+Open app: show notes list, add a note, archive it, restore/delete.
+Switch theme/font; refresh to show persistence.
+Auth flow: log out, log back in (localStorage users), change password, log in with new password.
+(If added) Trigger “Forgot password?” → see simulated reset link → use token to reset.
+(If added) Use mock Google button → select demo account → show logged-in state.
+Use this as your talking guide; adjust wording to match what you actually shipped.

@@ -1,5 +1,4 @@
-import {loadPreferences, savePreferences} from './storage.js';
-
+import { loadPreferences, savePreferences } from "./storage.js";
 
 // apply color theme
 export const applyTheme = (themeName) => {
@@ -7,52 +6,50 @@ export const applyTheme = (themeName) => {
   const html = document.documentElement;
 
   // remove existing themes classes
-  body.classList.remove( 'light', 'dark', 'system');
-  html.classList.remove('light', 'dark', 'system');
+  body.classList.remove("light", "dark", "system");
+  html.classList.remove("light", "dark", "system");
 
-  if(themeName === 'system'){
+  if (themeName === "system") {
     // use prefers-color-scheme to determine theme
-      body.classList.add('system');
-      applySystemTheme();
-    }else if(themeName === 'dark'){
-      body.classList.add('dark');
-      html.classList.add('dark');
-    }else{
-      // default to light
-      body.classList.add('light');
-      html.classList.add('light');
-    }
+    body.classList.add("system");
+    applySystemTheme();
+  } else if (themeName === "dark") {
+    body.classList.add("dark");
+    html.classList.add("dark");
+  } else {
+    // default to light
+    body.classList.add("light");
+    html.classList.add("light");
+  }
 
-    // save theme to localStorage
-    savePreferences({colorTheme: themeName});
+  // save theme to localStorage
+  savePreferences({ colorTheme: themeName });
 
-    return themeName;
+  return themeName;
 };
-
 
 // apply system theme based on user's OS preference
 const applySystemTheme = () => {
   const body = document.body;
   const html = document.documentElement;
 
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  if(prefersDark){
-    body.classList.add('dark');
-    html.classList.add('dark');
-  }else{
-    body.classList.remove('dark');
-    html.classList.remove('dark');
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  if (prefersDark) {
+    body.classList.add("dark");
+    html.classList.add("dark");
+  } else {
+    body.classList.remove("dark");
+    html.classList.remove("dark");
   }
 };
 
 // listen for system theme changes
-const systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-systemThemeMediaQuery.addEventListener('change', () => {
-  if(document.body.classList.contains('system')){
+const systemThemeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+systemThemeMediaQuery.addEventListener("change", () => {
+  if (document.body.classList.contains("system")) {
     applySystemTheme();
   }
 });
-
 
 // apply font theme
 export const applyFont = (fontName) => {
@@ -60,8 +57,8 @@ export const applyFont = (fontName) => {
   const html = document.documentElement;
 
   // remove existing font classes
-  body.classList.remove('font-sans-serif', 'font-serif', 'font-monospace');
-  html.classList.remove('font-sans-serif', 'font-serif', 'font-monospace');
+  body.classList.remove("font-sans-serif", "font-serif", "font-monospace");
+  html.classList.remove("font-sans-serif", "font-serif", "font-monospace");
 
   // add new font class
   const fontClass = `font-${fontName}`;
@@ -69,29 +66,28 @@ export const applyFont = (fontName) => {
   html.classList.add(fontClass);
 
   // save font to localStorage
-  savePreferences({fontTheme: fontName});
+  savePreferences({ fontTheme: fontName });
 
   return fontName;
 };
-
 
 // initialize theme from localStorage on page load
 export const initThemeFromStorage = () => {
   const preferences = loadPreferences();
 
   // apply color theme
-  if(preferences.colorTheme){
+  if (preferences.colorTheme) {
     applyTheme(preferences.colorTheme);
-  }else{
+  } else {
     // default to light
-    applyTheme('system');
+    applyTheme("system");
   }
 
   // apply font theme
-  if(preferences.fontTheme){
+  if (preferences.fontTheme) {
     applyFont(preferences.fontTheme);
-  }else{
+  } else {
     // default to sans-serif
-    applyFont('sans-serif');
+    applyFont("sans-serif");
   }
-}
+};

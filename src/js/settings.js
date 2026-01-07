@@ -1,13 +1,13 @@
-import { getElementByType } from "./utils.js";
+import { getElementByType, trapFocus, restoreFocus } from "./utils.js";
 import { applyTheme, applyFont, initThemeFromStorage } from "./theme.js";
 import { savePreferences, loadPreferences } from "./storage.js";
-import {logout, changePassword} from "./auth.js";
+import { logout, changePassword } from "./auth.js";
 
 const initializeSettings = () => {
   // Clear all active states from menu links first (we're on settings page)
-  const allMenuLinks = document.querySelectorAll('.menu-item > a');
-  allMenuLinks.forEach(link => link.classList.remove('is-active'));
-  
+  const allMenuLinks = document.querySelectorAll(".menu-item > a");
+  allMenuLinks.forEach((link) => link.classList.remove("is-active"));
+
   // 1. get all elements
   const elements = {
     settingsSection: getElementByType("class", "settings-section"),
@@ -114,7 +114,7 @@ const initializeSettings = () => {
       'input[name="color-theme"]:checked'
     );
     if (checkedColorRadio) {
-      checkedColorRadio.closest('.color-theme-item').classList.add("is-active");
+      checkedColorRadio.closest(".color-theme-item").classList.add("is-active");
     }
 
     // remove active class from all font theme items
@@ -127,7 +127,7 @@ const initializeSettings = () => {
       'input[name="font-theme"]:checked'
     );
     if (checkedFontRadio) {
-      checkedFontRadio.closest('.font-theme-item').classList.add("is-active");
+      checkedFontRadio.closest(".font-theme-item").classList.add("is-active");
     }
   };
 
@@ -200,15 +200,14 @@ const initializeSettings = () => {
       // Trap focus after modal is visible
       cleanupFocusTrap = trapFocus(modal);
     }, 10);
-    
+
     // Close modal when clicking backdrop
     modal.addEventListener("click", (e) => {
       if (e.target.classList.contains("modal")) {
         closeModal();
       }
     });
-    
-    
+
     // Escape key handler
     const handleEscape = (e) => {
       if (e.key === "Escape") {
@@ -228,10 +227,9 @@ const initializeSettings = () => {
     logoutBtn.setAttribute("aria-label", "Confirm logout");
     logoutBtn.addEventListener("click", () => {
       const result = logout();
-      if(result.success){
-        window.location.href = './auth/login.html';
-      }else{
-       
+      if (result.success) {
+        window.location.href = "./auth/login.html";
+      } else {
         closeModal();
       }
     });
@@ -242,7 +240,7 @@ const initializeSettings = () => {
         cleanupFocusTrap();
         cleanupFocusTrap = null;
       }
-      
+
       modal.classList.remove("modal-open");
       modal.classList.add("modal-close");
       setTimeout(() => {
@@ -254,7 +252,6 @@ const initializeSettings = () => {
     }
   };
 
-
   // handle change password
   const handleChangePassword = (e) => {
     e.preventDefault();
@@ -264,7 +261,13 @@ const initializeSettings = () => {
     const confirmPasswordInput = document.getElementById("confirm-password");
     const submitButton = document.getElementById("change-password-btn");
 
-    if(!currentPasswordInput || !newPasswordInput || !confirmPasswordInput || !submitButton) return;
+    if (
+      !currentPasswordInput ||
+      !newPasswordInput ||
+      !confirmPasswordInput ||
+      !submitButton
+    )
+      return;
 
     const currentPassword = currentPasswordInput.value.trim();
     const newPassword = newPasswordInput.value.trim();
@@ -276,149 +279,146 @@ const initializeSettings = () => {
     // validate fields
     let hasErrors = false;
 
-    if(!currentPassword){
-      showPasswordError('current-password', 'Current password is required');
+    if (!currentPassword) {
+      showPasswordError("current-password", "Current password is required");
       hasErrors = true;
     }
 
-    if(!newPassword){
-      showPasswordError('new-password', 'New password is required');
+    if (!newPassword) {
+      showPasswordError("new-password", "New password is required");
       hasErrors = true;
-    }else if(newPassword.length < 8){
-      showPasswordError('new-password', 'New password must be at least 8 characters long');
-      hasErrors = true;
-    }
-
-    if(!confirmPassword){
-      showPasswordError('confirm-password', 'Confirm password is required');
-      hasErrors = true;
-    }else if(confirmPassword !== newPassword){
-      showPasswordError('confirm-password', 'Passwords do not match');
+    } else if (newPassword.length < 8) {
+      showPasswordError(
+        "new-password",
+        "New password must be at least 8 characters long"
+      );
       hasErrors = true;
     }
 
-    if(hasErrors){
+    if (!confirmPassword) {
+      showPasswordError("confirm-password", "Confirm password is required");
+      hasErrors = true;
+    } else if (confirmPassword !== newPassword) {
+      showPasswordError("confirm-password", "Passwords do not match");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
 
     // disable button during processing
     submitButton.disabled = true;
-    submitButton.textContent = 'Changing password...';
+    submitButton.textContent = "Changing password...";
 
     // attempt change password
     const result = changePassword(currentPassword, newPassword);
-    if(result.success){
-     
+    if (result.success) {
       showPasswordSuccess("Password changed successfully!");
 
       // clear form
-      currentPasswordInput.value = '';
-      newPasswordInput.value = '';
-      confirmPasswordInput.value = '';
-
+      currentPasswordInput.value = "";
+      newPasswordInput.value = "";
+      confirmPasswordInput.value = "";
 
       // reset button
       submitButton.disabled = false;
-      submitButton.textContent = 'Save Password';
-    }else{
+      submitButton.textContent = "Save Password";
+    } else {
       // show error message
-      if(result.message.toLowerCase().includes('current password')){
-        showPasswordError('current-password', result.message);
+      if (result.message.toLowerCase().includes("current password")) {
+        showPasswordError("current-password", result.message);
       } else {
-        showPasswordError('new-password', result.message);
+        showPasswordError("new-password", result.message);
       }
 
       submitButton.disabled = false;
-      submitButton.textContent = 'Save Password';
+      submitButton.textContent = "Save Password";
     }
-  }
+  };
 
-  
-  
   // helper functions
-  function showPasswordError(field, message){
+  function showPasswordError(field, message) {
     const input = document.getElementById(field);
-    if(!input) return;
-    
-    
+    if (!input) return;
+
     // remove existing error message
     clearPasswordFieldError(field);
-    
+
     // add error class
-    input.classList.add('form-input-error');
-    
+    input.classList.add("form-input-error");
+
     // create error element
-    const errorElement = document.createElement('p');
-    errorElement.classList.add('form-group-error');
-    
+    const errorElement = document.createElement("p");
+    errorElement.classList.add("form-group-error");
 
     // icon element
-    const iconElement = document.createElement('span');
-    iconElement.classList.add('form-group-error-icon');
+    const iconElement = document.createElement("span");
+    iconElement.classList.add("form-group-error-icon");
     iconElement.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
          <path d="M2 8C2 11.3133 4.68605 14 8 14C11.3139 14 14 11.3133 14 8C14 4.68605 11.3139 2 8 2C4.68605 2 2 4.68605 2 8Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
          <path d="M8.0038 10.4621V7.59573V10.4621ZM8 5.5695V5.52734V5.5695Z" fill="currentColor"/>
          <path d="M8.0038 10.4621V7.59573M8 5.5695V5.52734" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
          </svg>`;
-         
+
     // text element
-    const textSpan = document.createElement('span');
+    const textSpan = document.createElement("span");
     textSpan.textContent = message;
 
     // insert error after input wrapper
-    const formGroup = input.closest('.form-group');
-    if(formGroup){
-        const inputWrapper = formGroup.querySelector('.form-group-input');
-        if(inputWrapper){
-            formGroup.insertBefore(errorElement, inputWrapper.nextSibling);
-          } else {
-            formGroup.appendChild(errorElement);
-          }
-        }
+    const formGroup = input.closest(".form-group");
+    if (formGroup) {
+      const inputWrapper = formGroup.querySelector(".form-group-input");
+      if (inputWrapper) {
+        formGroup.insertBefore(errorElement, inputWrapper.nextSibling);
+      } else {
+        formGroup.appendChild(errorElement);
+      }
+    }
   }
 
   // clear error to clear password field errors
-  function clearPasswordFieldError(field){
+  function clearPasswordFieldError(field) {
     const input = document.getElementById(field);
 
-    if(!input) return;
+    if (!input) return;
 
-    input.classList.remove('form-input-error');
+    input.classList.remove("form-input-error");
 
-    const formGroup = input.closest('.form-group');
-    if(formGroup){
-      const errorElements = formGroup.querySelectorAll('.form-group-error');
-      errorElements.forEach(errorElement => {
-            errorElement.remove();
-          });
+    const formGroup = input.closest(".form-group");
+    if (formGroup) {
+      const errorElements = formGroup.querySelectorAll(".form-group-error");
+      errorElements.forEach((errorElement) => {
+        errorElement.remove();
+      });
     }
   }
 
   // clear all password errors
-  function clearPasswordErrors(){
-    clearPasswordFieldError('current-password');
-    clearPasswordFieldError('new-password');
-    clearPasswordFieldError('confirm-password');
+  function clearPasswordErrors() {
+    clearPasswordFieldError("current-password");
+    clearPasswordFieldError("new-password");
+    clearPasswordFieldError("confirm-password");
   }
-  
+
   // show success message
-  function showPasswordSuccess(message){
+  function showPasswordSuccess(message) {
     //  remove existing success message
-    const existingSuccess = document.querySelector('.password-success-message');
-    if(existingSuccess){
+    const existingSuccess = document.querySelector(".password-success-message");
+    if (existingSuccess) {
       existingSuccess.remove();
     }
 
     // create success element
-    const successElement = document.createElement('p');
-    successElement.classList.add('password-success-message');
+    const successElement = document.createElement("p");
+    successElement.classList.add("password-success-message");
     successElement.textContent = message;
-    
+
     // insert before submit button
-    const form = document.querySelector('.change-passwd-form');
-    const buttonWrapper = form.querySelector('.change-password-btn-wrapper');
-    if(form && buttonWrapper){
+    const form = document.querySelector(".change-passwd-form");
+    const buttonWrapper = form.querySelector(".change-password-btn-wrapper");
+    if (form && buttonWrapper) {
       form.insertBefore(successElement, buttonWrapper.previousSibling);
 
       setTimeout(() => {
@@ -429,51 +429,50 @@ const initializeSettings = () => {
 
   // setup password visibility toggles
   const setupPasswordToggles = () => {
-    const toggles = document.querySelectorAll('.show-password-toggle');
+    const toggles = document.querySelectorAll(".show-password-toggle");
 
-    toggles.forEach(toggle => {
+    toggles.forEach((toggle) => {
       // icon references
-      const iconShow = toggle.querySelector('.show-password-toggle-icon-show');
-      const iconHide = toggle.querySelector('.show-password-toggle-icon-hide');
+      const iconShow = toggle.querySelector(".show-password-toggle-icon-show");
+      const iconHide = toggle.querySelector(".show-password-toggle-icon-hide");
 
-      const inputWrapper = toggle.closest('.form-group-input');
+      const inputWrapper = toggle.closest(".form-group-input");
       const input = inputWrapper.querySelector('input[type="password"]');
 
-      if(!input) return;
+      if (!input) return;
 
       // initialize icon visibility
       const updateIconVisibility = () => {
-        const isPassword = input.type === 'password';
-        if(iconShow && iconHide){
-          if(isPassword){
-            iconShow.style.display = 'block';
-            iconHide.style.display = 'none';
-          }else{
-            iconShow.style.display = 'none';
-            iconHide.style.display = 'block';
+        const isPassword = input.type === "password";
+        if (iconShow && iconHide) {
+          if (isPassword) {
+            iconShow.style.display = "block";
+            iconHide.style.display = "none";
+          } else {
+            iconShow.style.display = "none";
+            iconHide.style.display = "block";
           }
         }
       };
 
-
       // initial icon visibility
       updateIconVisibility();
-      toggle.addEventListener('click', (e) => {
+      toggle.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
 
-          // toggle input type
-          input.type = input.type === 'password' ? 'text' : 'password';
+        // toggle input type
+        input.type = input.type === "password" ? "text" : "password";
 
-          // update icon visibility
-          updateIconVisibility();
+        // update icon visibility
+        updateIconVisibility();
 
-          // refocus input to prevent blur validation
-          input.focus();
-        });
+        // refocus input to prevent blur validation
+        input.focus();
       });
-  }
-  
+    });
+  };
+
   // password visibility toggles
   setupPasswordToggles();
   // ---------------------------------
@@ -498,11 +497,11 @@ const initializeSettings = () => {
       elements.appMainContainer[0].classList.remove("settings-section-open");
 
       // Don't call handleViewportChange() - it might interfere
-    // Just ensure nav is visible
-     const nav = document.querySelector('.app-main-container-nav');
-     if (nav && window.innerWidth < 1024) {
-      nav.style.display = 'flex';
-     }
+      // Just ensure nav is visible
+      const nav = document.querySelector(".app-main-container-nav");
+      if (nav && window.innerWidth < 1024) {
+        nav.style.display = "flex";
+      }
       // handleViewportChange();
     });
   });
@@ -519,7 +518,7 @@ const initializeSettings = () => {
 
   // handle logout link
   const logoutLink = document.querySelector("a[href='./auth/logout.html']");
-  if(logoutLink){
+  if (logoutLink) {
     logoutLink.addEventListener("click", handleLogout);
   }
 
@@ -527,7 +526,7 @@ const initializeSettings = () => {
   // These should navigate to index.html
   const allNotesLink = document.querySelector(".all-notes-link");
   if (allNotesLink) {
-    allNotesLink.addEventListener("click", (e) => {
+    allNotesLink.addEventListener("click", () => {
       // Let the link navigate naturally to index.html
       // No preventDefault needed since href is set
     });
@@ -535,7 +534,7 @@ const initializeSettings = () => {
 
   const archivedNotesLink = document.querySelector(".archived-notes-link");
   if (archivedNotesLink) {
-    archivedNotesLink.addEventListener("click", (e) => {
+    archivedNotesLink.addEventListener("click", () => {
       // Update href to navigate to index.html
       archivedNotesLink.href = "./index.html";
       // Let the link navigate naturally
@@ -592,21 +591,20 @@ const initializeSettings = () => {
 
   // set initial active section
   setActiveSection("color-theme-settings");
-  
+
   // Note: Settings link only exists on index.html, not on settings.html itself
   // Active states are cleared at the start of this function
 
   // initialize theme from storage
   initThemeFromStorage();
 
-
   restoreThemeSelection();
   handleViewportChange();
 };
 
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', () =>{
-    if(document.querySelector(".settings-section")){
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.querySelector(".settings-section")) {
       initializeSettings();
     }
   });

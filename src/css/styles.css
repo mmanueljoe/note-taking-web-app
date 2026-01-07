@@ -185,8 +185,11 @@ h6 {
 
 input,
 button,
-textarea,ul, li, a {
-  font-family: 'Inter', sans-serif;
+textarea,
+ul,
+li,
+a {
+  font-family: "Inter", sans-serif;
 }
 
 /* Accessibility: Visible focus indicators for keyboard navigation */
@@ -347,7 +350,7 @@ button {
   color: var(--text-primary);
 }
 
-.empty-state-submessage{
+.empty-state-submessage {
   padding: var(--spacing-100);
   background-color: var(--background-primary);
   border-radius: var(--radius-8);
@@ -355,7 +358,7 @@ button {
   border: 1px solid var(--border-secondary);
 }
 
-.empty-state-submessage > a{
+.empty-state-submessage > a {
   color: var(--text-primary);
   cursor: pointer;
   text-decoration: underline;
@@ -435,6 +438,13 @@ button {
 .validation-error {
   color: var(--error-color, #dc3545);
   font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Inline helper text for form fields (e.g., location status) */
+.form-helper-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
   margin-top: 0.25rem;
 }
 
@@ -588,16 +598,9 @@ button {
   display: none;
 }
 
-
 /* app main container styling starts here */
-/* .app-main-container-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  height: 100%;
-} */
 
-.app-main-container-content .notes-list{
+.app-main-container-content .notes-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -633,7 +636,7 @@ button {
 
 /* Search highlighting styles */
 mark {
-  background-color: var(--highlight-background, rgba(255, 255, 0, 0.3));
+  background-color: var(--highlight-background);
   color: var(--highlight-text, inherit);
   padding: 0.1em 0.2em;
   border-radius: 2px;
@@ -642,12 +645,12 @@ mark {
 
 [data-theme="dark"] mark,
 .dark mark {
-  background-color: var(--highlight-background, rgba(255, 255, 0, 0.4));
+  background-color: var(--highlight-background);
 }
 
 [data-theme="light"] mark,
 .light mark {
-  background-color: var(--highlight-background, rgba(255, 255, 0, 0.3));
+  background-color: var(--highlight-background);
 }
 
 .app-main-container-content .notes-list .note-card .note-tags {
@@ -668,24 +671,29 @@ mark {
   padding: 0.2rem;
 }
 
-.note-card.is-selected{
+.note-card.is-selected {
   background-color: var(--background-primary);
   border-radius: var(--radius-6);
   border: none;
 }
 
 /* mobile/tablet note details styling starts here */
-.note-details-header-actions{
+.note-details-header-actions {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
   border-bottom: 1px solid var(--border-secondary);
+  color: var(--text-primary-light);
 }
 
-.note-details-left{
+.note-details-header-actions .save-button {
+  color: var(--blue-500);
+}
+
+.note-details-left {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -693,7 +701,7 @@ mark {
   gap: 0.5rem;
 }
 
-.note-details-left > button{
+.note-details-left > button {
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -701,9 +709,17 @@ mark {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-8);
+  font-size: var(--sans-serif-preset-4-size);
+  font-weight: var(--sans-serif-preset-4-letter-weight);
+  line-height: var(--sans-serif-preset-4-line-height);
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.note-details-left > button > .back-button-label{
+.note-details-left > button > .back-button-label {
   font-size: var(--sans-serif-preset-5-size);
   font-weight: var(--sans-serif-preset-5-letter-weight);
   line-height: var(--sans-serif-preset-5-line-height);
@@ -711,18 +727,18 @@ mark {
   color: var(--text-tertiary);
 }
 
-.note-details-left > button > svg{
+.note-details-left > button > svg {
   color: var(--text-tertiary);
 }
 
-.note-details-right{
+.note-details-right {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
 }
 
-.note-details-right > button{
+.note-details-right > button {
   background-color: transparent;
   font-size: var(--sans-serif-preset-5-size);
   font-weight: var(--sans-serif-preset-5-letter-weight);
@@ -732,12 +748,12 @@ mark {
   border: none;
 }
 
-.note-details-right > button > svg{
+.note-details-right > button > svg {
   color: var(--text-tertiary);
 }
 
 /* modal styles starts here */
-.modal{
+.modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -752,16 +768,16 @@ mark {
   transition: opacity 0.3s ease-in-out;
 }
 
-.modal.modal-open{
+.modal.modal-open {
   opacity: 1;
 }
 
-.modal.modal-close{
+.modal.modal-close {
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
 
-.modal-content{
+.modal-content {
   background-color: var(--background-secondary);
   border-radius: var(--radius-8);
   box-shadow: var(--shadow-lg);
@@ -776,15 +792,15 @@ mark {
   transition: transform 0.3s ease-in-out;
 }
 
-.modal.modal-open .modal-content{
+.modal.modal-open .modal-content {
   transform: scale(1);
 }
 
-.modal.modal-close .modal-content{
+.modal.modal-close .modal-content {
   transform: scale(0.9);
 }
 
-.modal-icon{
+.modal-icon {
   width: 48px;
   height: 48px;
   display: flex;
@@ -795,7 +811,7 @@ mark {
   flex-shrink: 0;
 }
 
-.modal-content-top{
+.modal-content-top {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -805,7 +821,7 @@ mark {
   border-bottom: 1px solid var(--border-tertiary);
 }
 
-.modal-label h2{
+.modal-label h2 {
   font-size: var(--sans-serif-preset-3-size);
   font-weight: var(--sans-serif-preset-3-letter-weight);
   line-height: var(--sans-serif-preset-3-line-height);
@@ -814,7 +830,7 @@ mark {
   margin-bottom: var(--spacing-050);
 }
 
-.modal-label p{
+.modal-label p {
   font-size: var(--sans-serif-preset-5-size);
   font-weight: var(--sans-serif-preset-5-letter-weight);
   line-height: var(--sans-serif-preset-5-line-height);
@@ -822,7 +838,7 @@ mark {
   color: var(--text-secondary);
 }
 
-.modal-buttons{
+.modal-buttons {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -831,14 +847,15 @@ mark {
   padding: var(--spacing-200) var(--spacing-250);
 }
 
-
-.modal-buttons .modal-cancel-button, .modal-delete-button, .modal-archive-button{
+.modal-buttons .modal-cancel-button,
+.modal-delete-button,
+.modal-archive-button {
   padding: var(--spacing-150) var(--spacing-200);
   border: none;
   border-radius: var(--radius-8);
 }
 
-.modal-buttons .modal-cancel-button{
+.modal-buttons .modal-cancel-button {
   background-color: var(--background-primary);
   font-size: var(--sans-serif-preset-4-size);
   font-weight: var(--sans-serif-preset-4-letter-weight);
@@ -847,7 +864,7 @@ mark {
   color: var(--text-tertiary);
 }
 
-.modal-buttons .modal-delete-button{
+.modal-buttons .modal-delete-button {
   background-color: var(--red-500);
   font-size: var(--sans-serif-preset-4-size);
   font-weight: var(--sans-serif-preset-4-letter-weight);
@@ -856,7 +873,7 @@ mark {
   color: var(--btn-textWhite);
 }
 
-.modal-buttons .modal-archive-button{
+.modal-buttons .modal-archive-button {
   background-color: var(--blue-500);
   font-size: var(--sans-serif-preset-4-size);
   font-weight: var(--sans-serif-preset-4-letter-weight);
@@ -867,7 +884,7 @@ mark {
 /* modal styles ends here */
 
 /* note details content styling starts here */
-.note-details-content{
+.note-details-content {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-150);
@@ -876,7 +893,7 @@ mark {
   border: none;
 }
 
-.note-details-content .note-details-title{
+.note-details-content .note-details-title {
   width: 100%;
   border: none;
   outline: none;
@@ -893,7 +910,7 @@ mark {
   opacity: 1;
 }
 
-.note-details-content .note-details-meta{
+.note-details-content .note-details-meta {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-150);
@@ -901,17 +918,15 @@ mark {
   border-bottom: 1px solid var(--border-tertiary);
 }
 
-
-.note-details-tags, 
-.note-details-location, 
-.note-details-date, 
-.note-details-status{
+.note-details-tags,
+.note-details-location,
+.note-details-date,
+.note-details-status {
   display: grid;
   grid-template-columns: 120px 1fr;
   gap: 1rem;
   align-items: center;
 }
-
 
 /* Ensure labels align consistently */
 .note-details-tags > span,
@@ -952,7 +967,7 @@ mark {
   color: var(--text-primary);
 }
 
-.note-details-body{
+.note-details-body {
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -990,7 +1005,7 @@ mark {
   overflow-y: auto; /* Scroll content area, not the whole form */
 }
 
-#create-note-form #note-content{
+#create-note-form #note-content {
   min-height: 200px;
   max-height: none;
   height: 100%;
@@ -1001,8 +1016,7 @@ mark {
   flex-shrink: 1;
 }
 
-
-.note-details-body:focus{
+.note-details-body:focus {
   outline: none;
 }
 
@@ -1025,7 +1039,6 @@ mark {
   white-space: wrap; /* Allow text to wrap */
   word-wrap: break-word; /* Break long words */
   overflow-wrap: break-word; /* Modern property */
-
 }
 
 #create-note-form #note-tags.note-details-tags-input::placeholder {
@@ -1086,7 +1099,6 @@ mark {
   transition: all 0.2s;
 }
 
-
 #create-note-form .location-button:hover {
   border-color: var(--blue-500);
   opacity: 0.9;
@@ -1099,21 +1111,18 @@ mark {
   border-color: var(--blue-500);
 }
 
-#create-note-form #note-content{
+#create-note-form #note-content {
   height: 100%;
   margin-top: 1rem;
-
 }
 
-#create-note-form #note-content:focus{
+#create-note-form #note-content:focus {
   outline: none;
 }
 
 /* note create form styling ends here */
 
 /* app main container styling ends here */
-
-
 
 /* Mobile tags styling - styled like desktop aside tags but with border-bottom */
 .tags-section-sm {
@@ -1250,8 +1259,10 @@ mark {
   --border-error: var(--red-500);
   --border-error-focus: var(--red-500);
 
-
   --icon-borderColor: var(--neutral-400);
+
+  --highlight-background: var(--blue-500);
+  --highlight-text: var(--neutral-0);
 }
 
 .light {
@@ -1279,9 +1290,11 @@ mark {
   --outline-primary: var(--neutral-950);
   --outline-secondary: var(--neutral-500);
 
-
   --icon-bordercolorPrimary: var(--neutral-600);
   --icon-bordercolorSecondary: var(--neutral-500);
+
+  --highlight-background: var(--blue-500);
+  --highlight-text: var(--neutral-0);
 }
 
 /* prefers dark theme */
@@ -1328,18 +1341,17 @@ mark {
     border-radius: var(--radius-8);
     font-size: var(--sans-serif-preset-5-size);
   }
-  
 
   #create-note-form .form-group:has(label[for="note-tags"]) {
     grid-template-columns: 1fr;
     gap: 0.5rem;
     align-items: flex-start;
   }
-  
+
   #create-note-form .form-group:has(label[for="note-tags"]) > input {
     grid-column: 1;
   }
-  
+
   #create-note-form #note-tags {
     width: 100% !important;
     min-width: 0 !important;
@@ -1347,7 +1359,6 @@ mark {
   }
 
   .toast-notification {
-
     min-width: 300px;
     max-width: 400px;
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
@@ -1423,7 +1434,6 @@ mark {
     color: var(--text-primary);
     border: 1px solid var(--border-secondary);
   }
-
 
   .app-main-container-header {
     grid-column: 1 / span 2;
@@ -1535,8 +1545,8 @@ mark {
     color: var(--text-primary);
   }
 
-   /* Hide arrow by default, show only when link is active */
-   .menu-item .menu-item-arrow.desktop-only {
+  /* Hide arrow by default, show only when link is active */
+  .menu-item .menu-item-arrow.desktop-only {
     display: none;
     color: var(--text-primary);
   }
@@ -1573,7 +1583,8 @@ mark {
     border-radius: var(--radius-8);
   }
 
-  .all-notes-link.is-active > div svg, .archived-notes-link.is-active > div svg {
+  .all-notes-link.is-active > div svg,
+  .archived-notes-link.is-active > div svg {
     color: var(--blue-500);
   }
 
@@ -1581,7 +1592,8 @@ mark {
     justify-content: space-between;
   }
 
-  .all-notes-link-content, .archived-notes-link-content {
+  .all-notes-link-content,
+  .archived-notes-link-content {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -1648,7 +1660,7 @@ mark {
     padding: 0.2rem;
   }
 
-  .note-card.is-selected{
+  .note-card.is-selected {
     border: none;
   }
 
@@ -1732,7 +1744,7 @@ mark {
   }
 
   /* note details content styling starts here */
-  .note-details-wrapper{
+  .note-details-wrapper {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -1788,7 +1800,6 @@ mark {
   }
 }
 
-
 /* Touch-friendly button sizes (WCAG 2.5.5 - minimum 44x44px) */
 button,
 .note-card,
@@ -1806,19 +1817,19 @@ button,
     max-height: 100vh;
     overflow-y: auto;
   }
-  
+
   .app-main-container-nav {
     /* Ensure nav doesn't take too much vertical space in landscape */
     max-height: calc(100vh - 3.375rem);
     overflow-y: auto;
   }
-  
+
   .app-main-container-content {
     /* Optimize content area for landscape */
     max-height: calc(100vh - 3.375rem);
     overflow-y: auto;
   }
-  
+
   /* Adjust header for landscape */
   .app-main-container-header {
     position: sticky;

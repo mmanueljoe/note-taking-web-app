@@ -92,7 +92,6 @@ export const searchNotes = (query) => {
   );
 };
 
-
 // filter notes by tag
 export const filterByTag = (tag) => {
   const notes = loadNotes();
@@ -116,7 +115,6 @@ export const getUnarchivedNotes = () => {
   const notes = loadNotes();
   return notes.filter((note) => !note.isArchived);
 };
-
 
 // get note by id
 export const getNoteById = (id) => {

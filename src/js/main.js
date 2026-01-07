@@ -1,757 +1,766 @@
-import * as storage from './storage.js';
-import * as noteManager from './noteManager.js';
-import * as ui from './ui.js';
-import * as theme from './theme.js';
-import * as geolocation from './geolocation.js';
-import { formatDate } from './utils.js';
-import { isAuthenticated } from './auth.js';
-
+import * as storage from "./storage.js";
+import * as noteManager from "./noteManager.js";
+import * as ui from "./ui.js";
+import * as theme from "./theme.js";
+import * as geolocation from "./geolocation.js";
+import { formatDate } from "./utils.js";
+import { isAuthenticated } from "./auth.js";
 
 // check if user is authenticated
-function checkAuth(){
-    // Don't check auth on login/signup pages
-    const currentPath = window.location.pathname;
-    if (currentPath.includes('/auth/')) {
-        return true; // Skip auth check on auth pages
-    }
-    
-    if(!isAuthenticated()){
-        // redirect to login page
-        window.location.href = './auth/login.html';
-        return false;
-    }
-    return true;
+function checkAuth() {
+  // Don't check auth on login/signup pages
+  const currentPath = window.location.pathname;
+  if (currentPath.includes("/auth/")) {
+    return true; // Skip auth check on auth pages
+  }
+
+  if (!isAuthenticated()) {
+    // redirect to login page
+    window.location.href = "./auth/login.html";
+    return false;
+  }
+  return true;
 }
 
 // validation rules
 const VALIDATION_RULES = {
-    title: {
-        required: true,
-        minLength: 3,
-        maxLength: 100,
-        message: 'Title is required and must be between 3 and 100 characters.',
-    },
-    content: {
-        required: true,
-        minLength: 10,
-        maxLength: 1000,
-        message: 'Content is required and must be between 10 and 1000 characters.',
-    },
-    tags: {
-        required: true,
-        minLength: 1,
-        maxLength: 10,
-        message: 'Tags are required and must be between 1 and 10 tags.',
-    },
-    location: {
-        required: false,
-        message: 'Location is optional.',
-    },
-}
+  title: {
+    required: true,
+    minLength: 3,
+    maxLength: 100,
+    message: "Title is required and must be between 3 and 100 characters.",
+  },
+  content: {
+    required: true,
+    minLength: 10,
+    maxLength: 1000,
+    message: "Content is required and must be between 10 and 1000 characters.",
+  },
+  tags: {
+    required: true,
+    minLength: 1,
+    maxLength: 10,
+    message: "Tags are required and must be between 1 and 10 tags.",
+  },
+  location: {
+    required: false,
+    message: "Location is optional.",
+  },
+};
 
 // validate a single field
-function validateField(fieldId, value){
-    const field = VALIDATION_RULES[fieldId];
-    if(!field) return {isValid: true};
+function validateField(fieldId, value) {
+  const field = VALIDATION_RULES[fieldId];
+  if (!field) return { isValid: true };
 
-    const trimmedValue = value.trim();
+  const trimmedValue = value.trim();
 
-    if(field.required && !trimmedValue){
-        return {
-            isValid: false,
-            message: `${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} is required.`
-        };
-    }
+  if (field.required && !trimmedValue) {
+    return {
+      isValid: false,
+      message: `${
+        fieldId.charAt(0).toUpperCase() + fieldId.slice(1)
+      } is required.`,
+    };
+  }
 
-    if(field.minLength && trimmedValue.length < field.minLength){
-        return {
-            isValid: false,
-            message: field.message || `${fieldId} must be at least ${field.minLength} characters.`
-        };
-    }
+  if (field.minLength && trimmedValue.length < field.minLength) {
+    return {
+      isValid: false,
+      message:
+        field.message ||
+        `${fieldId} must be at least ${field.minLength} characters.`,
+    };
+  }
 
-    return { isValid: true};
+  return { isValid: true };
 }
 
 // check if entire form is valid
-function isFormValid(){
-    const titleInput = document.getElementById("note-title");
-    const contentInput = document.getElementById("note-content");
+function isFormValid() {
+  const titleInput = document.getElementById("note-title");
+  const contentInput = document.getElementById("note-content");
 
-    if(!titleInput || !contentInput) return false;
+  if (!titleInput || !contentInput) return false;
 
-    const titleValidation = validateField("title", titleInput.value);
-    const contentValidation = validateField('content', contentInput.value);
+  const titleValidation = validateField("title", titleInput.value);
+  const contentValidation = validateField("content", contentInput.value);
 
-    return titleValidation.isValid && contentValidation.isValid;
+  return titleValidation.isValid && contentValidation.isValid;
 }
 
 // update submit button state
-function updateSubmitButtonState(){
-    const submitButton = document.getElementById("create-note-btn");
+function updateSubmitButtonState() {
+  const submitButton = document.getElementById("create-note-btn");
 
-    if(!submitButton) return;
+  if (!submitButton) return;
 
-    const valid = isFormValid();
-    submitButton.disabled = !valid;
-    submitButton.classList.toggle('disabled', !valid);
+  const valid = isFormValid();
+  submitButton.disabled = !valid;
+  submitButton.classList.toggle("disabled", !valid);
 }
 
 // helper function to refresh everything
 function refreshNotes() {
-    // check what view the user is currently on
-    const isArchivedView = document.querySelector('.archived-notes-link.is-active');
+  // check what view the user is currently on
+  const isArchivedView = document.querySelector(
+    ".archived-notes-link.is-active"
+  );
 
-    if(isArchivedView){
-        const archivedNotes = noteManager.getArchivedNotes();
-        ui.renderAllNotes(archivedNotes, null, 'archived');
-    } else {
-        const unarchivedNotes = noteManager.getUnarchivedNotes();
-        ui.renderAllNotes(unarchivedNotes, null, 'all');
-    }
+  if (isArchivedView) {
+    const archivedNotes = noteManager.getArchivedNotes();
+    ui.renderAllNotes(archivedNotes, null, "archived");
+  } else {
+    const unarchivedNotes = noteManager.getUnarchivedNotes();
+    ui.renderAllNotes(unarchivedNotes, null, "all");
+  }
 
-    // render tags links
-    const uniqueTags = ui.getAllUniqueTags();
-    ui.renderTagLinks(uniqueTags);
+  // render tags links
+  const uniqueTags = ui.getAllUniqueTags();
+  ui.renderTagLinks(uniqueTags);
 }
 
-
-// Track previous viewport state
-// Note: Tablet (< 1024px) is treated the same as mobile - both use content area for notes
-// Desktop (>= 1024px) uses nav sidebar for notes
-let previousViewport = window.innerWidth >= 1024 ? 'desktop' : 'mobile-tablet';
+let previousViewport = window.innerWidth >= 1024 ? "desktop" : "mobile-tablet";
 
 // Handle viewport changes (mobile/tablet < 1024px, desktop >= 1024px)
 function handleViewportChange() {
-    // Breakpoint: < 1024px = mobile/tablet (same behavior), >= 1024px = desktop
-    const currentViewport = window.innerWidth >= 1024 ? 'desktop' : 'mobile-tablet';
-    
-    // Only handle if viewport actually changed
-    if (currentViewport !== previousViewport) {
-        const isDesktop = currentViewport === 'desktop';
-        const contentContainer = document.querySelector('.app-main-container-content');
-        
-        if (isDesktop) {
-            // Switched to desktop: clear content area and re-render notes in nav
-            // (Mobile and tablet both use content area, desktop uses nav sidebar)
-            if (contentContainer) {
-                // Preserve tags menu and note details wrapper
-                // const tagsMenu = contentContainer.querySelector('#tags-menu-sm');
-                // const noteDetails = contentContainer.querySelector('.note-details-wrapper');
-                const children = Array.from(contentContainer.children);
-                children.forEach((child) => {
-                    // Only remove notes list, not tags menu or note details
-                    if (child.id !== 'tags-menu-sm' && !child.classList.contains('note-details-wrapper')) {
-                        child.remove();
-                    }
-                });
-            }
-            
-            // Re-render notes in the correct location (nav container for desktop)
-            const currentViewType = document.querySelector('.archived-notes-link.is-active') ? 'archived' : 'all';
-            const archivedNotes = noteManager.getArchivedNotes();
-            const unarchivedNotes = noteManager.getUnarchivedNotes();
-            
-            if (currentViewType === 'archived') {
-                ui.renderAllNotes(archivedNotes, null, 'archived');
-            } else {
-                ui.renderAllNotes(unarchivedNotes, null, 'all');
-            }
-            
-            // Remove has-note-selected class if no note is selected
-            const appMainContainer = document.querySelector('.app-main-container');
-            const selectedNote = document.querySelector('.note-card.is-selected');
-            const noteDetails = document.querySelector('.note-details-wrapper');
-            if (!selectedNote && !noteDetails && appMainContainer) {
-                appMainContainer.classList.remove('has-note-selected');
-                const actionsColumn = document.querySelector('.app-main-container-actions');
-                if (actionsColumn) {
-                    actionsColumn.remove();
-                }
-            }
-        } else {
-            // Switched to mobile/tablet: ensure notes are in content area
-            // (Both mobile and tablet use the same layout - content area for notes)
-            const currentViewType = document.querySelector('.archived-notes-link.is-active') ? 'archived' : 'all';
-            const archivedNotes = noteManager.getArchivedNotes();
-            const unarchivedNotes = noteManager.getUnarchivedNotes();
-            
-            if (currentViewType === 'archived') {
-                ui.renderAllNotes(archivedNotes, null, 'archived');
-            } else {
-                ui.renderAllNotes(unarchivedNotes, null, 'all');
-            }
+  // Breakpoint: < 1024px = mobile/tablet (same behavior), >= 1024px = desktop
+  const currentViewport =
+    window.innerWidth >= 1024 ? "desktop" : "mobile-tablet";
+
+  // Only handle if viewport actually changed
+  if (currentViewport !== previousViewport) {
+    const isDesktop = currentViewport === "desktop";
+    const contentContainer = document.querySelector(
+      ".app-main-container-content"
+    );
+
+    if (isDesktop) {
+      if (contentContainer) {
+        // Preserve tags menu and note details wrapper
+        const children = Array.from(contentContainer.children);
+        children.forEach((child) => {
+          // Only remove notes list, not tags menu or note details
+          if (
+            child.id !== "tags-menu-sm" &&
+            !child.classList.contains("note-details-wrapper")
+          ) {
+            child.remove();
+          }
+        });
+      }
+
+      // Re-render notes in the correct location (nav container for desktop)
+      const currentViewType = document.querySelector(
+        ".archived-notes-link.is-active"
+      )
+        ? "archived"
+        : "all";
+      const archivedNotes = noteManager.getArchivedNotes();
+      const unarchivedNotes = noteManager.getUnarchivedNotes();
+
+      if (currentViewType === "archived") {
+        ui.renderAllNotes(archivedNotes, null, "archived");
+      } else {
+        ui.renderAllNotes(unarchivedNotes, null, "all");
+      }
+
+      // Remove has-note-selected class if no note is selected
+      const appMainContainer = document.querySelector(".app-main-container");
+      const selectedNote = document.querySelector(".note-card.is-selected");
+      const noteDetails = document.querySelector(".note-details-wrapper");
+      if (!selectedNote && !noteDetails && appMainContainer) {
+        appMainContainer.classList.remove("has-note-selected");
+        const actionsColumn = document.querySelector(
+          ".app-main-container-actions"
+        );
+        if (actionsColumn) {
+          actionsColumn.remove();
         }
-        
-        previousViewport = currentViewport;
+      }
+    } else {
+      // Switched to mobile/tablet: ensure notes are in content area
+      // (Both mobile and tablet use the same layout - content area for notes)
+      const currentViewType = document.querySelector(
+        ".archived-notes-link.is-active"
+      )
+        ? "archived"
+        : "all";
+      const archivedNotes = noteManager.getArchivedNotes();
+      const unarchivedNotes = noteManager.getUnarchivedNotes();
+
+      if (currentViewType === "archived") {
+        ui.renderAllNotes(archivedNotes, null, "archived");
+      } else {
+        ui.renderAllNotes(unarchivedNotes, null, "all");
+      }
     }
+
+    previousViewport = currentViewport;
+  }
 }
 
 // Initialize app, set up event listeners, and load data
 const initializeApp = () => {
-    // Don't initialize on settings page
-    if(document.querySelector('.settings-section')){
-        return;
-    }
-    
-    // check if user is authenticated
-    if(!checkAuth()){
-        return;
-    }
+  // Don't initialize on settings page
+  if (document.querySelector(".settings-section")) {
+    return;
+  }
 
-    // get all notes
-    const allNotes = noteManager.getAllNotes();
+  // check if user is authenticated
+  if (!checkAuth()) {
+    return;
+  }
 
-    // render all notes
-    ui.renderAllNotes(allNotes);
+  // get all notes
+  const allNotes = noteManager.getAllNotes();
 
-    // Set initial active state for "All Notes" link
-    ui.setMenuLinkActive('.all-notes-link');
+  // render all notes
+  ui.renderAllNotes(allNotes);
 
+  // Set initial active state for "All Notes" link
+  ui.setMenuLinkActive(".all-notes-link");
 
-    //  get unique tags
-    const uniqueTags = ui.getAllUniqueTags();
+  //  get unique tags
+  const uniqueTags = ui.getAllUniqueTags();
 
-    // render tags links (desktop)
-    ui.renderTagLinks(uniqueTags);
+  // render tags links (desktop)
+  ui.renderTagLinks(uniqueTags);
 
-    // initialize tags menu(mobile/tablet)
-    ui.initializeTagsMenu();
+  // initialize tags menu(mobile/tablet)
+  ui.initializeTagsMenu();
 
-    // initialize theme from localStorage
-    theme.initThemeFromStorage();
+  // initialize theme from localStorage
+  theme.initThemeFromStorage();
 
-    // setup event listeners
-    setupEventListeners();
-
-}
-
+  // setup event listeners
+  setupEventListeners();
+};
 
 // event listeners
 function setupEventListeners() {
+  // === create note ===
+  // create note desktop only
+  const desktopCreateBtn = document.querySelector(".add-note-btn.desktop-only");
+  if (desktopCreateBtn) {
+    desktopCreateBtn.addEventListener("click", () => {
+      showCreateNoteForm();
+    });
+  }
 
-    // === create note ===
-    // create note desktop only
-    const desktopCreateBtn = document.querySelector(".add-note-btn.desktop-only");
-    if(desktopCreateBtn) {
-        desktopCreateBtn.addEventListener("click", () => {
-            showCreateNoteForm();
-        });
+  // create note mobile/tablet only
+  const mobileTabletCreateBtn = document.querySelector(
+    ".addNote-btn.mobile-tablet-only"
+  );
+  if (mobileTabletCreateBtn) {
+    mobileTabletCreateBtn.addEventListener("click", () => {
+      showCreateNoteForm();
+    });
+  }
+
+  // create note from archived empty-state "create a new note" link
+  document.addEventListener("showCreateNoteForm", () => {
+    showCreateNoteForm();
+  });
+
+  // === delete note ===
+  document.addEventListener("deleteNote", (e) => {
+    const { noteId } = e.detail;
+    noteManager.deleteNote(noteId);
+    refreshNotes();
+
+    // clear note detail view if it was open
+    const detailContainer = document.querySelector(
+      ".app-main-container-content"
+    );
+    if (detailContainer) {
+      detailContainer.innerHTML = "";
     }
 
-    // create note mobile/tablet only
-    const mobileTabletCreateBtn = document.querySelector(".addNote-btn.mobile-tablet-only");
-    if(mobileTabletCreateBtn) {
-        mobileTabletCreateBtn.addEventListener("click", () => {
-            showCreateNoteForm();
-        });
+    // remove 3-column layout
+    const appMainContainer = document.querySelector(".app-main-container");
+    if (appMainContainer) {
+      appMainContainer.classList.remove("has-note-selected");
     }
 
-    // === delete note ===
-    document.addEventListener("deleteNote", (e) => {
-        const { noteId } = e.detail;
-        noteManager.deleteNote(noteId);
-        refreshNotes();
+    // clear actions columns
+    const actionsColumn = document.querySelector(".app-main-container-actions");
+    if (actionsColumn) {
+      actionsColumn.innerHTML = "";
+    }
 
-        // clear note detail view if it was open
-        const detailContainer = document.querySelector('.app-main-container-content');
-        if(detailContainer){
-            detailContainer.innerHTML = "";
+    // show toast notification
+    ui.showToastDeleted();
+  });
+
+  // === save note (from detail view) ===
+  document.addEventListener("saveNote", (e) => {
+    const { noteId, title, content, tags } = e.detail;
+
+    // update the note
+    noteManager.updateNote(noteId, { title, content, tags });
+
+    // refresh the display
+    refreshNotes();
+
+    // show toast notification
+    ui.showToastSaved();
+  });
+
+  // === all notes link ===
+  const allNotesLink = document.querySelector(".all-notes-link");
+  if (allNotesLink) {
+    allNotesLink.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      // clear content area
+      const contentContainer = document.querySelector(
+        ".app-main-container-content"
+      );
+      if (contentContainer) {
+        const formWrapper = contentContainer.querySelector(
+          ".note-details-wrapper"
+        );
+        if (formWrapper) {
+          formWrapper.remove();
         }
+      }
 
-        // remove 3-column layout
-        const appMainContainer = document.querySelector('.app-main-container');
-        if(appMainContainer){
-            appMainContainer.classList.remove('has-note-selected');
-        }
+      //clear the has-note-selected class if it exists
+      const appMainContainer = document.querySelector(".app-main-container");
+      if (appMainContainer) {
+        appMainContainer.classList.remove("has-note-selected");
+      }
 
-        // clear actions columns
-        const actionsColumn = document.querySelector('.app-main-container-actions');
-        if(actionsColumn){
-            actionsColumn.innerHTML = "";
-        }
+      // clear the actions column
+      const actionsColumn = document.querySelector(
+        ".app-main-container-actions"
+      );
+      if (actionsColumn) {
+        actionsColumn.remove();
+      }
 
-        // show toast notification
-        ui.showToastDeleted();
+      // render the notes
+      const unarchivedNotes = noteManager.getUnarchivedNotes();
+      ui.renderAllNotes(unarchivedNotes, null, "all");
+
+      ui.toggleArchiveView(false);
     });
+  }
 
-    // === save note (from detail view) ===
-    document.addEventListener("saveNote", (e) => {
-        const {noteId, title, content, tags} = e.detail;
+  // === archived note ===
+  const archiveNoteLink = document.querySelector(".archived-notes-link");
+  if (archiveNoteLink) {
+    archiveNoteLink.addEventListener("click", (e) => {
+      e.preventDefault();
 
-        // update the note
-        noteManager.updateNote(noteId, {title, content, tags});
+      //clear the content area
+      const contentContainer = document.querySelector(
+        ".app-main-container-content"
+      );
+      if (contentContainer) {
+        const formWrapper = contentContainer.querySelector(
+          ".note-details-wrapper"
+        );
+        if (formWrapper) {
+          formWrapper.remove();
+        }
+      }
 
-        // refresh the display
-        refreshNotes();
-        
-        // show toast notification
-        ui.showToastSaved();
+      // remove has-note-selected class if it exists
+      const appMainContainer = document.querySelector(".app-main-container");
+      if (appMainContainer) {
+        appMainContainer.classList.remove("has-note-selected");
+      }
+
+      // clear the actions column
+      const actionsColumn = document.querySelector(
+        ".app-main-container-actions"
+      );
+      if (actionsColumn) {
+        actionsColumn.remove();
+      }
+
+      // render the notes
+      const archivedNotes = noteManager.getArchivedNotes();
+      ui.renderAllNotes(archivedNotes, null, "archived");
+
+      ui.toggleArchiveView(true);
     });
+  }
 
-    // === all notes link ===
+  // === filter notes by tag ===
+  document.addEventListener("filterNotesByTag", (e) => {
+    const { tag } = e.detail;
+    const filteredNotes = noteManager.filterByTag(tag);
+    ui.renderAllNotes(filteredNotes, tag, "all");
+  });
+
+  // show all notes (backbutton)
+  document.addEventListener("showAllNotes", () => {
+    // Clear all active states and set all notes link as active
+    ui.clearMenuActiveStates();
     const allNotesLink = document.querySelector(".all-notes-link");
-    if(allNotesLink) {
-        allNotesLink.addEventListener("click", (e) => {
-            e.preventDefault();
+    if (allNotesLink) allNotesLink.classList.add("is-active");
 
-            // clear content area
-            const contentContainer = document.querySelector('.app-main-container-content');
-            if(contentContainer){
-                const formWrapper = contentContainer.querySelector('.note-details-wrapper');
-                if(formWrapper){
-                    formWrapper.remove();
-                }
-            }
+    const allNotes = noteManager.getAllNotes();
+    ui.renderAllNotes(allNotes, null, "all");
+  });
 
-            //clear the has-note-selected class if it exists
-            const appMainContainer = document.querySelector('.app-main-container');
-            if(appMainContainer){
-                appMainContainer.classList.remove('has-note-selected');
-            }
+  // show note details
+  document.addEventListener("showNoteDetails", (e) => {
+    const { noteId } = e.detail;
+    const note = noteManager.getNoteById(noteId);
+    ui.renderNoteDetails(note);
+  });
 
-            // clear the actions column
-            const actionsColumn = document.querySelector('.app-main-container-actions');
-            if(actionsColumn){
-                actionsColumn.remove();
-            }
-            
-            // render the notes
-            const unarchivedNotes = noteManager.getUnarchivedNotes();
-            ui.renderAllNotes(unarchivedNotes, null, "all");
+  // archive note
+  document.addEventListener("archiveNote", (e) => {
+    const { noteId, isArchived } = e.detail;
 
-            ui.toggleArchiveView(false);
-        });
+    noteManager.updateNote(noteId, { isArchived: isArchived });
+
+    // close note details view if it was open
+    const contentContainer = document.querySelector(
+      ".app-main-container-content"
+    );
+    if (contentContainer) {
+      const noteDetails = contentContainer.querySelector(
+        ".note-details-wrapper"
+      );
+      if (noteDetails) {
+        noteDetails.remove();
+      }
     }
 
-    // === archived note ===
-    const archiveNoteLink = document.querySelector(".archived-notes-link");
-    if(archiveNoteLink) {
-        archiveNoteLink.addEventListener("click", (e) => {
-            e.preventDefault();
-
-            //clear the content area
-            const contentContainer = document.querySelector('.app-main-container-content');
-            if(contentContainer){
-                const formWrapper = contentContainer.querySelector('.note-details-wrapper');
-                if(formWrapper){
-                    formWrapper.remove();
-                }
-            }
-
-            // remove has-note-selected class if it exists
-            const appMainContainer = document.querySelector('.app-main-container');
-            if(appMainContainer){
-                appMainContainer.classList.remove('has-note-selected');
-            }
-
-            // clear the actions column
-            const actionsColumn = document.querySelector('.app-main-container-actions');
-            if(actionsColumn){
-                actionsColumn.remove();
-            }
-
-            // render the notes
-            const archivedNotes = noteManager.getArchivedNotes();
-            ui.renderAllNotes(archivedNotes, null, 'archived');
-
-            ui.toggleArchiveView(true);
-        });
+    // remove has-note-selected class if it exists
+    const appMainContainer = document.querySelector(".app-main-container");
+    if (appMainContainer) {
+      appMainContainer.classList.remove("has-note-selected");
     }
 
+    // clear the actions column
+    const actionsColumn = document.querySelector(".app-main-container-actions");
+    if (actionsColumn) {
+      actionsColumn.remove();
+    }
 
-    // === filter notes by tag ===
-    document.addEventListener("filterNotesByTag", (e) => {
-        const { tag } = e.detail;
-        const filteredNotes = noteManager.filterByTag(tag);
-        ui.renderAllNotes(filteredNotes, tag, "all");
-    });
+    refreshNotes();
 
-    // show all notes (backbutton)
-    document.addEventListener("showAllNotes", () => {
-        // Clear all active states and set all notes link as active
-        ui.clearMenuActiveStates();
-        const allNotesLink = document.querySelector(".all-notes-link");
-        if (allNotesLink) allNotesLink.classList.add("is-active");
+    // show toast notification
+    ui.showToastArchived(isArchived);
+  });
 
-        const allNotes = noteManager.getAllNotes();
-        ui.renderAllNotes(allNotes, null, 'all');
-    });
+  // show archived notes (from toast link)
+  document.addEventListener("showArchivedNotes", () => {
+    const archivedNotes = noteManager.getArchivedNotes();
+    ui.renderAllNotes(archivedNotes);
+    ui.toggleArchiveView(true);
 
-    // show note details
-    document.addEventListener("showNoteDetails", (e) => {
-        const { noteId } = e.detail;
-        const note = noteManager.getNoteById(noteId);
-        ui.renderNoteDetails(note);
-    });
+    // Update nav link active state
+    const archiveLink = document.querySelector(".archived-notes-link");
+    const allNotesLink = document.querySelector(".all-notes-link");
+    if (archiveLink) archiveLink.classList.add("is-active");
+    if (allNotesLink) allNotesLink.classList.remove("is-active");
+  });
 
-    // archive note
-    document.addEventListener("archiveNote", (e) => {
-        const { noteId, isArchived } = e.detail;
+  // === search functionality ===
+  const searchInput = document.querySelector(
+    ".search-container input[type='text']"
+  );
+  if (searchInput) {
+    // debounce
+    let searchTimeout;
+    searchInput.addEventListener("input", (e) => {
+      clearTimeout(searchTimeout);
 
-        noteManager.updateNote(noteId, {isArchived: isArchived});
+      const query = e.target.value.trim();
 
-        // close note details view if it was open
-        const contentContainer = document.querySelector('.app-main-container-content');
-        if(contentContainer){
-            const noteDetails = contentContainer.querySelector('.note-details-wrapper');
-            if(noteDetails){
-                noteDetails.remove();
+      searchTimeout = setTimeout(() => {
+        if (query.length === 0) {
+          refreshNotes();
+          return;
+        } else {
+          // Check what view the user is currently on
+          const isArchivedView = document.querySelector(
+            ".archived-notes-link.is-active"
+          );
+
+          // Get all notes first
+          let notesToSearch;
+          if (isArchivedView) {
+            // Search only in archived notes
+            notesToSearch = noteManager.getArchivedNotes();
+          } else {
+            // Search only in unarchived notes
+            notesToSearch = noteManager.getUnarchivedNotes();
+          }
+
+          // Filter the notes by search query
+          const results = notesToSearch.filter(
+            (note) =>
+              note.title.toLowerCase().includes(query.toLowerCase()) ||
+              note.content.toLowerCase().includes(query.toLowerCase()) ||
+              note.tags.some((tag) =>
+                tag.toLowerCase().includes(query.toLowerCase())
+              )
+          );
+
+          // Clear note details area when searching
+          const contentContainer = document.querySelector(
+            ".app-main-container-content"
+          );
+          if (contentContainer) {
+            const noteDetails = contentContainer.querySelector(
+              ".note-details-wrapper"
+            );
+            if (noteDetails) {
+              noteDetails.remove();
             }
-        }
+          }
 
-        // remove has-note-selected class if it exists
-        const appMainContainer = document.querySelector('.app-main-container');
-        if(appMainContainer){
-            appMainContainer.classList.remove('has-note-selected');
-        }
+          // Remove has-note-selected class
+          const appMainContainer = document.querySelector(
+            ".app-main-container"
+          );
+          if (appMainContainer) {
+            appMainContainer.classList.remove("has-note-selected");
+          }
 
-        // clear the actions column
-        const actionsColumn = document.querySelector('.app-main-container-actions');
-        if(actionsColumn){
+          // Clear actions column
+          const actionsColumn = document.querySelector(
+            ".app-main-container-actions"
+          );
+          if (actionsColumn) {
             actionsColumn.remove();
+          }
+
+          // Render results in nav (without auto-selecting)
+          ui.renderAllNotes(
+            results,
+            null,
+            isArchivedView ? "archived" : "all",
+            false,
+            query
+          );
+
+          const headerTitle = document.querySelector(
+            ".app-main-container-header h2"
+          );
+          if (headerTitle) {
+            headerTitle.textContent = `Search Results for "${query}"`;
+          }
         }
-
-        refreshNotes();
-        
-        // show toast notification
-        ui.showToastArchived(isArchived);
+      }, 500);
     });
+  }
 
-    // show archived notes (from toast link)
-    document.addEventListener("showArchivedNotes", () => {
-        const archivedNotes = noteManager.getArchivedNotes();
-        ui.renderAllNotes(archivedNotes);
-        ui.toggleArchiveView(true);
-        
-        // Update nav link active state
-        const archiveLink = document.querySelector(".archived-notes-link");
-        const allNotesLink = document.querySelector(".all-notes-link");
-        if (archiveLink) archiveLink.classList.add("is-active");
-        if (allNotesLink) allNotesLink.classList.remove("is-active");
+  // search link (mobile/tablet only)
+  const searchLink = document.querySelector(".search-link.mobile-tablet-only");
+  if (searchLink) {
+    searchLink.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      // clear active states and set search
+      ui.clearMenuActiveStates();
+      searchLink.classList.add("is-active");
+
+      ui.renderSearchView();
     });
+  }
 
-    // === search functionality ===
-    const searchInput = document.querySelector(".search-container input[type='text']");
-    if(searchInput){
-        // debounce
-        let searchTimeout;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
+  // Handle mobile/tablet search
+  document.addEventListener("searchNotesMobile", (e) => {
+    const { query } = e.detail;
+    const results = noteManager.searchNotes(query);
+    ui.renderSearchResults(query, results);
+  });
 
-            const query = e.target.value.trim();
+  // === note click event delegation ===
+  document.addEventListener("click", (e) => {
+    const noteCard = e.target.closest(".note-card");
+    if (!noteCard) return;
 
-            searchTimeout = setTimeout(() => {
-                if(query.length === 0){
-                    refreshNotes();
-                    return;
-                } else {
+    const noteId = noteCard.getAttribute("data-note-id");
+    if (!noteId) return;
 
-                    // Check what view the user is currently on
-                    const isArchivedView = document.querySelector('.archived-notes-link.is-active');
-                    
-                    // Get all notes first
-                    let notesToSearch;
-                    if (isArchivedView) {
-                        // Search only in archived notes
-                        notesToSearch = noteManager.getArchivedNotes();
-                    } else {
-                        // Search only in unarchived notes
-                        notesToSearch = noteManager.getUnarchivedNotes();
-                    }
+    const note = noteManager.getNoteById(noteId);
+    if (note) {
+      ui.renderNoteDetails(note);
+    }
+  });
 
-                    // Filter the notes by search query
-                    const results = notesToSearch.filter(
-                        (note) =>
-                            note.title.toLowerCase().includes(query.toLowerCase()) ||
-                            note.content.toLowerCase().includes(query.toLowerCase()) ||
-                            note.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase()))
-                    );
-                    
-                    // Clear note details area when searching
-                    const contentContainer = document.querySelector('.app-main-container-content');
-                    if(contentContainer){
-                        const noteDetails = contentContainer.querySelector('.note-details-wrapper');
-                        if(noteDetails){
-                            noteDetails.remove();
-                        }
-                    }
-                    
-                    // Remove has-note-selected class
-                    const appMainContainer = document.querySelector('.app-main-container');
-                    if(appMainContainer){
-                        appMainContainer.classList.remove('has-note-selected');
-                    }
+  // === note keyboard navigation ===
+  document.addEventListener("keydown", (e) => {
+    // enter key on form inputs
+    if (e.key === "Enter" && e.target.matches("input, textarea")) {
+      const form = e.target.closest("form");
+      if (form && e.target.matches("textarea")) {
+        e.preventDefault();
 
-                    // Clear actions column
-                    const actionsColumn = document.querySelector('.app-main-container-actions');
-                    if(actionsColumn){
-                        actionsColumn.remove();
-                    }
-                    
-                    // Render results in nav (without auto-selecting)
-                    ui.renderAllNotes(results, null, isArchivedView ? 'archived' : 'all', false, query);
-
-                    const headerTitle = document.querySelector(".app-main-container-header h2");
-                    if(headerTitle){
-                        headerTitle.textContent = `Search Results for "${query}"`;
-                    }
-                }
-            }, 500);
-  
-        });
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.click();
+        }
+      }
     }
 
-    // search link (mobile/tablet only)
-    const searchLink = document.querySelector(".search-link.mobile-tablet-only");
-    if(searchLink){
-        searchLink.addEventListener("click", (e) => {
-            e.preventDefault();
-
-            // clear active states and set search
-            ui.clearMenuActiveStates();
-            searchLink.classList.add('is-active');
-
-
-            ui.renderSearchView();
-        });
+    // escape key on form inputs
+    if (e.key === "Escape") {
+      const detailContainer = document.querySelector(
+        ".app-main-container-content"
+      );
+      if (detailContainer) {
+        detailContainer.innerHTML = "";
+        document.dispatchEvent(new CustomEvent("showNotesList"));
+      }
     }
 
-    // Handle mobile/tablet search
-    document.addEventListener("searchNotesMobile", (e) => {
-        const { query } = e.detail;
-        const results = noteManager.searchNotes(query);
-        ui.renderSearchResults(query, results);
-    });
+    // arrow keys for note list navigation
+    // Only work when not typing in input/textarea and note list is visible
+    if (
+      (e.key === "ArrowUp" || e.key === "ArrowDown") &&
+      !e.target.matches("input, textarea") &&
+      !e.target.isContentEditable &&
+      !document.querySelector(".modal")
+    ) {
+      // Don't navigate when modal is open
 
+      const noteList = document.querySelector(".notes-list");
+      if (!noteList) return;
 
-    // === note click event delegation ===
-    // const notesContainer = document.querySelector('.app-main-container-nav .content');
-    // if(notesContainer){
-    //     notesContainer.addEventListener('click', (e) => {
-    //         e.preventDefault();
+      const noteCards = Array.from(noteList.querySelectorAll(".note-card"));
+      if (noteCards.length === 0) return;
 
-    //         // find the closest note card
-    //         const noteCard = e.target.closest('.note-card');
-    //         if(!noteCard) return;
+      // Find currently focused/selected note card
+      let currentIndex = -1;
+      const focusedCard = document.activeElement;
+      const selectedCard = noteList.querySelector(".note-card.is-selected");
 
-    //         // get note id
-    //         const noteId = noteCard.getAttribute('data-note-id');
+      if (focusedCard && focusedCard.classList.contains("note-card")) {
+        currentIndex = noteCards.indexOf(focusedCard);
+      } else if (selectedCard) {
+        currentIndex = noteCards.indexOf(selectedCard);
+      }
 
-    //         // show note details
-    //         const note = noteManager.getNoteById(noteId);
-    //         if(note){
-    //             ui.renderNoteDetails(note);
-    //         }
-    //     });
-    // }
-    document.addEventListener('click', (e) => {
+      // Determine next index
+      let nextIndex;
+      if (e.key === "ArrowDown") {
+        nextIndex = currentIndex < noteCards.length - 1 ? currentIndex + 1 : 0;
+      } else {
+        // ArrowUp
+        nextIndex = currentIndex > 0 ? currentIndex - 1 : noteCards.length - 1;
+      }
 
-        const noteCard = e.target.closest('.note-card');
-        if(!noteCard) return;
+      // Remove selection from all cards
+      noteCards.forEach((card) => {
+        card.classList.remove("is-selected");
+      });
 
+      // Focus and select the next card
+      const nextCard = noteCards[nextIndex];
+      nextCard.classList.add("is-selected");
+      nextCard.focus();
 
-        const noteId = noteCard.getAttribute('data-note-id');
-        if(!noteId) return;
+      // Scroll into view if needed
+      nextCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
-
-        const note = noteManager.getNoteById(noteId);
-        if(note){
+      // On desktop, also show note details
+      if (window.innerWidth >= 1024) {
+        const noteId = nextCard.getAttribute("data-note-id");
+        if (noteId) {
+          const note = noteManager.getNoteById(noteId);
+          if (note) {
             ui.renderNoteDetails(note);
+          }
         }
-    });
+      }
 
-
-    // === note keyboard navigation ===
-    document.addEventListener('keydown', (e) => {
-        // enter key on form inputs
-        if(e.key === 'Enter' && e.target.matches('input, textarea')) {
-            const form = e.target.closest('form');
-            if(form && e.target.matches('textarea')) {
-                e.preventDefault();
-
-                const submitButton = form.querySelector('button[type="submit"]');
-                if(submitButton) {
-                    submitButton.click();
-                }
-            }
-        }
-
-        // escape key on form inputs
-        if(e.key === 'Escape'){
-            const detailContainer = document.querySelector('.app-main-container-content');
-            if(detailContainer) {
-                detailContainer.innerHTML = "";
-                document.dispatchEvent(new CustomEvent("showNotesList"));
-            }
- 
-        }
-
-        // arrow keys for note list navigation
-        // Only work when not typing in input/textarea and note list is visible
-        if((e.key === 'ArrowUp' || e.key === 'ArrowDown') && 
-           !e.target.matches('input, textarea') && 
-           !e.target.isContentEditable &&
-           !document.querySelector('.modal')) { // Don't navigate when modal is open
-            
-            const noteList = document.querySelector('.notes-list');
-            if(!noteList) return;
-            
-            const noteCards = Array.from(noteList.querySelectorAll('.note-card'));
-            if(noteCards.length === 0) return;
-            
-            // Find currently focused/selected note card
-            let currentIndex = -1;
-            const focusedCard = document.activeElement;
-            const selectedCard = noteList.querySelector('.note-card.is-selected');
-            
-            if(focusedCard && focusedCard.classList.contains('note-card')) {
-                currentIndex = noteCards.indexOf(focusedCard);
-            } else if(selectedCard) {
-                currentIndex = noteCards.indexOf(selectedCard);
-            }
-            
-            // Determine next index
-            let nextIndex;
-            if(e.key === 'ArrowDown') {
-                nextIndex = currentIndex < noteCards.length - 1 ? currentIndex + 1 : 0;
-            } else { // ArrowUp
-                nextIndex = currentIndex > 0 ? currentIndex - 1 : noteCards.length - 1;
-            }
-            
-            // Remove selection from all cards
-            noteCards.forEach(card => {
-                card.classList.remove('is-selected');
-            });
-            
-            // Focus and select the next card
-            const nextCard = noteCards[nextIndex];
-            nextCard.classList.add('is-selected');
-            nextCard.focus();
-            
-            // Scroll into view if needed
-            nextCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            
-            // On desktop, also show note details
-            if(window.innerWidth >= 1024) {
-                const noteId = nextCard.getAttribute('data-note-id');
-                if(noteId) {
-                    const note = noteManager.getNoteById(noteId);
-                    if(note) {
-                        ui.renderNoteDetails(note);
-                    }
-                }
-            }
-            
-            e.preventDefault();
-        }
-    });
-
-    // keyboard navigation for note cards
-    const noteContainer = document.querySelector('.app-main-container-nav .content');
-    if(noteContainer){
-        noteContainer.addEventListener('keydown', (e) => {
-            if(e.target.classList.contains('note-card')) {
-                e.preventDefault();
-                const noteId = e.target.getAttribute('data-note-id');
-                if(noteId){
-                    const note = noteManager.getNoteById(noteId);
-                    if(note) {
-                        ui.renderNoteDetails(note);
-                    }
-                }
-            }
-        });
+      e.preventDefault();
     }
+  });
 
-
-    // Handle viewport resize
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            handleViewportChange();
-        }, 150); // Debounce resize events
+  // keyboard navigation for note cards
+  const noteContainer = document.querySelector(
+    ".app-main-container-nav .content"
+  );
+  if (noteContainer) {
+    noteContainer.addEventListener("keydown", (e) => {
+      if (e.target.classList.contains("note-card")) {
+        e.preventDefault();
+        const noteId = e.target.getAttribute("data-note-id");
+        if (noteId) {
+          const note = noteManager.getNoteById(noteId);
+          if (note) {
+            ui.renderNoteDetails(note);
+          }
+        }
+      }
     });
+  }
+
+  // Handle viewport resize
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      handleViewportChange();
+    }, 150); // Debounce resize events
+  });
 }
 
-
 // === helper functions ===
-
-// function manageFocus(action, element){
-//     if(action === 'set'){
-//         element?.focus();
-//     } else if(action === 'trap'){
-//         // trap focus within a container(for modals)
-//         const focusableElements = element.querySelectorAll('button, input, textarea, [href], select, [tabindex]:not([tabindex="-1"])');
-
-//         const firstFocusable = focusableElements[0];
-//         const lastFocusable = focusableElements[focusableElements.length - 1];
-
-//         element.addEventListener('keydown', (e) => {
-//             if(e.key === 'Tab'){
-//                 if(e.shiftKey && document.activeElement === firstFocusable){
-//                     e.preventDefault();
-//                     lastFocusable.focus();
-//                 } else if(!e.shiftKey && document.activeElement === lastFocusable){
-//                     e.preventDefault();
-//                     firstFocusable.focus();
-//                 }
-//             }
-//         });
-//     } 
-// }
-
-
-// show create note form
 // show create note form
 function showCreateNoteForm() {
-    const container = document.querySelector('.app-main-container-content');
-    if(!container) return false;
+  const container = document.querySelector(".app-main-container-content");
+  if (!container) return false;
 
-    // Preserve tags menu when clearing
-    const tagsMenu = container.querySelector("#tags-menu-sm");
-    
-    // Clear existing content but preserve tags menu
-    const children = Array.from(container.children);
-    children.forEach(child => {
-        if(child.id !== "tags-menu-sm") {
-            child.remove();
-        }
-    });
+  // Preserve tags menu when clearing
+  const tagsMenu = container.querySelector("#tags-menu-sm");
 
-    if(tagsMenu){
-        tagsMenu.style.display = "none";
-        tagsMenu.classList.remove("is-active");
+  // Clear existing content but preserve tags menu
+  const children = Array.from(container.children);
+  children.forEach((child) => {
+    if (child.id !== "tags-menu-sm") {
+      child.remove();
     }
+  });
 
-    // Update header title based on screen size
+  if (tagsMenu) {
+    tagsMenu.style.display = "none";
+    tagsMenu.classList.remove("is-active");
+  }
+
+  // Update header title based on screen size
   const headerTitle = document.querySelector(".app-main-container-header h2");
   if (headerTitle) {
     const isMobileOrTablet = window.innerWidth < 1024;
     if (isMobileOrTablet) {
       // Hide on mobile/tablet
       headerTitle.textContent = "";
-    //   headerTitle.style.display = "none";
-    }else {
-        headerTitle.textContent = "Create New Note";
-        headerTitle.style.display = "block";
+      //   headerTitle.style.display = "none";
+    } else {
+      headerTitle.textContent = "Create New Note";
+      headerTitle.style.display = "block";
     }
   }
 
-    // create form wrapper
-    const formWrapper = document.createElement("div");
-    formWrapper.classList.add("note-details-wrapper");
+  // create form wrapper
+  const formWrapper = document.createElement("div");
+  formWrapper.classList.add("note-details-wrapper");
 
-    // Create header section for mobile/tablet
-    const headerSection = document.createElement("div");
-    headerSection.classList.add("note-details-header", "mobile-tablet-only");
-    
-    // Create mobile/tablet actions row
-    const mobileActionsRow = document.createElement("div");
-    mobileActionsRow.classList.add("note-details-header-actions", "mobile-tablet-only");
-    
-    mobileActionsRow.innerHTML = `
+  // Create header section for mobile/tablet
+  const headerSection = document.createElement("div");
+  headerSection.classList.add("note-details-header", "mobile-tablet-only");
+
+  // Create mobile/tablet actions row
+  const mobileActionsRow = document.createElement("div");
+  mobileActionsRow.classList.add(
+    "note-details-header-actions",
+    "mobile-tablet-only"
+  );
+
+  mobileActionsRow.innerHTML = `
         <div class="note-details-left">
             <button class="back-button mobile-tablet-only" data-action="back">
                 <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -767,62 +776,62 @@ function showCreateNoteForm() {
         </div>
     `;
 
-    // Back button handler
-    const backButton = mobileActionsRow.querySelector('[data-action="back"]');
-    backButton.addEventListener("click", () => {
-        // Preserve tags menu when clearing
-        const tagsMenu = container.querySelector("#tags-menu-sm");
-        
-        const children = Array.from(container.children);
-        children.forEach(child => {
-            if(child.id !== "tags-menu-sm") {
-                child.remove();
-            }
-        });
-        
-        if(tagsMenu) {
-            tagsMenu.style.display = "none";
-            tagsMenu.classList.remove("is-active");
-        }
+  // Back button handler
+  const backButton = mobileActionsRow.querySelector('[data-action="back"]');
+  backButton.addEventListener("click", () => {
+    // Preserve tags menu when clearing
+    const tagsMenu = container.querySelector("#tags-menu-sm");
 
-        document.dispatchEvent(new CustomEvent("showAllNotes"));
+    const children = Array.from(container.children);
+    children.forEach((child) => {
+      if (child.id !== "tags-menu-sm") {
+        child.remove();
+      }
     });
 
-    // Cancel button handler
-    const cancelButton = mobileActionsRow.querySelector('[data-action="cancel"]');
-    cancelButton.addEventListener("click", () => {
-        // Preserve tags menu when clearing
-        const tagsMenu = container.querySelector("#tags-menu-sm");
-        
-        const children = Array.from(container.children);
-        children.forEach(child => {
-            if(child.id !== "tags-menu-sm") {
-                child.remove();
-            }
-        });
-        
-        if(tagsMenu) {
-            tagsMenu.style.display = "none";
-            tagsMenu.classList.remove("is-active");
-        }
+    if (tagsMenu) {
+      tagsMenu.style.display = "none";
+      tagsMenu.classList.remove("is-active");
+    }
+
+    document.dispatchEvent(new CustomEvent("showAllNotes"));
+  });
+
+  // Cancel button handler
+  const cancelButton = mobileActionsRow.querySelector('[data-action="cancel"]');
+  cancelButton.addEventListener("click", () => {
+    // Preserve tags menu when clearing
+    const tagsMenu = container.querySelector("#tags-menu-sm");
+
+    const children = Array.from(container.children);
+    children.forEach((child) => {
+      if (child.id !== "tags-menu-sm") {
+        child.remove();
+      }
     });
 
-    // Create Note button handler
-    const createButton = mobileActionsRow.querySelector('[data-action="create"]');
-    createButton.addEventListener("click", (e) => {
-        e.preventDefault();
-        handleCreateNote();
-    });
+    if (tagsMenu) {
+      tagsMenu.style.display = "none";
+      tagsMenu.classList.remove("is-active");
+    }
+  });
 
-    headerSection.appendChild(mobileActionsRow);
-    formWrapper.appendChild(headerSection);
+  // Create Note button handler
+  const createButton = mobileActionsRow.querySelector('[data-action="create"]');
+  createButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    handleCreateNote();
+  });
 
-    // Create form content section
-    const formContentSection = document.createElement("div");
-    formContentSection.classList.add("note-details-content");
+  headerSection.appendChild(mobileActionsRow);
+  formWrapper.appendChild(headerSection);
 
-       // create form html
-    formContentSection.innerHTML = `
+  // Create form content section
+  const formContentSection = document.createElement("div");
+  formContentSection.classList.add("note-details-content");
+
+  // create form html
+  formContentSection.innerHTML = `
        <form id="create-note-form">
          <input 
            type="text" 
@@ -876,284 +885,321 @@ function showCreateNoteForm() {
        </form>
      `;
 
-    formWrapper.appendChild(formContentSection);
+  formWrapper.appendChild(formContentSection);
 
-    // footer section (desktop only)
-    const footerSection = document.createElement("div");
-    footerSection.classList.add("note-details-footer", "desktop-only");
+  // footer section (desktop only)
+  const footerSection = document.createElement("div");
+  footerSection.classList.add("note-details-footer", "desktop-only");
 
-    footerSection.innerHTML = `
+  footerSection.innerHTML = `
         <button class="save-button desktop-only">Save Note</button>
         <button class="cancel-button desktop-only">Cancel</button>
     `;
 
-    const saveDesktopButton = footerSection.querySelector(".save-button");
-    const cancelDesktopButton = footerSection.querySelector(".cancel-button");
+  const saveDesktopButton = footerSection.querySelector(".save-button");
+  const cancelDesktopButton = footerSection.querySelector(".cancel-button");
 
-    saveDesktopButton.addEventListener("click", (e) => {
-        e.preventDefault();
-        handleCreateNote();
+  saveDesktopButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    handleCreateNote();
+  });
+
+  cancelDesktopButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    // Preserve tags menu when clearing
+    const tagsMenu = container.querySelector("#tags-menu-sm");
+
+    const children = Array.from(container.children);
+    children.forEach((child) => {
+      if (child.id !== "tags-menu-sm") {
+        child.remove();
+      }
     });
 
-    cancelDesktopButton.addEventListener("click", (e) => {
-        e.preventDefault();
-        // Preserve tags menu when clearing
-        const tagsMenu = container.querySelector("#tags-menu-sm");
-        
-        const children = Array.from(container.children);
-        children.forEach(child => {
-            if(child.id !== "tags-menu-sm") {
-                child.remove();
-            }
-        });
-        
-        if(tagsMenu) {
-            tagsMenu.style.display = "none";
-            tagsMenu.classList.remove("is-active");
-        }
-
-        // remove has-note-selected class if it exists
-        const appMainContainer = document.querySelector('.app-main-container');
-        if(appMainContainer){
-            appMainContainer.classList.remove('has-note-selected');
-        }
-
-        // clear the actions column
-        const actionsColumn = document.querySelector('.app-main-container-actions');
-        if(actionsColumn){
-            actionsColumn.remove();
-        }
-        document.dispatchEvent(new CustomEvent("showAllNotes"));
-    });
-
-    formWrapper.appendChild(footerSection);
-    container.appendChild(formWrapper);
-
-    // add location permission request button to form
-    const locationButton = document.getElementById("location-button");
-    if(locationButton) {
-      locationButton.addEventListener('click', async () =>{
-        try{
-            const location = await geolocation.requestLocationPermission();
-
-            locationButton.setAttribute('data-location', JSON.stringify(location));
-            locationButton.textContent = 'Location Added';
-        }catch(error){
-            console.error("Error requesting location:", error);
-
-            ui.showToast('error',error.message, {duration: 4000});
-
-            locationButton.textContent = 'Location Failed';
-
-            setTimeout(() => {
-                locationButton.textContent = 'Add Location';
-            }, 3000);
-
-            // show error message to user through ui
-            ui.showValidationError('location', error.message);
-        }
-    });
+    if (tagsMenu) {
+      tagsMenu.style.display = "none";
+      tagsMenu.classList.remove("is-active");
     }
 
-    // add event listener to create note button (desktop)
-    const createNoteBtn = document.getElementById("create-note-btn");
-    if(createNoteBtn) {
-        createNoteBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-           handleCreateNote();
-        });
-    }
-    
-    // add event listener to cancel button (desktop)
-    const cancelBtn = document.getElementById("create-cancel-btn");
-    if(cancelBtn) {
-        cancelBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            // Preserve tags menu when clearing
-            const tagsMenu = container.querySelector("#tags-menu-sm");
-            
-            const children = Array.from(container.children);
-            children.forEach(child => {
-                if(child.id !== "tags-menu-sm") {
-                    child.remove();
-                }
-            });
-            
-            if(tagsMenu) {
-                tagsMenu.style.display = "none";
-                tagsMenu.classList.remove("is-active");
-            }
-        });
-    }
-    
-    // add event listener to form
-    const form = document.getElementById("create-note-form");
-    if(form) {
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            handleCreateNote();
-        });
+    // remove has-note-selected class if it exists
+    const appMainContainer = document.querySelector(".app-main-container");
+    if (appMainContainer) {
+      appMainContainer.classList.remove("has-note-selected");
     }
 
-    // add event listener to draft save button
-    const titleInput = document.getElementById("note-title");
-    const contentInput = document.getElementById("note-content");
-    const tagsInput = document.getElementById("note-tags");
-    
-    // debounce function for autosave
-    let draftTimeout;
-    const autosaveDraft = () => {
-        clearTimeout(draftTimeout);
-        draftTimeout = setTimeout(() => {
-            const draft = {
-                title: titleInput.value.trim(),
-                content: contentInput.value,
-                tags: tagsInput.value.trim().split(",").map(tag => tag.trim()).filter(tag => tag.length > 0),
-                lastEdited: formatDate(new Date()),
-            }
-            storage.saveDraft(draft);
-            console.log("Draft saved:", draft);
-        }, 1000);
+    // clear the actions column
+    const actionsColumn = document.querySelector(".app-main-container-actions");
+    if (actionsColumn) {
+      actionsColumn.remove();
+    }
+    document.dispatchEvent(new CustomEvent("showAllNotes"));
+  });
+
+  formWrapper.appendChild(footerSection);
+  container.appendChild(formWrapper);
+
+  // add location permission request button to form
+  const locationButton = document.getElementById("location-button");
+  if (locationButton) {
+    // helper text element to show current location state
+    const ensureLocationHelper = () => {
+      let helper = document.getElementById("location-helper");
+      if (!helper) {
+        helper = document.createElement("p");
+        helper.id = "location-helper";
+        helper.className = "form-helper-text";
+        locationButton.insertAdjacentElement("afterend", helper);
+      }
+      return helper;
     };
 
-    // input listeners for auto-save
-    if(titleInput){
-        titleInput.addEventListener("input", autosaveDraft);
-    }
-    if(contentInput){
-        contentInput.addEventListener("input", autosaveDraft);
-    }
-    if(tagsInput){
-        tagsInput.addEventListener("input", autosaveDraft);
-    }
+    // initialize helper with default state
+    const locationHelper = ensureLocationHelper();
+    locationHelper.textContent = "Location: Not available";
 
-    // restore draft on form load
-    const savedDraft = storage.loadDraft();
-    if(savedDraft){
-        if(titleInput) titleInput.value = savedDraft.title || "";
-        if(contentInput) contentInput.value = savedDraft.content || "";
-        if(tagsInput) {
-            if(Array.isArray(savedDraft.tags)) {
-                tagsInput.value = savedDraft.tags.join(", ") || "";
-            } else {
-                tagsInput.value = savedDraft.tags || "";
-            }
-        };
-        console.log("Draft restored:", savedDraft);
-    }
+    locationButton.addEventListener("click", async () => {
+      try {
+        const location = await geolocation.requestLocationPermission();
 
-    setupFormValidation();
+        locationButton.setAttribute("data-location", JSON.stringify(location));
+        const locationLabel =
+          location.city || location.country
+            ? `${[location.city, location.country]
+                .filter(Boolean)
+                .join(", ")}`
+            : `${location.coordinates.lat.toFixed(3)}, ${location.coordinates.lng.toFixed(3)}`;
+
+        locationButton.textContent = `Location Added (${locationLabel})`;
+
+        const helper = ensureLocationHelper();
+        helper.textContent = `Location: ${locationLabel}`;
+        helper.style.color = "var(--text-secondary)";
+      } catch (error) {
+        console.error("Error requesting location:", error);
+
+        ui.showToast("error", error.message, { duration: 4000 });
+
+        locationButton.textContent = "Location Unavailable";
+
+        setTimeout(() => {
+          locationButton.textContent = "Add Location";
+        }, 3000);
+
+        // show error message to user through ui
+        ui.showValidationError("location", error.message);
+
+        const helper = ensureLocationHelper();
+        helper.textContent = "Location: Not available";
+        helper.style.color = "var(--danger)";
+      }
+    });
+  }
+
+  // add event listener to create note button (desktop)
+  const createNoteBtn = document.getElementById("create-note-btn");
+  if (createNoteBtn) {
+    createNoteBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      handleCreateNote();
+    });
+  }
+
+  // add event listener to cancel button (desktop)
+  const cancelBtn = document.getElementById("create-cancel-btn");
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      // Preserve tags menu when clearing
+      const tagsMenu = container.querySelector("#tags-menu-sm");
+
+      const children = Array.from(container.children);
+      children.forEach((child) => {
+        if (child.id !== "tags-menu-sm") {
+          child.remove();
+        }
+      });
+
+      if (tagsMenu) {
+        tagsMenu.style.display = "none";
+        tagsMenu.classList.remove("is-active");
+      }
+    });
+  }
+
+  // add event listener to form
+  const form = document.getElementById("create-note-form");
+  if (form) {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      handleCreateNote();
+    });
+  }
+
+  // add event listener to draft save button
+  const titleInput = document.getElementById("note-title");
+  const contentInput = document.getElementById("note-content");
+  const tagsInput = document.getElementById("note-tags");
+
+  // debounce function for autosave
+  let draftTimeout;
+  const autosaveDraft = () => {
+    clearTimeout(draftTimeout);
+    draftTimeout = setTimeout(() => {
+      const draft = {
+        title: titleInput.value.trim(),
+        content: contentInput.value,
+        tags: tagsInput.value
+          .trim()
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0),
+        lastEdited: formatDate(new Date()),
+      };
+      storage.saveDraft(draft);
+      console.log("Draft saved:", draft);
+    }, 1000);
+  };
+
+  // input listeners for auto-save
+  if (titleInput) {
+    titleInput.addEventListener("input", autosaveDraft);
+  }
+  if (contentInput) {
+    contentInput.addEventListener("input", autosaveDraft);
+  }
+  if (tagsInput) {
+    tagsInput.addEventListener("input", autosaveDraft);
+  }
+
+  // restore draft on form load
+  const savedDraft = storage.loadDraft();
+  if (savedDraft) {
+    if (titleInput) titleInput.value = savedDraft.title || "";
+    if (contentInput) contentInput.value = savedDraft.content || "";
+    if (tagsInput) {
+      if (Array.isArray(savedDraft.tags)) {
+        tagsInput.value = savedDraft.tags.join(", ") || "";
+      } else {
+        tagsInput.value = savedDraft.tags || "";
+      }
+    }
+    console.log("Draft restored:", savedDraft);
+  }
+
+  setupFormValidation();
 }
 
 // setup form validation listeners
-function setupFormValidation(){
-    const titleInput = document.getElementById('note-title');
-    const contentInput = document.getElementById('note-content');
-    const tagsInput = document.getElementById('note-tags');
+function setupFormValidation() {
+  const titleInput = document.getElementById("note-title");
+  const contentInput = document.getElementById("note-content");
+  const tagsInput = document.getElementById("note-tags");
 
-    if(!titleInput || !contentInput) return;
+  if (!titleInput || !contentInput) return;
 
-    // validate blur
-    titleInput.addEventListener('blur', () => {
-        const validation = validateField('title', titleInput.value);
-        if(!validation.isValid){
-            ui.showValidationError('#note-title', validation.message);
-        } else {
-            ui.clearValidationError('#note-title');
-        }
-        updateSubmitButtonState();
-    });
-
-    contentInput.addEventListener('blur', () => {
-        const validation = validateField('content', contentInput.value);
-        if(!validation.isValid){
-            ui.showValidationError('#note-content', validation.message);
-        } else {
-            ui.clearValidationError('#note-content');
-        }
-        updateSubmitButtonState();
-    });
-
-    // clear errors on input (real-time feedback)
-    titleInput.addEventListener('input', () => {
-        ui.clearValidationError('#note-title');
-        updateSubmitButtonState();
-    });
-    contentInput.addEventListener('input', () => {
-        ui.clearValidationError('#note-content');
-        updateSubmitButtonState();
-    });
-    tagsInput.addEventListener('input', () => {
-        ui.clearValidationError('#note-tags');
-        updateSubmitButtonState();
-    });
-
-    // initial state check
+  // validate blur
+  titleInput.addEventListener("blur", () => {
+    const validation = validateField("title", titleInput.value);
+    if (!validation.isValid) {
+      ui.showValidationError("#note-title", validation.message);
+    } else {
+      ui.clearValidationError("#note-title");
+    }
     updateSubmitButtonState();
+  });
+
+  contentInput.addEventListener("blur", () => {
+    const validation = validateField("content", contentInput.value);
+    if (!validation.isValid) {
+      ui.showValidationError("#note-content", validation.message);
+    } else {
+      ui.clearValidationError("#note-content");
+    }
+    updateSubmitButtonState();
+  });
+
+  // clear errors on input (real-time feedback)
+  titleInput.addEventListener("input", () => {
+    ui.clearValidationError("#note-title");
+    updateSubmitButtonState();
+  });
+  contentInput.addEventListener("input", () => {
+    ui.clearValidationError("#note-content");
+    updateSubmitButtonState();
+  });
+  tagsInput.addEventListener("input", () => {
+    ui.clearValidationError("#note-tags");
+    updateSubmitButtonState();
+  });
+
+  // initial state check
+  updateSubmitButtonState();
 }
 
 // handle create note submission
 function handleCreateNote() {
-    const titleInput = document.getElementById("note-title").value;
-    const contentInput = document.getElementById("note-content").value;
-    const tagsInput = document.getElementById("note-tags").value;
-    const locationButton = document.querySelector(".location-button");
+  const titleInput = document.getElementById("note-title").value;
+  const contentInput = document.getElementById("note-content").value;
+  const tagsInput = document.getElementById("note-tags").value;
+  const locationButton = document.querySelector(".location-button");
 
-    let location = null;
-    if(locationButton && locationButton.hasAttribute('data-location')) {
-        location = JSON.parse(locationButton.getAttribute('data-location'));
+  let location = null;
+  if (locationButton && locationButton.hasAttribute("data-location")) {
+    location = JSON.parse(locationButton.getAttribute("data-location"));
+  }
+
+  const title = titleInput.trim();
+  const content = contentInput.trim();
+
+  // validate inputs with dynamic DOM errors
+  const titleValidation = validateField("title", title);
+  const contentValidation = validateField("content", content);
+
+  let hasErrors = false;
+
+  if (!titleValidation.isValid) {
+    ui.showValidationError("#note-title", titleValidation.message);
+    hasErrors = true;
+  }
+  if (!contentValidation.isValid) {
+    ui.showValidationError("#note-content", contentValidation.message);
+    hasErrors = true;
+  }
+
+  if (hasErrors) {
+    // focus first invalid
+    if (!titleValidation.isValid) {
+      titleInput.focus();
+    } else if (!contentValidation.isValid) {
+      contentInput.focus();
     }
+    return;
+  }
+  // parse tags into array
+  const tags = tagsInput
+    .trim()
+    .split(",")
+    .map((tag) => tag.trim());
 
-    const title = titleInput.trim();
-    const content = contentInput.trim();
+  // validate inputs
+  if (!title || !content) {
+    alert("Please enter a title and content");
+    return;
+  }
 
-    // validate inputs with dynamic DOM errors
-    const titleValidation = validateField('title', title);
-    const contentValidation = validateField('content', content);
-
-    let hasErrors = false;
-
-    if(!titleValidation.isValid){
-        ui.showValidationError('#note-title', titleValidation.message);
-        hasErrors = true;
-    }
-    if(!contentValidation.isValid){
-        ui.showValidationError('#note-content', contentValidation.message);
-        hasErrors = true;
-    }
-
-    if(hasErrors){
-        // focus first invalid
-        if(!titleValidation.isValid){
-            titleInput.focus();
-        } else if(!contentValidation.isValid){
-            contentInput.focus();
-        }
-        return;
-    }
-    // parse tags into array
-    const tags = tagsInput.trim().split(",").map(tag => tag.trim());
-
-    // validate inputs
-    if(!title || !content) {
-        alert("Please enter a title and content");
-        return;
-    }
-
-    try{
-        // create note object
+  try {
+    // create note object
     const newNote = noteManager.createNote(title, content, tags);
     newNote.location = location;
 
     // save note to storage
-    // noteManager.saveNotes([...storage.getNotes(), newNote]);
     const allNotes = noteManager.getAllNotes();
     allNotes.push(newNote);
 
     const result = storage.saveNotes(allNotes);
-    if(!result.success){
-        alert(result.message); // remember to show error in ui 
-        return;
+    if (!result.success) {
+      alert(result.message);
+      return;
     }
 
     // clear draft on successful note creation
@@ -1165,27 +1211,14 @@ function handleCreateNote() {
 
     // show toast notification with link to view note
     ui.showToastCreated(newNote.id);
-
-    // clear form/ close create view
-    // const container = document.querySelector('.app-main-container-content');
-    // if(container) {
-    //     container.innerHTML = "";
-    // }
-
-    // show success message
-
-    // show newly created note in detail view
-    // ui.renderNoteDetails(newNote);
-    } catch (error) {
-        console.error("Error creating note:", error);
-        // alert("Failed to create note. Please try again.");
-    }
-    
+  } catch (error) {
+    console.error("Error creating note:", error);
+  }
 }
 // initialize app
 document.addEventListener("DOMContentLoaded", () => {
-    if(document.querySelector('.settings-section')){
-        return;
-    }
-    initializeApp()
+  if (document.querySelector(".settings-section")) {
+    return;
+  }
+  initializeApp();
 });
