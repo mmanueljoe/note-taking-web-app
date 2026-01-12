@@ -180,7 +180,6 @@ export const renderAllNotes = (
     }
   } else if (!filterTag) {
     // Only clear filter-related stuff if we're NOT filtering
-    // (Don't touch header title - let updateHeader handle it)
     const header = document.querySelector(".app-main-container-header");
     const existingBackBtn = header?.querySelector(".filter-back-button");
     if (existingBackBtn) {
