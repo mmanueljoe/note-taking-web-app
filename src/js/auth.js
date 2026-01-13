@@ -1,8 +1,6 @@
 import * as storage from "./storage.js";
 
-// const AUTH_KEY = 'auth_user';
-// const USERS_KEY = 'app_users';
-
+// signup function
 export const signup = (email, password) => {
   // 1. Validate email and password
   if (!email || !password) {
@@ -79,6 +77,7 @@ export const signup = (email, password) => {
   };
 };
 
+// login function
 export const login = (email, password) => {
   // 1. Validate email and password
   if (!email || !password) {
@@ -133,12 +132,14 @@ export const login = (email, password) => {
   };
 };
 
+// logout function
 export const logout = () => {
   // clear auth from localStorage
   const result = storage.clearAuth();
   return result;
 };
 
+// check if user is authenticated
 export const isAuthenticated = () => {
   //  check if user is logged in
   const authData = storage.loadAuth();
@@ -150,6 +151,7 @@ export const isAuthenticated = () => {
   return !!authData.userId && !!authData.email;
 };
 
+// get current user
 export const getCurrentUser = () => {
   // get current logged-in user info
   if (!isAuthenticated()) {
@@ -173,6 +175,7 @@ export const getCurrentUser = () => {
   };
 };
 
+// change password
 export const changePassword = (currentPassword, newPassword) => {
   // validate inputs
   if (!currentPassword || !newPassword) {

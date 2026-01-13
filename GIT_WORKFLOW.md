@@ -4,15 +4,11 @@
 
 `main` for production, `dev` for integration, and `feature/feature-name` for individual tasks (feature-name is the name of the feature worked on).  
 
-
 ## Commit Conventions
 
 - Prefixes: `bug fix:`,
 
-
 ## Merge Conflicts Encountered
-
-
 
 ## Git Commands Used
 
@@ -28,14 +24,11 @@
 - `git pull` / `git pull --rebase origin <branch>` – Used to sync with remote
 - `git push origin <branch>` – Used to publish local commits to GitHub
 
-
 ## Screenshots
 
 - **Git log showing commit history**  
 
-
 - **Branch structure**  
-
 
 - **Example resolved conflict**  
   

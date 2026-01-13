@@ -1,4 +1,4 @@
-# Note-taking web app 
+# Note-taking web app
 
 ## Table of contents
 
@@ -44,15 +44,11 @@ Users should be able to:
 
 ### Screenshots
 
-
 - Main app – desktop  
-
 
 - Mobile layout – notes list and detail view  
 
-
 - Auth screens (login / signup)  
-
 
 ### Links
 
@@ -217,13 +213,14 @@ note-taking-web-app/
    ```bash
    yarn install
    ```
-   3. **Start a local server (or install the live server extension in vscode or your preferred editor)**
+
+3. **Start a local server (or install the live server extension in vscode or your preferred editor)**
 
    ```bash
    live-server src
    ```
-4. **Log in / sign up**
 
+4. **Log in / sign up**
    - Go to the `/auth` pages (e.g. `src/auth/login.html`)
    - Create a “fake” account (stored in `localStorage`)
    - After logging in, you’ll be redirected to the main app.

@@ -1,3 +1,4 @@
+// request location permission
 export const requestLocationPermission = () => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -41,6 +42,7 @@ export const requestLocationPermission = () => {
     });
   };
 
+// get city from coordinates
 export const getCityFromCoordinates = async (latitude, longitude) => {
   try {
     const response = await fetch(
@@ -54,6 +56,7 @@ export const getCityFromCoordinates = async (latitude, longitude) => {
   }
 };
 
+// get country from coordinates
 export const getCountryFromCoordinates = async (latitude, longitude) => {
   try {
     const response = await fetch(
