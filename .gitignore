@@ -2,6 +2,8 @@
 *.sketch
 *.fig
 *.xd
+.cursor
+.vscode
 
 # Dependencies
 /node_modules

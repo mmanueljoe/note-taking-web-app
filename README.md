@@ -12,7 +12,6 @@
   - [What I learned](#what-i-learned)
   - [Continued development](#continued-development)
   - [Useful resources](#useful-resources)
-- [Project structure](#project-structure)
 - [Running the project locally](#running-the-project-locally)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
@@ -52,8 +51,8 @@ Users should be able to:
 
 ### Links
 
-- Solution URL: [Add solution URL here](https://github.com/mmanueljoe/note-taking-web-app)
-- Live Site URL: [Add live site URL here](https://note-taking-web-app-re7t.vercel.app/)
+- Solution URL: (https://github.com/mmanueljoe/note-taking-web-app)
+- Live Site URL: (https://note-taking-web-app-re7t.vercel.app/)
 
 ---
 
@@ -163,43 +162,6 @@ Some ideas I’d like to explore or improve in future projects:
 
 ---
 
-## Project structure
-
-A quick overview of how the project is organized:
-
-note-taking-web-app/
-├── src/
-│   ├── index.html
-│   ├── settings.html
-│   ├── auth/
-│   │   ├── login.html
-│   │   ├── signup.html
-│   │   ├── forgot-password.html
-│   │   └── reset-password.html
-│   ├── css/
-│   │   ├── styles.css
-│   │   ├── settings.css
-│   │   └── auth.css
-│   ├── js/
-│   │   ├── main.js
-│   │   ├── ui.js
-│   │   ├── noteManager.js
-│   │   ├── storage.js
-│   │   ├── theme.js
-│   │   ├── settings.js
-│   │   ├── auth.js
-│   │   ├── auth-handlers.js
-│   │   ├── richText.js
-│   │   ├── share.js
-│   │   └── utils.js
-│   ├── assets/
-│   │   ├── images/
-│   │   └── fonts/
-│   └── data.json   (seed data / example notes)
-├── GIT_WORKFLOW.md
-├── README.md
-└── package.json---
-
 ## Running the project locally
 
 1. **Clone the repo**
@@ -236,3 +198,9 @@ note-taking-web-app/
 ## Acknowledgments
 
 If you found a better way to structure the state or UI for this challenge, I’d be interested in seeing alternative approaches.
+
+<!-- circular import-->
+<!-- modularity -->
+<!-- difference between e.target and currentTarget -->
+<!-- event delegation -->
+<!-- .closest() -->
