@@ -2,7 +2,7 @@ import * as auth from "./auth.js";
 import * as storage from "./storage.js";
 import { showToast } from "./ui.js";
 
-// handle login form submission
+
 export const handleLogin = () => {
   const form = document.querySelector(".auth-form");
   if (!form) return;
@@ -110,7 +110,6 @@ export const handleLogin = () => {
   }
 };
 
-// handle signup form submission
 export const handleSignup = () => {
   const form = document.querySelector(".auth-form");
   if (!form) return;
@@ -234,29 +233,23 @@ export const handleSignup = () => {
 };
 
 // === helper functions ===
-// validate email format
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
-// validate password strength (min 8 characters)
 function isValidPassword(password) {
   return password.length >= 8;
 }
 
-// show error message for specific field
 function showFieldError(field, message) {
   const input = document.getElementById(field);
   if (!input) return;
 
-  // remove existing error message
   clearFieldErrors(field);
 
-  // add error class
   input.classList.add("auth-form-input-error");
 
-  // create error element
   const errorElement = document.createElement("p");
   errorElement.classList.add("auth-form-group-error");
 
@@ -264,7 +257,6 @@ function showFieldError(field, message) {
     input.classList.add("auth-form-input-error-password");
   }
 
-  // icon element
   const iconElement = document.createElement("span");
   iconElement.classList.add("auth-form-group-error-icon");
   iconElement.innerHTML = `
@@ -274,15 +266,12 @@ function showFieldError(field, message) {
          <path d="M8.0038 10.4621V7.59573M8 5.5695V5.52734" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
        </svg>`;
 
-  //  text element
   const textSpan = document.createElement("span");
   textSpan.textContent = message;
 
-  // append elements to error element
   errorElement.appendChild(iconElement);
   errorElement.appendChild(textSpan);
 
-  // insert error element after the input
   const formGroup = input.closest(".auth-form-group");
   if (formGroup) {
     const inputWrapper = formGroup.querySelector(".auth-form-group-input");
@@ -294,16 +283,13 @@ function showFieldError(field, message) {
   }
 }
 
-// clear error for specific field
 function clearFieldErrors(field) {
   const input = document.getElementById(field);
   if (!input) return;
 
-  // remove error class
   input.classList.remove("auth-form-input-error");
   input.classList.remove("auth-form-input-error-password");
 
-  // remove error message
   const formGroup = input.closest(".auth-form-group");
   if (formGroup) {
     const errorElements = formGroup.querySelectorAll(".auth-form-group-error");
@@ -314,7 +300,6 @@ function clearFieldErrors(field) {
   }
 }
 
-// setup password visibility toggle
 function setupPasswordToggle() {
   const passwordInput = document.getElementById("password");
   const toggleButton = document.getElementById("password-toggle");

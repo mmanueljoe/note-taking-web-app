@@ -102,19 +102,19 @@
 
   /* spacing */
   --spacing-0: 0;
-  --spacing-025: 0.125rem; /* 2px */
-  --spacing-050: 0.25rem; /* 4px */
-  --spacing-075: 0.375rem; /* 6px */
-  --spacing-100: 0.5rem; /* 8px */
-  --spacing-150: 0.75rem; /* 12px */
-  --spacing-200: 1rem; /* 16px */
-  --spacing-250: 1.25rem; /* 20px */
-  --spacing-300: 1.5rem; /* 24px */
-  --spacing-400: 2rem; /* 32px */
-  --spacing-500: 2.5rem; /* 40px */
-  --spacing-600: 3rem; /* 48px */
-  --spacing-800: 4rem; /* 64px */
-  --spacing-1000: 5rem; /* 80px */
+  --spacing-025: 0.125rem;
+  --spacing-050: 0.25rem;
+  --spacing-075: 0.375rem;
+  --spacing-100: 0.5rem;
+  --spacing-150: 0.75rem;
+  --spacing-200: 1rem;
+  --spacing-250: 1.25rem;
+  --spacing-300: 1.5rem;
+  --spacing-400: 2rem;
+  --spacing-500: 2.5rem;
+  --spacing-600: 3rem;
+  --spacing-800: 4rem;
+  --spacing-1000: 5rem;
 
   /* radius */
   --radius-0: 0;
@@ -192,8 +192,6 @@ a {
   font-family: "Inter", sans-serif;
 }
 
-/* Accessibility: Visible focus indicators for keyboard navigation */
-/* Use :focus-visible to show focus only for keyboard users, not mouse clicks */
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
@@ -208,7 +206,6 @@ select:focus-visible,
   border-radius: 2px;
 }
 
-/* Ensure focus is visible even when element has border */
 button:focus-visible,
 a:focus-visible {
   position: relative;
@@ -222,7 +219,6 @@ button {
   letter-spacing: var(--sans-serif-preset-3-letter-spacing);
 }
 
-/* font theme classes */
 .font-sans-serif {
   font-family: "Inter", sans-serif;
 }
@@ -233,7 +229,6 @@ button {
   font-family: "Courier New", "Monaco", monospace;
 }
 
-/* font theme classes ends here */
 
 .app-layout {
   display: grid;
@@ -243,7 +238,6 @@ button {
   max-width: 100%;
 }
 
-/* authentication layout */
 .auth-layout {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -253,13 +247,10 @@ button {
   position: relative;
 }
 
-/* header styling */
 .app-header {
   grid-column: 1 / span 12;
-  /* height: 3.375rem; */
   display: flex;
   padding: 0.75rem 1rem;
-  /* background-color: green; */
 }
 
 .app-logo {
@@ -277,9 +268,6 @@ button {
   cursor: pointer;
 }
 
-/* header styling ends here */
-
-/* main styling starts here */
 .app-main {
   grid-column: 1 / span 12;
   background-color: var(--background-secondary);
@@ -381,9 +369,6 @@ button {
   cursor: pointer;
 }
 
-/* main styling ends here */
-
-/* aside styling */
 .desktop-only {
   display: none;
 }
@@ -430,9 +415,6 @@ button {
   border-radius: var(--radius-4);
 }
 
-/* aside styling ends here */
-
-/* success message styling */
 .create-note-btn:disabled,
 .create-note-btn.disabled {
   opacity: 0.5;
@@ -446,7 +428,6 @@ button {
   margin-top: 0.25rem;
 }
 
-/* Inline helper text for form fields (e.g., location status) */
 .form-helper-text {
   font-size: 0.875rem;
   color: var(--text-secondary);
@@ -458,7 +439,6 @@ button {
   border-color: var(--error-color, #dc3545);
 }
 
-/* Toast notification styling */
 .toast-notification {
   position: fixed;
   bottom: 20px;
@@ -946,7 +926,7 @@ mark {
   line-height: var(--sans-serif-preset-5-line-height);
   letter-spacing: var(--sans-serif-preset-5-letter-spacing);
   color: var(--text-secondary);
-  white-space: nowrap; /* Prevent label text from wrapping */
+  white-space: nowrap;
 }
 
 /* Values align in the second column */
@@ -1001,13 +981,13 @@ mark {
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  overflow: hidden; /* Prevent form from creating scrollbar */
+  overflow: hidden;
 }
 
 #create-note-form .note-details-content {
   flex: 1;
   min-height: 0;
-  overflow-y: auto; /* Scroll content area, not the whole form */
+  overflow-y: auto;
 }
 
 #create-note-form #note-content {
@@ -1025,15 +1005,10 @@ mark {
   outline: none;
 }
 
-/* note details footer styling starts here */
-
-/* note create form styling starts here */
-
-/* Form tag input - allow wrapping, override shared class */
 #create-note-form #note-tags.note-details-tags-input {
   width: 100%;
-  min-width: 0; /* Critical: Allow input to shrink */
-  max-width: 100%; /* Prevent overflow */
+  min-width: 0;
+  max-width: 100%;
   padding: 0.75rem 0;
   border: none;
   border-radius: var(--radius-8);
@@ -1041,9 +1016,9 @@ mark {
   line-height: 1.5;
   background-color: transparent;
   color: var(--text-primary);
-  white-space: wrap; /* Allow text to wrap */
-  word-wrap: break-word; /* Break long words */
-  overflow-wrap: break-word; /* Modern property */
+  white-space: wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 #create-note-form #note-tags.note-details-tags-input::placeholder {
@@ -1054,15 +1029,13 @@ mark {
   outline: 1px solid var(--outline-primary);
 }
 
-/* Ensure the form group container allows wrapping */
 #create-note-form .form-group:has(#note-tags) {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow: visible; /* Allow content to wrap */
+  overflow: visible;
 }
 
-/* Grid column for tag input should allow wrapping */
 #create-note-form .form-group:has(label[for="note-tags"]) {
   display: grid;
   grid-template-columns: 120px 1fr;
@@ -1073,7 +1046,6 @@ mark {
   min-width: 0;
 }
 
-/* Make sure the input column can shrink */
 #create-note-form .form-group:has(label[for="note-tags"]) > input {
   grid-column: 2;
   min-width: 0;
@@ -1081,7 +1053,6 @@ mark {
   max-width: 100%;
 }
 
-/* Placeholder should also wrap */
 #create-note-form #note-tags::placeholder {
   color: var(--text-secondary);
   opacity: 0.6;
@@ -1089,8 +1060,6 @@ mark {
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
-
-/* Show location button in form */
 
 #create-note-form .location-button {
   padding: 0.5rem 1rem;
@@ -1125,11 +1094,6 @@ mark {
   outline: none;
 }
 
-/* note create form styling ends here */
-
-/* app main container styling ends here */
-
-/* Mobile tags styling - styled like desktop aside tags but with border-bottom */
 .tags-section-sm {
   width: 100%;
   padding: var(--spacing-100) var(--spacing-100);
@@ -1153,7 +1117,6 @@ mark {
   text-decoration: none;
   display: flex;
   width: 100%;
-  /* align-items: center; */
   padding: var(--spacing-200) 0;
   justify-content: flex-start;
   gap: 0.5rem;
@@ -1196,7 +1159,6 @@ mark {
   font-size: var(--sans-serif-preset-1-size);
 }
 
-/* Mobile search input styling - styled like settings input with magnifier icon */
 .search-container.mobile-tablet-only {
   display: flex;
   align-items: center;
@@ -1518,9 +1480,6 @@ mark {
     box-shadow: var(--shadow-sm);
   }
 
-  /* main styling ends here */
-
-  /* menu styling */
   .app-menu {
     grid-column: 1 / 2;
     grid-row: 2 / 3;
@@ -1554,13 +1513,11 @@ mark {
     color: var(--text-primary);
   }
 
-  /* Hide arrow by default, show only when link is active */
   .menu-item .menu-item-arrow.desktop-only {
     display: none;
     color: var(--text-primary);
   }
 
-  /* Show arrow when parent link is active */
   .menu-item > a.is-active .menu-item-arrow.desktop-only {
     display: flex;
   }
@@ -1672,9 +1629,6 @@ mark {
     border: none;
   }
 
-  /* menu styling ends here */
-
-  /* tags menu styling starts here */
   .tags-section-sm.mobile-tablet-only {
     display: none;
   }
@@ -1746,12 +1700,10 @@ mark {
     color: var(--text-secondary);
   }
 
-  /* note details styling starts here */
   .note-details-header.mobile-tablet-only {
     display: none;
   }
 
-  /* note details content styling starts here */
   .note-details-wrapper {
     display: flex;
     flex-direction: column;
@@ -1780,7 +1732,6 @@ mark {
     border-top: 1px solid var(--border-tertiary);
   }
 
-  /* Show desktop-only buttons inside the footer */
   .note-details-footer .save-button.desktop-only,
   .note-details-footer .cancel-button.desktop-only {
     display: inline-flex;
@@ -1808,7 +1759,6 @@ mark {
   }
 }
 
-/* Touch-friendly button sizes (WCAG 2.5.5 - minimum 44x44px) */
 button,
 .note-card,
 .menu-item > a,
@@ -1818,27 +1768,22 @@ button,
   min-width: 44px;
 }
 
-/* Landscape orientation optimizations for mobile/tablet */
 @media (orientation: landscape) and (max-width: 1023px) {
   .app-main-container {
-    /* Optimize layout for landscape mode */
     max-height: 100vh;
     overflow-y: auto;
   }
 
   .app-main-container-nav {
-    /* Ensure nav doesn't take too much vertical space in landscape */
     max-height: calc(100vh - 3.375rem);
     overflow-y: auto;
   }
 
   .app-main-container-content {
-    /* Optimize content area for landscape */
     max-height: calc(100vh - 3.375rem);
     overflow-y: auto;
   }
 
-  /* Adjust header for landscape */
   .app-main-container-header {
     position: sticky;
     top: 0;

@@ -6,7 +6,7 @@ import * as geolocation from "./geolocation.js";
 import { formatDate } from "./utils.js";
 import { isAuthenticated } from "./auth.js";
 
-// check if user is authenticated
+
 function checkAuth() {
   // Don't check auth on login/signup pages
   const currentPath = window.location.pathname;
@@ -22,7 +22,6 @@ function checkAuth() {
   return true;
 }
 
-// validation rules
 const VALIDATION_RULES = {
   title: {
     required: true,
@@ -48,7 +47,6 @@ const VALIDATION_RULES = {
   },
 };
 
-// validate a single field
 function validateField(fieldId, value) {
   const field = VALIDATION_RULES[fieldId];
   if (!field) return { isValid: true };
@@ -76,7 +74,6 @@ function validateField(fieldId, value) {
   return { isValid: true };
 }
 
-// check if entire form is valid
 function isFormValid() {
   const titleInput = document.getElementById("note-title");
   const contentInput = document.getElementById("note-content");
@@ -89,7 +86,6 @@ function isFormValid() {
   return titleValidation.isValid && contentValidation.isValid;
 }
 
-// update submit button state
 function updateSubmitButtonState() {
   const submitButton = document.getElementById("create-note-btn");
 
@@ -100,9 +96,7 @@ function updateSubmitButtonState() {
   submitButton.classList.toggle("disabled", !valid);
 }
 
-// helper function to refresh everything
 function refreshNotes() {
-  // check what view the user is currently on
   const isArchivedView = document.querySelector(
     ".archived-notes-link.is-active"
   );
@@ -122,7 +116,6 @@ function refreshNotes() {
 
 let previousViewport = window.innerWidth >= 1024 ? "desktop" : "mobile-tablet";
 
-// Handle viewport changes (mobile/tablet < 1024px, desktop >= 1024px)
 function handleViewportChange() {
   // Breakpoint: < 1024px = mobile/tablet (same behavior), >= 1024px = desktop
   const currentViewport =
@@ -200,7 +193,6 @@ function handleViewportChange() {
   }
 }
 
-// Initialize app, set up event listeners, and load data
 const initializeApp = () => {
   // Don't initialize on settings page
   if (document.querySelector(".settings-section")) {
@@ -237,7 +229,6 @@ const initializeApp = () => {
   setupEventListeners();
 };
 
-// event listeners
 function setupEventListeners() {
   // === create note ===
   // create note desktop only
@@ -710,15 +701,12 @@ function setupEventListeners() {
 }
 
 // === helper functions ===
-// show create note form
 function showCreateNoteForm() {
   const container = document.querySelector(".app-main-container-content");
   if (!container) return false;
 
-  // Preserve tags menu when clearing
   const tagsMenu = container.querySelector("#tags-menu-sm");
 
-  // Clear existing content but preserve tags menu
   const children = Array.from(container.children);
   children.forEach((child) => {
     if (child.id !== "tags-menu-sm") {
@@ -731,29 +719,23 @@ function showCreateNoteForm() {
     tagsMenu.classList.remove("is-active");
   }
 
-  // Update header title based on screen size
   const headerTitle = document.querySelector(".app-main-container-header h2");
   if (headerTitle) {
     const isMobileOrTablet = window.innerWidth < 1024;
     if (isMobileOrTablet) {
-      // Hide on mobile/tablet
       headerTitle.textContent = "";
-      //   headerTitle.style.display = "none";
     } else {
       headerTitle.textContent = "Create New Note";
       headerTitle.style.display = "block";
     }
   }
 
-  // create form wrapper
   const formWrapper = document.createElement("div");
   formWrapper.classList.add("note-details-wrapper");
 
-  // Create header section for mobile/tablet
   const headerSection = document.createElement("div");
   headerSection.classList.add("note-details-header", "mobile-tablet-only");
 
-  // Create mobile/tablet actions row
   const mobileActionsRow = document.createElement("div");
   mobileActionsRow.classList.add(
     "note-details-header-actions",
@@ -776,10 +758,8 @@ function showCreateNoteForm() {
         </div>
     `;
 
-  // Back button handler
   const backButton = mobileActionsRow.querySelector('[data-action="back"]');
   backButton.addEventListener("click", () => {
-    // Preserve tags menu when clearing
     const tagsMenu = container.querySelector("#tags-menu-sm");
 
     const children = Array.from(container.children);
@@ -797,10 +777,8 @@ function showCreateNoteForm() {
     document.dispatchEvent(new CustomEvent("showAllNotes"));
   });
 
-  // Cancel button handler
   const cancelButton = mobileActionsRow.querySelector('[data-action="cancel"]');
   cancelButton.addEventListener("click", () => {
-    // Preserve tags menu when clearing
     const tagsMenu = container.querySelector("#tags-menu-sm");
 
     const children = Array.from(container.children);
@@ -816,7 +794,6 @@ function showCreateNoteForm() {
     }
   });
 
-  // Create Note button handler
   const createButton = mobileActionsRow.querySelector('[data-action="create"]');
   createButton.addEventListener("click", (e) => {
     e.preventDefault();
@@ -826,11 +803,9 @@ function showCreateNoteForm() {
   headerSection.appendChild(mobileActionsRow);
   formWrapper.appendChild(headerSection);
 
-  // Create form content section
   const formContentSection = document.createElement("div");
   formContentSection.classList.add("note-details-content");
 
-  // create form html
   formContentSection.innerHTML = `
        <form id="create-note-form">
          <input 
@@ -887,7 +862,6 @@ function showCreateNoteForm() {
 
   formWrapper.appendChild(formContentSection);
 
-  // footer section (desktop only)
   const footerSection = document.createElement("div");
   footerSection.classList.add("note-details-footer", "desktop-only");
 
@@ -906,7 +880,6 @@ function showCreateNoteForm() {
 
   cancelDesktopButton.addEventListener("click", (e) => {
     e.preventDefault();
-    // Preserve tags menu when clearing
     const tagsMenu = container.querySelector("#tags-menu-sm");
 
     const children = Array.from(container.children);
@@ -921,13 +894,11 @@ function showCreateNoteForm() {
       tagsMenu.classList.remove("is-active");
     }
 
-    // remove has-note-selected class if it exists
     const appMainContainer = document.querySelector(".app-main-container");
     if (appMainContainer) {
       appMainContainer.classList.remove("has-note-selected");
     }
 
-    // clear the actions column
     const actionsColumn = document.querySelector(".app-main-container-actions");
     if (actionsColumn) {
       actionsColumn.remove();
@@ -938,10 +909,8 @@ function showCreateNoteForm() {
   formWrapper.appendChild(footerSection);
   container.appendChild(formWrapper);
 
-  // add location permission request button to form
   const locationButton = document.getElementById("location-button");
   if (locationButton) {
-    // helper text element to show current location state
     const ensureLocationHelper = () => {
       let helper = document.getElementById("location-helper");
       if (!helper) {
@@ -953,7 +922,6 @@ function showCreateNoteForm() {
       return helper;
     };
 
-    // initialize helper with default state
     const locationHelper = ensureLocationHelper();
     locationHelper.textContent = "Location: Not available";
 
@@ -995,7 +963,6 @@ function showCreateNoteForm() {
     });
   }
 
-  // add event listener to create note button (desktop)
   const createNoteBtn = document.getElementById("create-note-btn");
   if (createNoteBtn) {
     createNoteBtn.addEventListener("click", (e) => {
@@ -1004,12 +971,10 @@ function showCreateNoteForm() {
     });
   }
 
-  // add event listener to cancel button (desktop)
   const cancelBtn = document.getElementById("create-cancel-btn");
   if (cancelBtn) {
     cancelBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      // Preserve tags menu when clearing
       const tagsMenu = container.querySelector("#tags-menu-sm");
 
       const children = Array.from(container.children);
@@ -1026,7 +991,6 @@ function showCreateNoteForm() {
     });
   }
 
-  // add event listener to form
   const form = document.getElementById("create-note-form");
   if (form) {
     form.addEventListener("submit", (e) => {
@@ -1035,12 +999,10 @@ function showCreateNoteForm() {
     });
   }
 
-  // add event listener to draft save button
   const titleInput = document.getElementById("note-title");
   const contentInput = document.getElementById("note-content");
   const tagsInput = document.getElementById("note-tags");
 
-  // debounce function for autosave
   let draftTimeout;
   const autosaveDraft = () => {
     clearTimeout(draftTimeout);
@@ -1060,7 +1022,6 @@ function showCreateNoteForm() {
     }, 1000);
   };
 
-  // input listeners for auto-save
   if (titleInput) {
     titleInput.addEventListener("input", autosaveDraft);
   }
@@ -1071,7 +1032,6 @@ function showCreateNoteForm() {
     tagsInput.addEventListener("input", autosaveDraft);
   }
 
-  // restore draft on form load
   const savedDraft = storage.loadDraft();
   if (savedDraft) {
     if (titleInput) titleInput.value = savedDraft.title || "";
@@ -1089,7 +1049,6 @@ function showCreateNoteForm() {
   setupFormValidation();
 }
 
-// setup form validation listeners
 function setupFormValidation() {
   const titleInput = document.getElementById("note-title");
   const contentInput = document.getElementById("note-content");
@@ -1097,7 +1056,6 @@ function setupFormValidation() {
 
   if (!titleInput || !contentInput) return;
 
-  // validate blur
   titleInput.addEventListener("blur", () => {
     const validation = validateField("title", titleInput.value);
     if (!validation.isValid) {
@@ -1118,7 +1076,6 @@ function setupFormValidation() {
     updateSubmitButtonState();
   });
 
-  // clear errors on input (real-time feedback)
   titleInput.addEventListener("input", () => {
     ui.clearValidationError("#note-title");
     updateSubmitButtonState();
@@ -1132,11 +1089,9 @@ function setupFormValidation() {
     updateSubmitButtonState();
   });
 
-  // initial state check
   updateSubmitButtonState();
 }
 
-// handle create note submission
 function handleCreateNote() {
   const titleInput = document.getElementById("note-title").value;
   const contentInput = document.getElementById("note-content").value;
@@ -1151,7 +1106,6 @@ function handleCreateNote() {
   const title = titleInput.trim();
   const content = contentInput.trim();
 
-  // validate inputs with dynamic DOM errors
   const titleValidation = validateField("title", title);
   const contentValidation = validateField("content", content);
 
@@ -1167,7 +1121,6 @@ function handleCreateNote() {
   }
 
   if (hasErrors) {
-    // focus first invalid
     if (!titleValidation.isValid) {
       titleInput.focus();
     } else if (!contentValidation.isValid) {
@@ -1175,24 +1128,20 @@ function handleCreateNote() {
     }
     return;
   }
-  // parse tags into array
   const tags = tagsInput
     .trim()
     .split(",")
     .map((tag) => tag.trim());
 
-  // validate inputs
   if (!title || !content) {
     alert("Please enter a title and content");
     return;
   }
 
   try {
-    // create note object
     const newNote = noteManager.createNote(title, content, tags);
     newNote.location = location;
 
-    // save note to storage
     const allNotes = noteManager.getAllNotes();
     allNotes.push(newNote);
 
@@ -1202,20 +1151,16 @@ function handleCreateNote() {
       return;
     }
 
-    // clear draft on successful note creation
     storage.clearDraft();
     console.log("Draft cleared");
 
-    // refresh notes
     refreshNotes();
 
-    // show toast notification with link to view note
     ui.showToastCreated(newNote.id);
   } catch (error) {
     console.error("Error creating note:", error);
   }
 }
-// initialize app
 document.addEventListener("DOMContentLoaded", () => {
   if (document.querySelector(".settings-section")) {
     return;

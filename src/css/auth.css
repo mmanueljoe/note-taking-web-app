@@ -1,4 +1,3 @@
-/* login and sign styling */
 
 .auth-main {
   grid-column: 1 / span 12;
@@ -99,7 +98,6 @@
 .auth-form-group-input input {
   border: 1px solid var(--border-tertiary);
 }
-/* password input with toggle button */
 .auth-form-group-input {
   position: relative;
   width: 100%;
@@ -109,7 +107,6 @@
   padding-right: 3rem;
 }
 
-/* password visibility toggle button */
 .auth-form-group-toggle {
   position: absolute;
   right: 0.75rem;
@@ -130,7 +127,6 @@
 }
 
 
-/* input focus states */
 .auth-form-group input:focus,
 .auth-form-group-input input:focus {
   outline: 2px solid var(--outline-secondary);
@@ -155,7 +151,6 @@
   outline: none !important;
 }
 
-/* error states */
 .auth-form-group-error {
   display: flex;
   align-items: center;

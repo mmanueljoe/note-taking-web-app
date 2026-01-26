@@ -1,8 +1,6 @@
 import * as storage from "./storage.js";
 
-// signup function
 export const signup = (email, password) => {
-  // 1. Validate email and password
   if (!email || !password) {
     return {
       success: false,
@@ -77,7 +75,6 @@ export const signup = (email, password) => {
   };
 };
 
-// login function
 export const login = (email, password) => {
   // 1. Validate email and password
   if (!email || !password) {
@@ -132,14 +129,12 @@ export const login = (email, password) => {
   };
 };
 
-// logout function
 export const logout = () => {
   // clear auth from localStorage
   const result = storage.clearAuth();
   return result;
 };
 
-// check if user is authenticated
 export const isAuthenticated = () => {
   //  check if user is logged in
   const authData = storage.loadAuth();
@@ -151,7 +146,6 @@ export const isAuthenticated = () => {
   return !!authData.userId && !!authData.email;
 };
 
-// get current user
 export const getCurrentUser = () => {
   // get current logged-in user info
   if (!isAuthenticated()) {
@@ -175,7 +169,6 @@ export const getCurrentUser = () => {
   };
 };
 
-// change password
 export const changePassword = (currentPassword, newPassword) => {
   // validate inputs
   if (!currentPassword || !newPassword) {
@@ -257,15 +250,12 @@ export const changePassword = (currentPassword, newPassword) => {
 
 // === helper functions ===
 
-// validate email format
 const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-// validate password strength (min 8 characters)
 const isValidPassword = (password) => {
   return password.length >= 8;
 };
 
-// hash password using bcrypt

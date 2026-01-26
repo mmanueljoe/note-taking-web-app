@@ -15,7 +15,6 @@ export const renderNote = (note, searchQuery = null) => {
   noteElement.setAttribute("tabindex", "0");
   noteElement.setAttribute("role", "button");
 
-  // Highlight search terms if search query is provided
   const titleHtml = searchQuery
     ? highlightSearchTerms(note.title, searchQuery)
     : escapeHtml(note.title);
@@ -37,7 +36,6 @@ export const renderNote = (note, searchQuery = null) => {
     <span class="note-date">${formatDate(note.lastEdited)}</span>
   `;
 
-  // Make it look clickable
   noteElement.style.cursor = "pointer";
 
   return noteElement;
@@ -50,10 +48,8 @@ export const renderAllNotes = (
   autoSelectFirst = true,
   searchQuery = null
 ) => {
-  // select container
   const isDesktop = window.innerWidth >= 1024;
 
-  // clear is-selected class from all note cards
   const allNoteCards = document.querySelectorAll(".note-card");
   allNoteCards.forEach((card) => card.classList.remove("is-selected"));
 
@@ -85,33 +81,27 @@ export const renderAllNotes = (
 
   if (!targetContainer) return;
 
-  // if no notes, show a placeholder message
   if (!notes || notes.length === 0) {
     renderEmptyState(viewType);
     updateHeader(filterTag, viewType);
     return;
   }
 
-  // update header title
   updateHeader(filterTag, viewType);
 
-  // If filtered by tag, add back button (mobile/tablet only)
   if (filterTag && !isDesktop) {
     const header = document.querySelector(".app-main-container-header");
     const headerTitle = header?.querySelector("h2");
 
-    // Store the filter tag in data attribute
     if (header) {
       header.setAttribute("data-current-filter-tag", filterTag);
     }
 
-    // Remove any existing filter back button first
     const existingBackBtn = header?.querySelector(".filter-back-button");
     if (existingBackBtn) {
       existingBackBtn.remove();
     }
 
-    // Add back button in HEADER before the title (mobile/tablet only)
     const backButton = document.createElement("button");
     backButton.classList.add(
       "back-button",
@@ -127,14 +117,11 @@ export const renderAllNotes = (
   `;
 
     backButton.addEventListener("click", () => {
-      // Remove the back button
       backButton.remove();
-      // Clear the filter tag data attribute
       if (header) {
         header.removeAttribute("data-current-filter-tag");
       }
 
-      // Go back to tags menu instead of all notes
       const contentContainer = document.querySelector(
         ".app-main-container-content"
       );
@@ -142,12 +129,10 @@ export const renderAllNotes = (
       const tagsLink = document.querySelector(".tags-link.mobile-tablet-only");
 
       if (tagsMenu && contentContainer) {
-        // Hide the notes list
         const notesList = contentContainer.querySelector(".notes-list");
         if (notesList) {
           notesList.style.display = "none";
         }
-        // show the tags menu
         const otherElements = contentContainer.querySelectorAll(
           ".app-main-container-content > *:not(#tags-menu-sm)"
         );
@@ -156,85 +141,66 @@ export const renderAllNotes = (
         tagsMenu.classList.add("is-active");
         contentContainer.classList.add("tags-section-open");
 
-        // update header to "tags"
         const headerTitle = header?.querySelector("h2");
         if (headerTitle) {
           headerTitle.textContent = "Tags";
         }
 
-        // set tags link as active
         if (tagsLink) {
           const allLinks = document.querySelectorAll(".menu-item > a");
           allLinks.forEach((link) => link.classList.remove("is-active"));
           tagsLink.classList.add("is-active");
         }
       } else {
-        // Dispatch event to show all notes (this will update the header via updateHeader)
         document.dispatchEvent(new CustomEvent("showAllNotes"));
       }
     });
 
-    // Insert back button BEFORE the h2 title in the header
     if (header && headerTitle) {
       header.insertBefore(backButton, headerTitle);
     }
   } else if (!filterTag) {
-    // Only clear filter-related stuff if we're NOT filtering
     const header = document.querySelector(".app-main-container-header");
     const existingBackBtn = header?.querySelector(".filter-back-button");
     if (existingBackBtn) {
       existingBackBtn.remove();
     }
 
-    // Clear the filter tag data attribute when not filtering
     if (header) {
       header.removeAttribute("data-current-filter-tag");
     }
   }
 
-  //  data attribute for event delegation
   targetContainer.setAttribute("data-notes-container", "true");
 
-  //  note list container
   const noteList = document.createElement("div");
   noteList.classList.add("notes-list");
 
-  // add attribute to note list
   noteList.setAttribute("data-notes-list", "true");
 
-  //  render note cards
-  let isFirstNote = true; // Track if this is the first note
+  let isFirstNote = true;
   notes.forEach((note) => {
     const noteCard = renderNote(note, searchQuery);
 
-    // add data attribute with node id for identification
     noteCard.setAttribute("data-note-id", note.id);
     noteList.appendChild(noteCard);
 
-    // auto-select first note card in desktop mode (ONLY the first one)
     const isDesktop = window.innerWidth >= 1024;
     if (isDesktop && notes.length > 0 && autoSelectFirst && isFirstNote) {
-      // select ONLY the first note card
       noteCard.classList.add("is-selected");
 
-      // show note details
       renderNoteDetails(note);
 
-      // Set flag to false so subsequent notes don't get selected
       isFirstNote = false;
     } else {
-      // For all other notes, ensure they don't have is-selected
       noteCard.classList.remove("is-selected");
     }
   });
 
-  // append note list to content container
   targetContainer.appendChild(noteList);
 };
 
-// Show validation error for form fields
 export const showValidationError = (field, message) => {
-  // Find the field element (could be input, textarea, etc.)
   const fieldElement =
     typeof field === "string" ? document.querySelector(field) : field;
 
@@ -260,7 +226,6 @@ export const showValidationError = (field, message) => {
   fieldElement.parentElement.appendChild(errorElement);
 };
 
-// Clear validation error
 export const clearValidationError = (field) => {
   const fieldElement =
     typeof field === "string" ? document.querySelector(field) : field;
@@ -275,7 +240,6 @@ export const clearValidationError = (field) => {
   }
 };
 
-// Toast notification system with icons and links
 export const showToast = (type, message, options = {}) => {
   const { duration = 4000, linkText, linkAction, noteId } = options;
 
@@ -386,7 +350,6 @@ export const showToast = (type, message, options = {}) => {
   }, duration);
 };
 
-// Convenience functions for different toast types
 export const showToastCreated = (noteId) => {
   showToast("created", "Note created successfully", {
     linkText: "View note",
@@ -414,7 +377,6 @@ export const showToastSaved = () => {
   });
 };
 
-// render tags menu for desktop
 export const renderTagLinks = (tags) => {
   const menuList = document.querySelector(".menu-list");
   if (!menuList) return;
@@ -487,7 +449,6 @@ export const renderTagLinks = (tags) => {
   }
 };
 
-// initialize tags menu for mobile and tablet
 export const initializeTagsMenu = () => {
   const tags = getAllUniqueTags();
 
@@ -572,7 +533,6 @@ export const initializeTagsMenu = () => {
   }
 };
 
-// Update tag list display (for tag management UI)
 export const updateTagList = (tags) => {
   // This function would update a tag list UI element
   // For example, a sidebar showing all available tags
@@ -597,7 +557,6 @@ export const updateTagList = (tags) => {
   });
 };
 
-// Toggle between all notes and archived notes view
 export const toggleArchiveView = (showArchived = false) => {
   // Update the header title
   const headerTitle = document.querySelector(".app-main-container-header h2");
@@ -626,13 +585,11 @@ export const toggleArchiveView = (showArchived = false) => {
   return showArchived;
 };
 
-// clear all links active states
 export const clearMenuActiveStates = () => {
   const allLinks = document.querySelectorAll(".menu-item > a");
   allLinks.forEach((link) => link.classList.remove("is-active"));
 };
 
-// set active state for a specific link
 export const setMenuLinkActive = (linkSelector) => {
   clearMenuActiveStates();
 
@@ -642,21 +599,17 @@ export const setMenuLinkActive = (linkSelector) => {
   }
 };
 
-// render search view (mobile/tablet only)
 export const renderSearchView = () => {
   const container = document.querySelector(".app-main-container-content");
   if (!container) return;
 
-  // change header title to search
   const headerTitle = document.querySelector(".app-main-container-header h2");
   if (headerTitle) {
     headerTitle.textContent = "Search";
   }
 
-  // preserve tags menu when clearing
   const tagsMenu = container.querySelector("#tags-menu-sm");
 
-  // Clear container but preserve tags menu
   const children = Array.from(container.children);
   children.forEach((child) => {
     if (child.id !== "tags-menu-sm") {
@@ -669,7 +622,6 @@ export const renderSearchView = () => {
     tagsMenu.classList.remove("is-active");
   }
 
-  // create search container
   const searchWrapper = document.createElement("div");
   searchWrapper.classList.add("search-view-wrapper", "mobile-tablet-only");
 
@@ -691,10 +643,8 @@ export const renderSearchView = () => {
 
   container.appendChild(searchWrapper);
 
-  // add event listeners
   const searchInput = searchWrapper.querySelector("#mobile-search-input");
   if (searchInput) {
-    // debounce search
     let searchTimeout;
     searchInput.addEventListener("input", (e) => {
       clearTimeout(searchTimeout);
@@ -713,7 +663,6 @@ export const renderSearchView = () => {
           return;
         }
 
-        // dispatch search event
         document.dispatchEvent(
           new CustomEvent("searchNotesMobile", { detail: { query } })
         );
@@ -724,7 +673,6 @@ export const renderSearchView = () => {
   }
 };
 
-// render search results (mobile/tablet only)
 export const renderSearchResults = (query, results) => {
   const container = document.querySelector(".app-main-container-content");
   if (!container) return;
@@ -739,7 +687,6 @@ export const renderSearchResults = (query, results) => {
 
   if (!messageContainer || !resultsContainer) return;
 
-  // Clear previous results
   resultsContainer.innerHTML = "";
 
   if (!results || results.length === 0) {
@@ -753,11 +700,9 @@ export const renderSearchResults = (query, results) => {
     return;
   }
 
-  // Show message
   messageContainer.style.display = "flex";
   messageContainer.textContent = `All notes matching "${query}" are displayed below.`;
 
-  // Create note list
   const noteList = document.createElement("div");
   noteList.classList.add("notes-list");
 
@@ -770,9 +715,7 @@ export const renderSearchResults = (query, results) => {
   resultsContainer.appendChild(noteList);
 };
 
-// Clear note form (for creating/editing notes)
 export const clearNoteForm = () => {
-  // Find form inputs (title, content, tags)
   const titleInput = document.querySelector(
     'input[name="note-title"], #note-title'
   );
@@ -800,7 +743,6 @@ export const clearNoteForm = () => {
 };
 
 // === helper functions ===
-// render empty state
 export const renderEmptyState = (viewType = "all") => {
   const isDesktop = window.innerWidth >= 1024;
 
@@ -870,9 +812,7 @@ export const renderEmptyState = (viewType = "all") => {
   targetContainer.appendChild(emptyStateContainer);
 };
 
-// render note details
 export const renderNoteDetails = (note) => {
-  // remove is-selected class from all note cards
   const allNoteCards = document.querySelectorAll(".note-card");
   allNoteCards.forEach((card) => card.classList.remove("is-selected"));
 

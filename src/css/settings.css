@@ -19,7 +19,6 @@
   background-color: inherit;
   border: none;
   cursor: pointer;
-  /* transition: all 0.3s ease; */
   padding: var(--spacing-100);
   border-radius: var(--radius-8);
 }
@@ -230,7 +229,6 @@
   width: 100%;
   padding-right: calc(var(--spacing-200) + 24px + var(--spacing-200));
   padding: var(--spacing-100) var(--spacing-200);
-  /* padding: var(--spacing-100) var(--spacing-200); */
   border-radius: var(--radius-8);
   border: 1px solid var(--border-secondary);
   box-shadow: var(--shadow-lg);
@@ -281,7 +279,6 @@
   padding: var(--spacing-200) 0;
 }
 
-/* display section only when link is clicked */
 .settings-section {
   display: none;
 }
@@ -297,13 +294,11 @@
   background-color: var(--background-primary);
 }
 
-/* show nav on mobile/tablet only */
 .app-main-container-nav {
   display: flex !important;
   flex-direction: column;
 }
 
-/* hide nav when settings section is open */
 .app-main-container.settings-section-open .app-main-container-nav {
   display: none !important;
 }
@@ -314,12 +309,10 @@
   width: 100%;
 }
 
-/* sections section hidden by default */
 .settings-section {
   display: none !important;
 }
 
-/* sections section shown when active */
 .settings-section.is-active {
   display: flex !important;
   flex-direction: column;

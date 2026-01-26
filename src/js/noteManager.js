@@ -1,6 +1,5 @@
 import { loadNotes, saveNotes } from "./storage.js";
 
-// Note class
 export class Note {
   constructor(title, content, tags) {
     this.id = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
@@ -51,13 +50,11 @@ export class Note {
   }
 }
 
-// create note
 export const createNote = (title, content, tags = []) => {
   const note = new Note(title, content, tags);
   return note.toJSON();
 };
 
-// delete note
 export const deleteNote = (id) => {
   const notes = loadNotes();
 
@@ -66,7 +63,6 @@ export const deleteNote = (id) => {
   return true;
 };
 
-// update note
 export const updateNote = (id, updates) => {
   const notes = loadNotes();
   const note = notes.find((note) => note.id === id);
@@ -76,11 +72,9 @@ export const updateNote = (id, updates) => {
   Object.assign(note, updates);
   note.lastEdited = new Date();
   saveNotes(notes);
-  // return updated note
   return note;
 };
 
-// search notes
 export const searchNotes = (query) => {
   const notes = loadNotes();
 
@@ -92,31 +86,26 @@ export const searchNotes = (query) => {
   );
 };
 
-// filter notes by tag
 export const filterByTag = (tag) => {
   const notes = loadNotes();
 
   return notes.filter((note) => note.tags.includes(tag));
 };
 
-// get all notes
 export const getAllNotes = () => {
   return loadNotes();
 };
 
-// get archived notes
 export const getArchivedNotes = () => {
   const notes = loadNotes();
   return notes.filter((note) => note.isArchived === true);
 };
 
-// get unarchived notes
 export const getUnarchivedNotes = () => {
   const notes = loadNotes();
   return notes.filter((note) => !note.isArchived);
 };
 
-// get note by id
 export const getNoteById = (id) => {
   const notes = loadNotes();
   return notes.find((note) => note.id === id);

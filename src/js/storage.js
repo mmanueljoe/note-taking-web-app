@@ -1,4 +1,4 @@
-// generic storage helpers
+ 
 const STORAGE_KEYS = {
   NOTES: "notes",
   PREFERENCES: "preferences",
@@ -7,17 +7,13 @@ const STORAGE_KEYS = {
   USERS: "app_users",
 };
 
-//  save notes to localStorage
 export const saveNotes = (notes) => {
   try {
     localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify(notes));
     return { success: true, error: null };
   } catch (error) {
-    // check if it's a quota error
     if (error.name === "QuotaExceededError" || error.code === 22) {
       console.error("Storage quota exceeded!");
-
-      // return error info for user feedback
       return {
         success: false,
         error: "quota",
@@ -27,7 +23,6 @@ export const saveNotes = (notes) => {
     } else {
       console.error("Error saving notes:", error);
 
-      // return error info for user feedback
       return {
         success: false,
         error: "unknown",
@@ -47,7 +42,6 @@ export const loadNotes = () => {
   }
 };
 
-// save preferences to localStorage
 export const savePreferences = (prefs) => {
   try {
     // get current preferences or default to empty object
@@ -79,7 +73,6 @@ export const savePreferences = (prefs) => {
   }
 };
 
-// load preferences from localStorage
 export const loadPreferences = () => {
   try {
     const storedPrefs = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
@@ -90,7 +83,6 @@ export const loadPreferences = () => {
   }
 };
 
-// save draft to localStorage
 export const saveDraft = (draft) => {
   try {
     sessionStorage.setItem(STORAGE_KEYS.DRAFT, JSON.stringify(draft));
@@ -105,7 +97,6 @@ export const saveDraft = (draft) => {
   }
 };
 
-// load draft from localStorage
 export const loadDraft = () => {
   try {
     const storedDraft = sessionStorage.getItem(STORAGE_KEYS.DRAFT);
@@ -123,7 +114,6 @@ export const loadDraft = () => {
   }
 };
 
-// clear draft from sessionStorage
 export const clearDraft = () => {
   try {
     sessionStorage.removeItem(STORAGE_KEYS.DRAFT);
@@ -138,7 +128,6 @@ export const clearDraft = () => {
   }
 };
 
-// save auth to localStorage
 export const saveAuth = (auth) => {
   try {
     localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(auth));
@@ -153,7 +142,6 @@ export const saveAuth = (auth) => {
   }
 };
 
-// load auth from localStorage
 export const loadAuth = () => {
   try {
     const storedAuth = localStorage.getItem(STORAGE_KEYS.AUTH);
@@ -164,7 +152,6 @@ export const loadAuth = () => {
   }
 };
 
-// clear auth from localStorage
 export const clearAuth = () => {
   try {
     localStorage.removeItem(STORAGE_KEYS.AUTH);
@@ -179,7 +166,6 @@ export const clearAuth = () => {
   }
 };
 
-// save users to localStorage
 export const saveUsers = (users) => {
   try {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
@@ -194,7 +180,6 @@ export const saveUsers = (users) => {
   }
 };
 
-// load users from localStorage
 export const loadUsers = () => {
   try {
     const storedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
