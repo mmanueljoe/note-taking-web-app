@@ -7,6 +7,8 @@ import {
 } from "./utils.js";
 import { getAllNotes, filterByTag, getArchivedNotes } from "./noteManager.js";
 import * as ui from "./ui.js";
+import { initRichTextEditor } from "./richText.js";
+import {createShareLink, copyToClipboard} from "./share.js";
 
 export const renderNote = (note, searchQuery = null) => {
   const noteElement = document.createElement("div");
@@ -872,6 +874,8 @@ export const renderEmptyState = (viewType = "all") => {
 };
 
 // render note details
+let detailRte;
+
 export const renderNoteDetails = (note) => {
   // remove is-selected class from all note cards
   const allNoteCards = document.querySelectorAll(".note-card");
@@ -1531,8 +1535,35 @@ export const renderNoteDetails = (note) => {
     }
   });
 
+  // create share button
+  const shareButton = document.createElement('button');
+shareButton.classList.add('share-button');
+shareButton.innerHTML = `
+  <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+    <!-- simple share icon -->
+    <path d="M13.5 3.5L16.5 6.5L13.5 9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M16.5 6.5H11.5C8.73858 6.5 6.5 8.73858 6.5 11.5V13.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="share-button-label">Share</span>
+`;
+
+  shareButton.addEventListener('click', async () => {
+    const link = createShareLink(note.id);
+    const ok = await copyToClipboard(link);
+
+    if (ok) {
+      showToast('saved', 'Share link copied to clipboard', {
+        duration: 3000,
+      });
+    } else {
+      // Fallback: show prompt if clipboard failed
+      window.prompt('Copy this link:', link);
+    }
+  });
+
   actionsColumn.appendChild(archiveButton);
   actionsColumn.appendChild(deleteButton);
+  actionsColumn.appendChild(shareButton);
 
   // create content section
   const contentSection = document.createElement("div");
@@ -1602,26 +1633,28 @@ export const renderNoteDetails = (note) => {
         </div>
         ${locationHtml}
       </div>
-      <textarea 
-        class="note-details-body editable"
-      >${escapeHtml(note.content || "")}</textarea>
+      <div 
+        class="note-details-body-wrapper editable"
+      ></div>
     `;
 
   // Get references to elements after innerHTML
   const title = contentSection.querySelector(".note-details-title");
   const tagsInput = contentSection.querySelector(".note-details-tags-input");
-  const contentDisplay = contentSection.querySelector(".note-details-body");
+  const contentWrapper = contentSection.querySelector(".note-details-body-wrapper");
+  detailRte = initRichTextEditor(contentWrapper, { placeholder: 'Edit note...' });
+  detailRte.setHTML(note.content || '');
 
   // Add event listener for Enter key on textarea
-  contentDisplay.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      const saveButton = document.querySelector(".save-button");
-      if (saveButton) {
-        saveButton.click();
-      }
-    }
-  });
+  // contentDisplay.addEventListener("keydown", (e) => {
+  //   if (e.key === "Enter" && !e.shiftKey) {
+  //     e.preventDefault();
+  //     const saveButton = document.querySelector(".save-button");
+  //     if (saveButton) {
+  //       saveButton.click();
+  //     }
+  //   }
+  // });
 
   // Update header title based on screen size
   const headerTitle = document.querySelector(".app-main-container-header h2");
@@ -1653,7 +1686,6 @@ export const renderNoteDetails = (note) => {
   saveButton.addEventListener("click", () => {
     // Get updated values from the detail view
     const updatedTitle = title.value.trim();
-    const updatedContent = contentDisplay.value.trim();
 
     // parse tags
     const updatedTags = tagsInput.value
@@ -1662,12 +1694,14 @@ export const renderNoteDetails = (note) => {
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
+    const updatedContentHtml = detailRte?.getHtml() || '';
+
     // Dispatch event to save note
     const event = new CustomEvent("saveNote", {
       detail: {
         noteId: note.id,
         title: updatedTitle,
-        content: updatedContent,
+        content: updatedContentHtml,
         tags: updatedTags,
       },
     });
@@ -1712,6 +1746,83 @@ export const renderNoteDetails = (note) => {
   detailWrapper.appendChild(headerSection);
   detailWrapper.appendChild(contentSection);
   detailWrapper.appendChild(footerSection);
+
+  container.appendChild(detailWrapper);
+};
+
+// render shared note read-only
+export const renderSharedNoteReadOnly = (note) => {
+  const container = document.querySelector('.app-main-container-content');
+  if (!container) return;
+
+  // Clear current content
+  const children = Array.from(container.children);
+  children.forEach(child => child.remove());
+
+  const detailWrapper = document.createElement('div');
+  detailWrapper.classList.add('note-details-wrapper', 'shared-note-view');
+
+  const headerSection = document.createElement('div');
+  headerSection.classList.add('note-details-header');
+
+  headerSection.innerHTML = `
+    <div class="note-details-header-actions">
+      <div class="note-details-left">
+        <span class="shared-badge">Shared Note (Read‑only)</span>
+      </div>
+    </div>
+  `;
+
+  const contentSection = document.createElement('div');
+  contentSection.classList.add('note-details-content');
+
+  const tagsValue = (note.tags || []).join(', ');
+  const hasLocation = note.location && note.location.city && note.location.country;
+
+  contentSection.innerHTML = `
+    <h1 class="note-details-title">${escapeHtml(note.title)}</h1>
+    <div class="note-details-meta">
+      <div class="note-details-tags">
+        <span>
+          <!-- same icon as edit view -->
+          Tags
+        </span>
+        <span class="note-details-tags-value">
+          ${tagsValue ? escapeHtml(tagsValue) : 'No tags'}
+        </span>
+      </div>
+      <div class="note-details-status">
+        <span class="note-details-status-label">Status</span>
+        <span class="note-details-status-value">
+          ${note.isArchived ? 'Archived' : 'Active'}
+        </span>
+      </div>
+      <div class="note-details-date">
+        <span class="note-details-date-label">Last Edited</span>
+        <span class="note-details-date-value">
+          ${formatDate(note.lastEdited)}
+        </span>
+      </div>
+      ${
+        hasLocation
+          ? `<div class="note-details-location">
+               <span class="note-details-location-label">Location</span>
+               <span class="note-details-location-value">
+                 ${escapeHtml(note.location.city)}, ${escapeHtml(note.location.country)}
+               </span>
+             </div>`
+          : ''
+      }
+    </div>
+    <div class="note-details-body read-only-body"></div>
+  `;
+
+  // Insert sanitized HTML content
+  const bodyEl = contentSection.querySelector('.note-details-body');
+  bodyEl.innerHTML = note.content || '';
+
+  detailWrapper.appendChild(headerSection);
+  detailWrapper.appendChild(contentSection);
 
   container.appendChild(detailWrapper);
 };

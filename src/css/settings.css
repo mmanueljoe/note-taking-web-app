@@ -90,13 +90,13 @@
     color: var(--text-secondary);
 }
 
-.color-theme-container, .font-theme-container{
+.color-theme-container, .font-theme-container, .export-import-container{
     display: flex;
     flex-direction: column;
     gap: var(--spacing-250);
 }
 
-.color-theme-item, .font-theme-item{
+.color-theme-item, .font-theme-item, .export-import-item{
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -106,13 +106,13 @@
     border: 1px solid var(--border-tertiary);
 }
 
-.color-theme-content, .font-theme-content{
+.color-theme-content, .font-theme-content, .export-import-content{
     display: flex;
     align-items: center;
     gap: var(--spacing-200);
 }
 
-.color-theme-icon, .font-theme-icon{
+.color-theme-icon, .font-theme-icon, .export-import-icon{
     width: var(--spacing-500);
     height: var(--spacing-500);
     display: flex;
@@ -125,11 +125,11 @@
     box-shadow: var(--shadow-lg);
 }
 
-.color-theme-icon > svg, .font-theme-icon > svg{
+.color-theme-icon > svg, .font-theme-icon > svg, .export-import-icon > svg{
     color: var(--text-primary);
 }
 
-.color-theme-label h3, .font-theme-label h3{
+.color-theme-label h3, .font-theme-label h3, .export-import-label h3{
     font-size: var(--sans-serif-preset-4-size);
     font-weight: var(--sans-serif-preset-4-letter-weight);
     line-height: var(--sans-serif-preset-4-line-height);
@@ -138,7 +138,7 @@
     margin-bottom: var(--spacing-050);
 }
 
-.color-theme-label .color-theme-text, .font-theme-label .font-theme-text{
+.color-theme-label .color-theme-text, .font-theme-label .font-theme-text, .export-import-label .export-import-text{
     font-size: var(--sans-serif-preset-6-size);
     font-weight: var(--sans-serif-preset-6-letter-weight);
     line-height: var(--sans-serif-preset-6-line-height);
@@ -183,6 +183,45 @@
     letter-spacing: var(--sans-serif-preset-4-letter-spacing);
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+/* Export/Import Button Styles */
+.export-import-button {
+    padding: var(--spacing-150) var(--spacing-200);
+    background-color: var(--blue-500);
+    border: none;
+    border-radius: var(--radius-8);
+    font-family: inherit;
+    color: var(--btn-textWhite);
+    font-size: var(--sans-serif-preset-4-size);
+    font-weight: var(--sans-serif-preset-4-letter-weight);
+    line-height: var(--sans-serif-preset-4-line-height);
+    letter-spacing: var(--sans-serif-preset-4-letter-spacing);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.export-import-button:hover {
+    background-color: var(--blue-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.export-import-button:active {
+    transform: translateY(0);
+}
+
+.export-import-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.import-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-100);
 }
 
 
@@ -278,7 +317,7 @@
     display: flex;
 }
 
-.color-theme-item.is-active, .font-theme-item.is-active{
+.color-theme-item.is-active, .font-theme-item.is-active, .export-import-item.is-active{
     border: 1px solid var(--border-tertiary);
     box-shadow: var(--shadow-lg);
     background-color: var(--background-primary);

@@ -5,6 +5,8 @@ import * as theme from './theme.js';
 import * as geolocation from './geolocation.js';
 import { formatDate } from './utils.js';
 import { isAuthenticated } from './auth.js';
+import { initRichTextEditor } from './richText.js';
+import { getSharedNoteFromUrl } from './share.js';
 
 
 // check if user is authenticated
@@ -705,6 +707,9 @@ function setupEventListeners() {
 
 // show create note form
 // show create note form
+
+let createRte;
+
 function showCreateNoteForm() {
     const container = document.querySelector('.app-main-container-content');
     if(!container) return false;
@@ -790,21 +795,34 @@ function showCreateNoteForm() {
 
     // Cancel button handler
     const cancelButton = mobileActionsRow.querySelector('[data-action="cancel"]');
-    cancelButton.addEventListener("click", () => {
-        // Preserve tags menu when clearing
-        const tagsMenu = container.querySelector("#tags-menu-sm");
+cancelButton.addEventListener("click", () => {
+  // Preserve tags menu when clearing
+  const tagsMenu = container.querySelector("#tags-menu-sm");
         
-        const children = Array.from(container.children);
-        children.forEach(child => {
-            if(child.id !== "tags-menu-sm") {
-                child.remove();
-            }
-        });
+  const children = Array.from(container.children);
+  children.forEach(child => {
+    if (child.id !== "tags-menu-sm") {
+      child.remove();
+    }
+  });
         
-        if(tagsMenu) {
-            tagsMenu.style.display = "none";
-            tagsMenu.classList.remove("is-active");
-        }
+  if (tagsMenu) {
+    tagsMenu.style.display = "none";
+    tagsMenu.classList.remove("is-active");
+  }
+
+  // Make sure layout is reset (optional but safe)
+    const appMainContainer = document.querySelector('.app-main-container');
+    if (appMainContainer) {
+        appMainContainer.classList.remove('has-note-selected');
+    }
+    const actionsColumn = document.querySelector('.app-main-container-actions');
+    if (actionsColumn) {
+        actionsColumn.remove();
+    }
+
+    // Re-render notes list (same idea as desktop cancel/back)
+    document.dispatchEvent(new CustomEvent("showAllNotes"));
     });
 
     // Create Note button handler
@@ -866,15 +884,13 @@ function showCreateNoteForm() {
              <button type="button" class="location-button" id="location-button">Add Location</button>
            </div>
          </div>
-         <textarea 
-           id="note-content" 
-           name="note-content" 
-           class="note-details-body editable" 
-           placeholder="Start typing your note here..." 
-           required
-         ></textarea>
+         <div id="note-content-wrapper" 
+         ></div>
        </form>
      `;
+
+    const contentWrapper = formContentSection.querySelector('#note-content-wrapper');
+    createRte = initRichTextEditor(contentWrapper, { placeholder: 'Start typing your note here...' });
 
     formWrapper.appendChild(formContentSection);
 
@@ -1094,9 +1110,9 @@ function setupFormValidation(){
 
 // handle create note submission
 function handleCreateNote() {
-    const titleInput = document.getElementById("note-title").value;
-    const contentInput = document.getElementById("note-content").value;
-    const tagsInput = document.getElementById("note-tags").value;
+    const titleInputEl = document.getElementById("note-title");
+    const contentHtml = createRte?.getHTML() || '';
+    const tagsInputEl = document.getElementById("note-tags");
     const locationButton = document.querySelector(".location-button");
 
     let location = null;
@@ -1104,8 +1120,8 @@ function handleCreateNote() {
         location = JSON.parse(locationButton.getAttribute('data-location'));
     }
 
-    const title = titleInput.trim();
-    const content = contentInput.trim();
+    const title = titleInputEl.value.trim();
+    const content = contentHtml.trim();
 
     // validate inputs with dynamic DOM errors
     const titleValidation = validateField('title', title);
@@ -1122,17 +1138,16 @@ function handleCreateNote() {
         hasErrors = true;
     }
 
-    if(hasErrors){
-        // focus first invalid
-        if(!titleValidation.isValid){
-            titleInput.focus();
-        } else if(!contentValidation.isValid){
-            contentInput.focus();
+    if (hasErrors) {
+        if (!titleValidation.isValid) {
+          titleInputEl.focus();
+        } else if (!contentValidation.isValid) {
+          createRte?.editor?.focus();
         }
         return;
-    }
+      }
     // parse tags into array
-    const tags = tagsInput.trim().split(",").map(tag => tag.trim());
+    const tags = tagsInputEl.trim().split(",").map(tag => tag.trim());
 
     // validate inputs
     if(!title || !content) {
@@ -1142,7 +1157,15 @@ function handleCreateNote() {
 
     try{
         // create note object
-    const newNote = noteManager.createNote(title, content, tags);
+    const plain = createRte?.getPlainText() || '';
+    if(plain.length < 10){
+        ui.showValidationError('#note-content', 'Content must be at least 10 characters long');
+        return;
+    } else {
+        ui.clearValidationError('#note-content');
+    }
+
+    const newNote = noteManager.createNote(title, contentHtml, tags);
     newNote.location = location;
 
     // save note to storage
@@ -1185,6 +1208,17 @@ function handleCreateNote() {
 // initialize app
 document.addEventListener("DOMContentLoaded", () => {
     if(document.querySelector('.settings-section')){
+        return;
+    }
+
+    if(!checkAuth){
+        return;
+    }
+
+    const sharedNote = getSharedNoteFromUrl();
+    if(sharedNote){
+        // skip normal list view and show read-only view of shared note
+        ui.renderSharedNoteReadOnly(sharedNote);
         return;
     }
     initializeApp()
